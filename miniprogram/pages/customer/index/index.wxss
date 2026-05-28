@@ -1,2 +1,93 @@
-.page { padding: 40rpx; min-height: 100vh; background: var(--background-color, #FDF6EC); }
-.placeholder { text-align: center; color: var(--text-color, #3D2C1E); font-size: 32rpx; margin-top: 200rpx; }
+.page {
+  min-height: 100vh;
+  background: #FDF6EC;
+  padding: 30rpx;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.store-name {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #3D2C1E;
+}
+
+.store-status {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  margin-right: 10rpx;
+  display: inline-block;
+}
+
+.dot.open { background: #6BCB77; }
+.dot.closed { background: #ccc; }
+
+.greeting-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF4D7 100%);
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 16rpx rgba(232, 184, 109, 0.15);
+}
+
+.greeting-emoji {
+  font-size: 100rpx;
+}
+
+.greeting-text {
+  margin-top: 20rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #3D2C1E;
+}
+
+.user-info {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.role {
+  color: #E8B86D;
+  font-weight: 600;
+}
+
+.placeholder-card {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  margin-top: 24rpx;
+}
+
+.placeholder-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #3D2C1E;
+}
+
+.placeholder-desc {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.logout {
+  margin-top: 60rpx;
+  text-align: center;
+  color: #C9986A;
+  font-size: 26rpx;
+  padding: 30rpx;
+}

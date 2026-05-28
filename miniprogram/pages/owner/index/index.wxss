@@ -1,2 +1,65 @@
-.page { padding: 40rpx; min-height: 100vh; background: var(--background-color, #FDF6EC); }
-.placeholder { text-align: center; color: var(--text-color, #3D2C1E); font-size: 32rpx; margin-top: 200rpx; }
+.page {
+  min-height: 100vh;
+  background: #FDF6EC;
+  padding: 40rpx 30rpx;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 50rpx;
+}
+
+.title {
+  font-size: 42rpx;
+  font-weight: 700;
+  color: #3D2C1E;
+}
+
+.store-name {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #C9986A;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+}
+
+.tile {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 50rpx 20rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 16rpx rgba(232, 184, 109, 0.1);
+}
+
+.tile:active {
+  opacity: 0.7;
+}
+
+.tile-icon {
+  font-size: 80rpx;
+}
+
+.tile-name {
+  margin-top: 16rpx;
+  font-size: 30rpx;
+  color: #3D2C1E;
+  font-weight: 600;
+}
+
+.tile-status {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #ccc;
+}
+
+.logout {
+  margin-top: 80rpx;
+  text-align: center;
+  color: #C9986A;
+  font-size: 26rpx;
+  padding: 30rpx;
+}

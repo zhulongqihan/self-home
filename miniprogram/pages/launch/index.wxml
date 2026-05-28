@@ -1,0 +1,7 @@
+<view class="launch">
+  <view class="logo">🍵</view>
+  <view class="status">{{statusText}}</view>
+  <view class="retry" bindtap="onRetry" wx:if="{{statusText && statusText.indexOf('失败') !== -1}}">
+    点击重试
+  </view>
+</view>

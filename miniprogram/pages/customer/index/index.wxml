@@ -1,3 +1,29 @@
 <view class="page">
-  <view class="placeholder">🚧 {{title}} 页面 - 待开发</view>
+  <view class="header">
+    <view class="store-name">{{store.name || '我们的小窝'}}</view>
+    <view class="store-status">
+      <text class="dot {{store.status === 'open' ? 'open' : 'closed'}}"></text>
+      {{store.status === 'open' ? '营业中' : '店长打盹中 💤'}}
+    </view>
+  </view>
+
+  <view class="greeting-card">
+    <view class="greeting-emoji">🍵</view>
+    <view class="greeting-text">{{greeting}}</view>
+    <view class="user-info" wx:if="{{user}}">
+      欢迎你，<text class="role">{{user.nickname || '宇宙第一可爱 VVVVVIP'}}</text>
+    </view>
+  </view>
+
+  <view class="placeholder-card">
+    <view class="placeholder-title">🚧 商品分类</view>
+    <view class="placeholder-desc">即将上线：饮品 / 甜品 / 撒娇套餐 / 神秘盲盒…</view>
+  </view>
+
+  <view class="placeholder-card">
+    <view class="placeholder-title">🎰 每日签到</view>
+    <view class="placeholder-desc">连签 7 天送大礼，敬请期待</view>
+  </view>
+
+  <view class="logout" bindtap="onLogout">退出登录</view>
 </view>

@@ -1,0 +1,68 @@
+.forbidden {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FDF6EC 0%, #FFFFFF 100%);
+  padding: 80rpx 60rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.emoji {
+  font-size: 180rpx;
+  margin-top: 80rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #3D2C1E;
+  margin-top: 40rpx;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: #999;
+  margin-top: 16rpx;
+}
+
+.hint-label {
+  margin-top: 80rpx;
+  font-size: 26rpx;
+  color: #C9986A;
+}
+
+.openid-box {
+  margin-top: 20rpx;
+  background: #fff;
+  border: 2rpx dashed #E8B86D;
+  border-radius: 16rpx;
+  padding: 30rpx 24rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.openid-box:active {
+  opacity: 0.6;
+}
+
+.openid-text {
+  font-family: 'Courier New', monospace;
+  font-size: 24rpx;
+  color: #3D2C1E;
+  word-break: break-all;
+  line-height: 1.6;
+}
+
+.copy-tip {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: #E8B86D;
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 80rpx;
+  font-size: 22rpx;
+  color: #ccc;
+}

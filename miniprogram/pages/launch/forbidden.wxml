@@ -1,0 +1,15 @@
+<view class="forbidden">
+  <view class="emoji">🥺</view>
+  <view class="title">店铺暂未营业</view>
+  <view class="subtitle">这家店只接待两位贵宾哦～</view>
+
+  <block wx:if="{{hasOpenid}}">
+    <view class="hint-label">如果店长在场，请将下面的标识发给店长：</view>
+    <view class="openid-box" bindtap="onCopyOpenid">
+      <view class="openid-text">{{openid}}</view>
+      <view class="copy-tip">点击复制</view>
+    </view>
+  </block>
+
+  <view class="footer">— 我们的小窝 —</view>
+</view>

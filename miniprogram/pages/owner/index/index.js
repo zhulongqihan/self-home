@@ -1,7 +1,28 @@
-// miniprogram/pages/owner/index/index.js
+// 店长端工作台
+const { getUser, getStore, logout } = require('../../../utils/auth.js')
+
 Page({
-  data: { title: '店长工作台', role: 'owner' },
-  onLoad() {
-    console.log('[owner] 店长工作台 页面加载')
+  data: {
+    user: null,
+    store: null
+  },
+
+  onShow() {
+    this.setData({
+      user: getUser(),
+      store: getStore()
+    })
+  },
+
+  onLogout() {
+    wx.showModal({
+      title: '退出登录？',
+      success: (res) => {
+        if (res.confirm) {
+          logout()
+       wx.reLaunch({ url: '/pages/launch/index' })
+        }
+      }
+    })
   }
 })
