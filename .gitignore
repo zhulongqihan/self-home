@@ -1,13 +1,11 @@
-# ===== 隐私 / 内部文档（不上传 GitHub） =====
-PRD.md
-AI_EXECUTION_PROMPT.md
-CHANGELOG.md
-TASK_*.md
-RELEASE_NOTES.md
-docs/acceptance/
-docs/design/
-docs/tasks/
+# ===== 只屏蔽真正含个人信息的文件 =====
+# AI 内部记忆（含个人对话上下文）
 .joycode/
+# 含真实 AppID 的私有配置
+project.private.config.json
+# 本地原版 PRD（含真实个人信息）- 上传的是 PRD.md 脱敏版
+PRD_PRIVATE.md
+AI_EXECUTION_PROMPT_PRIVATE.md
 
 # ===== 小程序 =====
 miniprogram_npm/
@@ -36,6 +34,3 @@ yarn.lock
 # ===== 临时文件 =====
 *.tmp
 *.temp
-
-# ===== 项目私有配置（含 AppID） =====
-project.private.config.json
