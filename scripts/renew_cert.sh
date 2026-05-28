@@ -1,11 +1,12 @@
 #!/bin/bash
 # /usr/local/bin/renew-api-cert.sh
-# 自动续期 api.cyruszhang.online 的 Let's Encrypt 证书
-# 因 80 端口被博客 Docker 占用，续期时临时停启博客容器（约 30 秒中断）
+# 自动续期多域名 Let's Encrypt 证书（涵盖 api/根/www/blog/agent）
+# 因 80 端口被博客 Docker 占用，续期时临时停启博客容器（约 30-60 秒中断）
 
 set -e
 
-DOMAIN="api.cyruszhang.online"
+DOMAIN="api.cyruszhang.online"   # 证书以此为主名（acme.sh 用第一个 -d 当主名）
+ALL_DOMAINS="-d api.cyruszhang.online -d cyruszhang.online -d www.cyruszhang.online -d blog.cyruszhang.online -d agent.cyruszhang.online"
 LOG="/var/log/acme-renew.log"
 ACME="/root/.acme.sh/acme.sh"
 
