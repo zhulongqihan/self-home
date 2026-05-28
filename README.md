@@ -49,52 +49,56 @@
 
 ---
 
-## 🧱 技术栈
+## 🧱 技术架构
 
-| 维度 | 选型 | 备注 |
-|---|---|---|
-| 框架 | 微信原生小程序 | 稳定、AI 生成质量高 |
-| UI 库 | Vant Weapp | 开箱即用 |
-| 后端 | 微信云开发 CloudBase | **免服务器、免备案、免域名** |
-| 数据库 | 云数据库 NoSQL | 2GB 免费额度 |
-| 鉴权 | openid 白名单 | 仅两人可进入 |
-| 推送 | 微信订阅消息 | 原生支持 |
+```
+微信小程序 (前端)
+    ↓ HTTPS
+api.cyruszhang.online (你的域名)
+    ↓ Nginx 443 反代
+Node.js + Express (PM2 守护)
+    ↓
+MongoDB (本机存储)
+```
 
-**月成本：¥0**（完全在云开发免费额度内）
+### 选型
+| 维度 | 方案 |
+|---|---|
+| 前端 | 微信原生小程序 + Vant Weapp |
+| 后端 | Node.js v20 + Express 4.x |
+| 数据库 | MongoDB 7.x（Mongoose ODM） |
+| 鉴权 | openid 白名单 + JWT |
+| 进程 | PM2 守护 |
+| 反代 | Nginx + Let's Encrypt 免费证书 |
+| 推送 | 微信订阅消息 |
+
+**月成本：¥0**（基于已有阿里云 ECS + 已备案域名 + 免费证书）
 
 ---
 
 ## 🚀 快速开始
 
-### 1. 准备工作
-- 微信开发者工具（[下载](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)）
-- Node.js 16+
-- 个人微信小程序 AppID（[申请](https://mp.weixin.qq.com/)，免费）
+### 环境要求
+- 微信开发者工具
+- Node.js 20+
+- 一台已备案域名的 Linux 服务器（任意云厂商均可）
+- Git
 
-### 2. 克隆并配置
-```bash
-git clone git@github.com:<your-username>/<repo>.git
-cd <repo>
+### 部署步骤
+1. **小程序前端**
+   - 申请微信小程序 AppID（[mp.weixin.qq.com](https://mp.weixin.qq.com/)）
+   - 克隆仓库 → 创建 `project.private.config.json` 填入 AppID
+   - 微信开发者工具导入项目根目录
 
-# 在根目录创建私有配置文件（不会被 Git 追踪）
-cat > project.private.config.json <<EOF
-{
-  "appid": "你的小程序AppID",
-  "projectname": "my-couple-app"
-}
-EOF
-```
+2. **后端服务器**（任务 2 起的 AI 自动化部署）
+   - 装 MongoDB 7.x
+   - 装 Node.js v20 + PM2
+   - 配 Nginx + HTTPS（参考 [`scripts/`](./scripts/)）
+   - 部署 [`server/`](./server/) 代码
+   - 详见 [`server/README.md`](./server/README.md)
 
-### 3. 导入开发者工具
-- 打开微信开发者工具 → 导入项目
-- **目录选择仓库根目录**（不是 miniprogram 子目录！）
-- 后端服务选「微信云开发」
-
-### 4. 开通云开发
-- 顶部菜单「云开发」→ 创建环境
-- 复制环境 ID，填入 [`miniprogram/app.js`](./miniprogram/app.js) 的 `env` 字段
-
-### 5. 编译运行 ✅
+3. **微信公众平台配置**
+   - 服务器域名白名单：添加你的 API 子域名
 
 ---
 
@@ -106,17 +110,10 @@ EOF
 ├── AI_EXECUTION_PROMPT.md  # 🤖 多 Agent 并行开发指南
 ├── CHANGELOG.md            # 📝 版本变更日志
 ├── miniprogram/            # 小程序前端
-│   ├── pages/
-│   │   ├── customer/       # 👧 顾客端页面
-│   │   └── owner/          # 🧑‍🍳 店长端页面
-│   ├── components/         # 通用组件
-│   ├── styles/themes/      # 双主题样式
-│   └── utils/              # 工具函数
-├── cloud/                  # 云开发
-│   ├── functions/          # 云函数
-│   └── database/           # 表结构与种子数据
+├── server/                 # 后端服务（Node.js + Express + MongoDB）
+├── scripts/                # 部署脚本（Nginx 配置、HTTPS 续期）
 ├── docs/                   # 设计文档、验收清单、任务清单
-└── scripts/                # 开发辅助脚本
+└── tests/                  # 测试代码
 ```
 
 ---

@@ -18,7 +18,7 @@
 ## 1. 红线（不可违反）
 
 1. ✅ **PRD.md 为唯一真相**：任何实现必须严格对齐，若发现 PRD 矛盾或缺失，先停下来更新 PRD，再开发
-2. ✅ **全免费方案**：禁止引入任何付费服务（云开发免费版 + 微信原生 + Vant Weapp）
+2. ✅ **全免费方案**：禁止引入任何付费服务（用已有阿里云服务器 + 自部署 Node.js + MongoDB + Let's Encrypt 免费证书）
 3. ✅ **后台可配置**：任何商品/分类/节日/文案/价格/主题色/彩蛋开关 → 必须存数据库，禁止硬编码
 4. ✅ **分版本开发**：每完成 1 个任务 = 1 个 Git Tag + 1 个 GitHub Release
 5. ✅ **用户验收强约束**：每个版本完成后，**必须停下来**给用户提供验收清单，**用户回复"通过"才能继续**
@@ -75,22 +75,23 @@ git push -f origin main  # 仅在用户明确确认后
 | Agent | 职责 | 工作目录 |
 |---|---|---|
 | 🎯 **Orchestrator**（你） | 拆任务、分发、收口、提交、与用户对接 | 根目录 |
-| 🗄️ **DB-Agent** | 云开发数据库表、索引、初始化数据 | `cloud/database/` |
-| ⚡ **Cloud-Agent** | 云函数（鉴权、订单、推送） | `cloud/functions/` |
+| 🗄️ **DB-Agent** | MongoDB Schema 定义、索引、初始化数据 | `server/src/models/`、`server/scripts/seeds/` |
+| ⚡ **Backend-Agent** | Express 路由、控制器、业务服务、中间件 | `server/src/` |
 | 👧 **Customer-Agent** | 顾客端页面 | `miniprogram/pages/customer/` |
 | 🧑‍🍳 **Owner-Agent** | 店长端页面 | `miniprogram/pages/owner/` |
 | 🎨 **UI-Agent** | 主题系统、通用组件、动效 | `miniprogram/components/`、`miniprogram/styles/` |
+| 🚀 **Ops-Agent** | 服务器部署、Nginx、PM2、备份脚本 | `scripts/`、服务器 SSH |
 | 🧪 **QA-Agent** | 生成测试用例、验收清单 | `tests/`、`docs/acceptance/` |
 
 ### 3.2 并行规则
-- **同一任务内可并行**：例如"商品下单"可由 Cloud-Agent（写下单云函数）+ Customer-Agent（写下单页）+ UI-Agent（写动效）三 Agent 同步开工
+- **同一任务内可并行**：例如"商品下单"可由 Backend-Agent（写下单 API）+ Customer-Agent（写下单页）+ UI-Agent（写动效）三 Agent 同步开工
 - **跨任务有依赖时串行**：例如订单状态机依赖商品下单 → 必须先完成下单
 - **冲突避免**：每个 Agent 锁定自己的目录，禁止跨目录改动；公共改动由 Orchestrator 收口
 
 ### 3.3 并行执行示例（任务 6：商品下单）
 ```
-┌─ DB-Agent: 确保 products、orders 表索引就绪
-├─ Cloud-Agent: 写 createOrder 云函数
+┌─ DB-Agent: 在 server/src/models/ 加 Order schema + 索引
+├─ Backend-Agent: server/src/routes/orders.js 写 createOrder API
 ├─ Customer-Agent: 商品列表页 + 详情页 + 购物车
 └─ UI-Agent: 撒爱心动效组件
 ↓ 全部完成
@@ -169,15 +170,15 @@ Orchestrator: 联调 → 提交 → 打 Tag v0.1.6 → 给用户验收
 ### 🟢 Phase 1（基础框架）
 | 任务 | 主要 Agent | 可并行任务 |
 |---|---|---|
-| 1. 项目初始化 | Orchestrator | 单独执行 |
-| 2. 数据库建表 | DB-Agent | 与任务 3、5 并行 |
-| 3. 白名单鉴权 | Cloud-Agent | 与任务 2、5 并行 |
-| 4. 双端路由 | Customer/Owner-Agent | 依赖 3 |
-| 5. 双主题系统 | UI-Agent | 独立，可与 2、3 并行 |
-| 6. 商品下单 | Cloud + Customer + UI | 依赖 2、3、5 |
-| 7. 订单状态机 | Cloud-Agent | 依赖 6 |
+| 1. 项目初始化 | Orchestrator | 单独执行（已完成 v0.0.0）|
+| 2. 服务器装 MongoDB + Node 后端骨架 | Ops + Backend | 单独执行（基础设施）|
+| 3. 鉴权（白名单 + JWT） | Backend-Agent | 依赖 2 |
+| 4. 双端入口路由 + 兜底页 | Customer + Owner | 依赖 3 |
+| 5. 双主题系统 | UI-Agent | 独立，可与 3、4 并行 |
+| 6. 商品列表 + 详情 + 购物车 + 下单 | DB + Backend + Customer + UI | 依赖 2、3、5 |
+| 7. 订单状态机 + 状态流转 API | Backend-Agent | 依赖 6 |
 | 8. 店长后台 | Owner-Agent | 依赖 6 |
-| 9. 订阅消息 | Cloud-Agent | 依赖 7 |
+| 9. 订阅消息推送 | Backend-Agent | 依赖 7 |
 
 ### 🟡 Phase 2（体验增强）
 任务 10-12 可并行 / 任务 13-14 可并行 / 任务 15-16 可并行
@@ -225,15 +226,23 @@ selfplay/
 │   ├── components/                 # 🎨 UI-Agent
 │   ├── styles/themes/              # 🎨 暖阳 + 云朵白
 │   └── utils/
-├── cloud/                          # 云开发
-│   ├── functions/                  # ⚡ Cloud-Agent
-│   │   ├── auth/                   # 白名单鉴权
-│   │   ├── order/                  # 订单
-│   │   ├── push/                   # 推送
-│   │   └── ...
-│   └── database/                   # 🗄️ DB-Agent
-│       ├── schemas/                # 表结构定义
-│       └── seeds/                  # 初始化数据
+├── server/                         # 后端服务（Node.js + Express + MongoDB）
+│   ├── src/
+│   │   ├── app.js                  # Express 入口
+│   │   ├── config/                 # 配置（env、DB 连接）
+│   │   ├── models/                 # 🗄️ DB-Agent: Mongoose Schema
+│   │   ├── routes/                 # ⚡ Backend-Agent: Express 路由
+│   │   ├── middlewares/            # 鉴权、错误处理、日志
+│   │   ├── services/               # 业务逻辑
+│   │   └── utils/
+│   ├── tests/
+│   ├── package.json
+│   ├── ecosystem.config.js         # PM2 配置
+│   └── .env.example
+├── scripts/                        # 🚀 Ops-Agent: 部署/运维脚本
+│   ├── api_nginx.conf
+│   ├── blog_https_nginx.conf
+│   └── renew_cert.sh
 ├── docs/
 │   ├── acceptance/                 # 每个版本的验收清单
 │   ├── design/                     # 设计稿、原型描述

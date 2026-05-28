@@ -30,7 +30,6 @@
       { "pagePath": "pages/customer/profile/index", "text": "我的" }
     ]
   },
-  "cloud": true,
   "style": "v2",
   "sitemapLocation": "sitemap.json"
 }

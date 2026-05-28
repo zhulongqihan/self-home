@@ -1,4 +1,4 @@
-# 📄 情侣专属点单小程序 - 需求文档 v2.0（公开版）
+# 📄 情侣专属点单小程序 - 需求文档 v2.1（公开版）
 
 > ⚠️ **本文档为项目最高标准与最终执行红线**
 > - 任何开发实现必须严格遵循本文档
@@ -61,9 +61,13 @@
 | 🧑‍🍳 店长 | openid 白名单 | 全部 + 后台管理 |
 | 🚫 陌生人 | - | 兜底页"店铺暂未营业" |
 
-### 3.2 白名单管理
-- 白名单存放在云数据库 `config` 表（不写死在代码里）
-- 店长端有"白名单管理"入口，可后台直接修改 openid
+### 3.2 鉴权机制
+- 小程序调用 `wx.login()` → 拿 code
+- code 发给后端 `/auth/login`
+- 后端用 code 调微信 `code2session` 接口换 openid
+- 后端比对 `config.whitelist` 表中的 openid → 判断角色（顾客/店长/陌生人）
+- 颁发 JWT token，前端缓存并放入后续 `Authorization` 请求头
+- 白名单存于数据库 `config` 文档（不写死在代码里）
 
 ---
 
@@ -164,74 +168,100 @@
 
 ---
 
-## 六、技术方案（全免费 · 红线）
+## 六、技术方案（v2.1 自建后端 · 红线）
 
-| 维度 | 方案 | 免费额度 |
+### 6.1 整体架构
+```
+微信小程序 (前端)
+    ↓ HTTPS
+https://api.cyruszhang.online
+    ↓ (主机 Nginx 443 反代)
+Node.js + Express (127.0.0.1:3000，PM2 守护)
+    ↓
+MongoDB (本机 27017，仅本地访问)
+    +
+微信开放接口 (code2session、订阅消息)
+```
+
+### 6.2 技术选型
+
+| 维度 | 方案 | 说明 |
 |---|---|---|
-| 框架 | 微信原生小程序 | 免费 |
-| UI 库 | Vant Weapp | 免费开源 |
-| 后端 | **微信云开发 CloudBase 免费版** | 云函数 5w 次/月、DB 2GB、存储 5GB |
-| 鉴权 | openid 白名单 | 免费 |
-| 推送 | 微信订阅消息 | 免费 |
-| 天气 API | 和风天气开发版 | 1000 次/天 |
-| 部署 | 体验版长期使用 | 免费 |
+| 小程序框架 | 微信原生 | 稳定、AI 生成质量高 |
+| UI 库 | Vant Weapp | 开箱即用 |
+| 后端语言 | Node.js v20 | 服务器已就绪 |
+| 后端框架 | Express 4.x | 轻量、生态成熟 |
+| 数据库 | MongoDB 7.x | NoSQL，原表结构兼容 |
+| ODM | Mongoose | Schema 校验 + 类型安全 |
+| 鉴权 | JWT (jsonwebtoken) | 无状态 |
+| 进程管理 | PM2 | 自动重启、日志管理 |
+| 反向代理 | Nginx | 已配 HTTPS |
+| 推送通知 | 微信订阅消息 | 官方原生 API |
+| 文件存储 | 本机磁盘 + Nginx 静态服务 | `/uploads` 路径 |
+| 天气 API | 和风天气开发版 | 1000 次/天免费 |
 
-**月成本：0 元** ✅ 不允许引入任何付费服务。
+### 6.3 部署 / 运维（已就绪）
+- **服务器**：阿里云 ECS（2H2G，到 2027.2.25）
+- **域名**：`cyruszhang.online` 已 ICP 备案
+- **HTTPS**：Let's Encrypt 多域名证书（已部署，自动续期）
+- **API 域名**：`api.cyruszhang.online`（443 端口）
+- **博客共存**：博客 Docker 容器继续占 80 端口，互不干扰
+
+### 6.4 月度成本：¥0
+（服务器和域名都是已购沉没成本；Let's Encrypt 证书免费；MongoDB 自部署免费）
 
 ---
 
-## 七、数据库设计（高可扩展）
+## 七、数据库设计（MongoDB Collections）
 
 ```js
-// 1. 用户表
-users { _openid, role, nickname, avatar, coins, continuous_sign_days, last_sign_date, created_at }
+// 1. users - 用户
+users { _id, openid, role: 'customer'|'owner', nickname, avatar, coins,
+        continuous_sign_days, last_sign_date, created_at }
 
-// 2. 商品表
-products { _id, name, category_id, images[], description, price,
-           specs[{name, options[]}], tags[], status, stock,
+// 2. products - 商品
+products { _id, name, category_id, images:[], description, price,
+           specs:[{name, options:[]}], tags:[], status, stock,
            sort_weight, festival_id?, created_at, updated_at }
 
-// 3. 分类表
+// 3. categories - 分类
 categories { _id, name, icon, sort_order, status, festival_only }
 
-// 4. 节日表
-festivals { _id, name, date_type(fixed/lunar), date, banner,
-            theme_color, product_ids[], push_template, status }
+// 4. festivals - 节日
+festivals { _id, name, date_type:'fixed'|'lunar', date, banner,
+            theme_color, product_ids:[], push_template, status }
 
-// 5. 订单表
-orders { _id, user_openid, items[{product_id, specs, qty, note}],
+// 5. orders - 订单
+orders { _id, user_openid, items:[{product_id, specs, qty, note}],
          total_price, status, delivery_type, customer_note,
-         owner_reply, status_history[], created_at, updated_at }
+         owner_reply, status_history:[], created_at, updated_at }
 
-// 6. 留言表
+// 6. messages - 留言
 messages { _id, content, image, created_at }
 
-// 7. 成就表
+// 7. achievements - 成就
 achievements { _id, badge_id, user_openid, unlocked_at }
 
-// 8. 签到表
+// 8. sign_ins - 签到
 sign_ins { _id, user_openid, date, reward, continuous_days }
 
-// 9. 晒单表
-shares { _id, order_id, user_openid, images[], content, created_at }
+// 9. shares - 晒单
+shares { _id, order_id, user_openid, images:[], content, created_at }
 
-// 10. ⭐ 全局配置表
-config {
-  _id: 'global',
-  store_name, owner_nickname, customer_nickname,
-  currency_name, currency_emoji,
-  whitelist: { owner_openid, customer_openid },
-  anniversary_date, owner_birthday, customer_birthday,
-  store_status, default_theme,
-  time_easter_eggs: [{ start, end, banner, text, enabled }],
-  countdowns: [{ name, date, enabled }],
-  text_templates: { order_success, push_xxx, ... },
-  eggs_switch: { weather, bgm, shake_blindbox, ... }
-}
+// 10. ⭐ config - 全局配置（核心扩展点）
+config { _id: 'global',
+         store_name, owner_nickname, customer_nickname,
+         currency_name, currency_emoji,
+         whitelist: { owner_openid, customer_openid },
+         anniversary_date, owner_birthday, customer_birthday,
+         store_status, default_theme,
+         time_easter_eggs:[{ start, end, banner, text, enabled }],
+         countdowns:[{ name, date, enabled }],
+         text_templates:{...}, eggs_switch:{...} }
 ```
 
 **设计红线**：
-- ✅ 所有"内容""文案""配置"都在 config 表
+- ✅ 所有"内容""文案""配置"都在 config 文档
 - ✅ 商品/分类/节日 全部 CRUD
 - ✅ 改任何文案/价格/节日，**不用动一行代码**
 
@@ -240,15 +270,15 @@ config {
 ## 八、AI 开发任务清单（24 任务 · 三期）
 
 ### 🟢 Phase 1：基础框架（MVP）
-1. 初始化微信小程序 + 云开发环境
-2. 搭建 10 张数据库表 + 索引
-3. 实现 openid 白名单鉴权云函数
-4. 双端入口路由（顾客/店长/兜底）
-5. 暖阳/云朵白双主题系统
+1. ✅ 初始化项目骨架（已完成 v0.0.0）
+2. 服务器装 MongoDB + Node 后端骨架（Express + Mongoose）
+3. 后端鉴权：openid 白名单 + JWT
+4. 小程序前端：双端入口路由 + 兜底页
+5. 双主题系统（暖阳/云朵白切换）
 6. 商品列表 + 详情 + 购物车 + 下单
-7. 订单状态机 + 状态流转云函数
+7. 订单状态机 + 状态流转 API
 8. 店长端：商品 CRUD + 订单管理
-9. 订阅消息推送
+9. 微信订阅消息推送
 
 ### 🟡 Phase 2：体验增强
 10. 个人中心 + 虚拟币系统
@@ -279,6 +309,7 @@ config {
 4. **多 Agent 并行**：无依赖关系的任务可并行执行，便于用户分块检验
 5. **可回退**：任何版本出问题，必须可通过 Git Tag 回退
 6. **不偏离 PRD**：任何超出本文档的实现需求需先回来更新文档
+7. **不破坏既有服务**：服务器上博客和 agent 项目零中断（除证书续期）
 
 ---
 
@@ -298,5 +329,6 @@ config {
 
 ---
 
-**文档版本**：v2.0
+**文档版本**：v2.1（自建后端架构）
+**变更**：v2.0 → v2.1 仅技术实现方式从"微信云开发"改为"Node.js + MongoDB 自建"，所有产品功能、UI、彩蛋、数据库设计均不变
 **状态**：✅ 定稿 · 最终红线
