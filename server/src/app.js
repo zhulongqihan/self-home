@@ -6,7 +6,11 @@ const morgan = require('morgan')
 
 const config = require('./config')
 const db = require('./config/db')
+const { seedConfig } = require('./config/seed')
+
 const healthRouter = require('./routes/health')
+const authRouter = require('./routes/auth')
+
 const { notFound, errorHandler } = require('./middlewares/errorHandler')
 
 const app = express()
@@ -23,13 +27,14 @@ app.set('trust proxy', 1)
 
 // ===== 路由 =====
 app.use('/api', healthRouter)
+app.use('/api/auth', authRouter)
 
 // 根路径
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.1.2',
-    docs: '小程序 API 服务，详见 /api/health'
+    version: '0.1.3',
+    endpoints: ['GET /api/health', 'POST /api/auth/login', 'GET /api/auth/me']
   })
 })
 
@@ -41,6 +46,7 @@ app.use(errorHandler)
 async function start() {
   try {
     await db.connect()
+    await seedConfig()
     app.listen(config.port, config.host, () => {
       console.log(`[App] Server listening on http://${config.host}:${config.port}`)
       console.log(`[App] NODE_ENV: ${config.nodeEnv}`)

@@ -1,5 +1,27 @@
 # 更新日志
 
+## v0.1.3 - 任务 3：openid 白名单鉴权 + JWT（2026-05-28）
+
+### 后端新增
+- `User` 模型（openid 唯一索引、角色、虚拟币、签到字段）
+- `Config` 模型（PRD §7-10 全局配置单例文档）
+- `wxAuth` 服务：封装微信 code2session + JWT 签发/验证
+- `requireAuth` / `requireRole` 鉴权中间件
+- `POST /api/auth/login` - 完整登录链路
+- `GET /api/auth/me` - 受保护的当前用户信息
+- 启动种子：自动建 config 单例 + 从 .env 注入白名单
+- 陌生人 403 响应带 `debug_openid` 字段（仅开发期，便于填白名单）
+
+### 服务器侧
+- /opt/couple-app/.env 填入 WX_APPID + WX_APPSECRET
+- PM2 重启 → v0.1.3 上线
+
+### 验证
+- 假 code 调登录返回微信官方错误 → 证明 AppID/Secret 配置正确
+- 所有错误码路径（NO_TOKEN / INVALID_TOKEN / MISSING_CODE / WX_LOGIN_FAILED / NOT_WHITELISTED）测试通过
+
+---
+
 ## v0.1.2 - 任务 2：MongoDB + Node 后端骨架（2026-05-28）
 
 ### 服务器侧
