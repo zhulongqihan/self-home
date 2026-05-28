@@ -1,15 +1,26 @@
-// 鉴权工具：login / logout / 获取当前用户
+// 鉴权工具：openid 自动登录 + 账号密码登录 + 登录态管理
 const { post, get, TOKEN_KEY } = require('./request.js')
 
 const USER_KEY = 'auth_user'
 const STORE_KEY = 'store_info'
 
-/**
- * 调 wx.login 拿 code → 调后端 /auth/login → 缓存 token+user+store
- * 成功返回 { role, user, store }
- * 陌生人会被后端拒，抛出错误，调用方应跳到兜底页
- */
-function login() {
+/** 内部：登录成功后写缓存和 globalData */
+function saveLogin(body) {
+  const { token, role, user, store } = body.data
+  wx.setStorageSync(TOKEN_KEY, token)
+  wx.setStorageSync(USER_KEY, user)
+  wx.setStorageSync(STORE_KEY, store)
+  const app = getApp()
+  if (app) {
+    app.globalData.token = token
+    app.globalData.userInfo = user
+    app.globalData.role = role
+  }
+  return { role, user, store }
+}
+
+/** openid 路径：wx.login → POST /api/auth/login */
+function loginByOpenid() {
   return new Promise((resolve, reject) => {
     wx.login({
       success(res) {
@@ -17,19 +28,7 @@ function login() {
           return reject(Object.assign(new Error('wx.login 未返回 code'), { code: 'NO_WX_CODE' }))
         }
         post('/api/auth/login', { code: res.code }, { noAuth: true })
-          .then(body => {
-            const { token, role, user, store } = body.data
-            wx.setStorageSync(TOKEN_KEY, token)
-            wx.setStorageSync(USER_KEY, user)
-            wx.setStorageSync(STORE_KEY, store)
-            const app = getApp()
-            if (app) {
-              app.globalData.token = token
-              app.globalData.userInfo = user
-              app.globalData.role = role
-            }
-            resolve({ role, user, store })
-          })
+          .then(body => resolve(saveLogin(body)))
           .catch(reject)
       },
       fail(err) {
@@ -37,6 +36,12 @@ function login() {
       }
     })
   })
+}
+
+/** 账号密码路径：POST /api/auth/login-password */
+function loginByPassword(username, password) {
+  return post('/api/auth/login-password', { username, password }, { noAuth: true })
+    .then(body => saveLogin(body))
 }
 
 /** 清除本地登录状态 */
@@ -61,4 +66,12 @@ const getToken = () => wx.getStorageSync(TOKEN_KEY) || null
 const getUser = () => wx.getStorageSync(USER_KEY) || null
 const getStore = () => wx.getStorageSync(STORE_KEY) || null
 
-module.exports = { login, logout, verify, getToken, getUser, getStore }
+module.exports = {
+  loginByOpenid,
+  loginByPassword,
+  logout,
+  verify,
+  getToken,
+  getUser,
+  getStore
+}

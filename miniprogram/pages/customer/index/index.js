@@ -24,13 +24,15 @@ Page({
   },
 
   onLogout() {
-    wx.showModal({
-      title: '退出登录？',
-      content: '退出后需要重新登录',
+    wx.showActionSheet({
+      itemList: ['切换账号（用暗号登录）', '退出登录'],
       success: (res) => {
-        if (res.confirm) {
+        if (res.tapIndex === 0) {
           logout()
-          wx.reLaunch({ url: '/pages/launch/index' })
+          wx.reLaunch({ url: '/pages/launch/login' })
+        } else if (res.tapIndex === 1) {
+          logout()
+          wx.reLaunch({ url: '/pages/launch/index?force=1' })
         }
       }
     })

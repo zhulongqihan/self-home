@@ -6,7 +6,7 @@ const morgan = require('morgan')
 
 const config = require('./config')
 const db = require('./config/db')
-const { seedConfig } = require('./config/seed')
+const seed = require('./config/seed')
 
 const healthRouter = require('./routes/health')
 const authRouter = require('./routes/auth')
@@ -33,8 +33,13 @@ app.use('/api/auth', authRouter)
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.1.3',
-    endpoints: ['GET /api/health', 'POST /api/auth/login', 'GET /api/auth/me']
+    version: '0.1.5',
+    endpoints: [
+      'GET /api/health',
+      'POST /api/auth/login',
+      'POST /api/auth/login-password',
+      'GET /api/auth/me'
+    ]
   })
 })
 
@@ -46,7 +51,7 @@ app.use(errorHandler)
 async function start() {
   try {
     await db.connect()
-    await seedConfig()
+    await seed.runAll()
     app.listen(config.port, config.host, () => {
       console.log(`[App] Server listening on http://${config.host}:${config.port}`)
       console.log(`[App] NODE_ENV: ${config.nodeEnv}`)

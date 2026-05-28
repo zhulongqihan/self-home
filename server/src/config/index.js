@@ -23,6 +23,19 @@ const config = {
   whitelist: {
     owner: process.env.OWNER_OPENID || '',
     customer: process.env.CUSTOMER_OPENID || ''
+  },
+
+  defaultAccounts: {
+    owner: {
+      username: process.env.OWNER_USERNAME || '',
+      password: process.env.OWNER_PASSWORD || '',
+      nickname: process.env.OWNER_NICKNAME || '店长'
+    },
+    customer: {
+      username: process.env.CUSTOMER_USERNAME || '',
+      password: process.env.CUSTOMER_PASSWORD || '',
+      nickname: process.env.CUSTOMER_NICKNAME || '宝宝'
+    }
   }
 }
 

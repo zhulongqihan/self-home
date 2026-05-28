@@ -1,4 +1,4 @@
-# 📄 情侣专属点单小程序 - 需求文档 v2.1（公开版）
+# 📄 情侣专属点单小程序 - 需求文档 v2.2（公开版）
 
 > ⚠️ **本文档为项目最高标准与最终执行红线**
 > - 任何开发实现必须严格遵循本文档
@@ -61,13 +61,36 @@
 | 🧑‍🍳 店长 | openid 白名单 | 全部 + 后台管理 |
 | 🚫 陌生人 | - | 兜底页"店铺暂未营业" |
 
-### 3.2 鉴权机制
+### 3.2 鉴权机制（v2.2 新增账号密码兜底）
+
+#### 双登录路径
+**1) openid 自动登录（首选）**
 - 小程序调用 `wx.login()` → 拿 code
-- code 发给后端 `/auth/login`
+- code 发给后端 `POST /api/auth/login`
 - 后端用 code 调微信 `code2session` 接口换 openid
-- 后端比对 `config.whitelist` 表中的 openid → 判断角色（顾客/店长/陌生人）
-- 颁发 JWT token，前端缓存并放入后续 `Authorization` 请求头
-- 白名单存于数据库 `config` 文档（不写死在代码里）
+- 后端比对 `config.whitelist` 表中的 openid → 判断角色
+- 颁发 JWT token，前端缓存
+
+**2) 账号密码登录（兜底 + 主动切换）**
+- 用户在 `pages/launch/login` 输入暗号（密码同时当 username）
+- 调 `POST /api/auth/login-password`
+- 后端用 bcrypt 比对 `users.password_hash`
+- 颁发 JWT token
+
+#### 自动分流策略
+- 启动 → 优先尝试 openid 自动登录 → 不在白名单 → 自动跳暗号登录页
+- 首页提供「切换账号」入口 → 跳暗号登录页（清除当前 token）
+- 首页提供「退出登录」入口 → 清除 token + 回启动页重新自动登录
+
+#### 默认账号
+- 部署时通过 `.env` 的 `OWNER_USERNAME/PASSWORD` + `CUSTOMER_USERNAME/PASSWORD` 配置
+- 启动 seed 自动创建（密码用 bcrypt hash 存储）
+- 任务 16 提供「系统配置」后台修改密码入口
+
+#### 鉴权红线
+- 密码必须 bcrypt 哈希后再存数据库（永不存明文）
+- JWT_SECRET 用 `openssl rand -base64 48` 生成
+- 白名单和默认账号都存于数据库 `users` / `config` 表（不写死代码）
 
 ---
 

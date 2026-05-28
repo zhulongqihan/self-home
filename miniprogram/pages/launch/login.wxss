@@ -1,0 +1,81 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FDF6EC 0%, #FFFFFF 100%);
+  padding: 120rpx 60rpx 60rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo {
+  font-size: 140rpx;
+  margin-bottom: 20rpx;
+}
+
+.title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #3D2C1E;
+}
+
+.subtitle {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.input-wrap {
+  width: 100%;
+  margin-top: 80rpx;
+}
+
+.input {
+  width: 100%;
+  background: #FFFFFF;
+  border: 2rpx solid #E8B86D;
+  border-radius: 16rpx;
+  padding: 28rpx 30rpx;
+  font-size: 32rpx;
+  letter-spacing: 4rpx;
+  color: #3D2C1E;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.error {
+  margin-top: 20rpx;
+  color: #E07A5F;
+  font-size: 26rpx;
+  height: 32rpx;
+}
+
+.btn-primary {
+  width: 100%;
+  margin-top: 40rpx;
+  background: #E8B86D !important;
+  color: #FFFFFF !important;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 4rpx;
+  border: none;
+  height: 88rpx;
+  line-height: 88rpx;
+}
+
+.btn-primary[disabled] {
+  background: #E8B86D !important;
+  opacity: 0.6;
+  color: #fff !important;
+}
+
+.alt {
+  margin-top: 60rpx;
+  font-size: 26rpx;
+  color: #C9986A;
+  padding: 20rpx;
+}
+
+.alt:active {
+  opacity: 0.6;
+}
