@@ -1,0 +1,36 @@
+{
+  "pages": [
+    "pages/customer/index/index",
+    "pages/customer/products/index",
+    "pages/customer/products/detail",
+    "pages/customer/cart/index",
+    "pages/customer/orders/index",
+    "pages/customer/profile/index",
+    "pages/owner/index/index",
+    "pages/owner/products/index",
+    "pages/owner/orders/index",
+    "pages/owner/analytics/index",
+    "pages/owner/settings/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#E8B86D",
+    "navigationBarTitleText": "Mini Order",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FDF6EC"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#E8B86D",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/customer/index/index", "text": "首页" },
+      { "pagePath": "pages/customer/orders/index", "text": "订单" },
+      { "pagePath": "pages/customer/profile/index", "text": "我的" }
+    ]
+  },
+  "cloud": true,
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,41 @@
+# ===== 隐私 / 内部文档（不上传 GitHub） =====
+PRD.md
+AI_EXECUTION_PROMPT.md
+CHANGELOG.md
+TASK_*.md
+RELEASE_NOTES.md
+docs/acceptance/
+docs/design/
+docs/tasks/
+.joycode/
+
+# ===== 小程序 =====
+miniprogram_npm/
+miniprogram_dist/
+*.log
+
+# ===== 云开发 =====
+cloudfunctions/node_modules/
+cloudfunctions/.env
+
+# ===== 编辑器 =====
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== 系统 =====
+.DS_Store
+Thumbs.db
+
+# ===== 依赖 =====
+node_modules/
+package-lock.json
+yarn.lock
+
+# ===== 临时文件 =====
+*.tmp
+*.temp
+
+# ===== 项目私有配置（含 AppID） =====
+project.private.config.json

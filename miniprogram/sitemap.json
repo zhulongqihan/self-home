@@ -1,0 +1,7 @@
+{
+  "desc": "私有点单小程序，不参与微信索引",
+  "rules": [{
+    "action": "disallow",
+    "page": "*"
+  }]
+}

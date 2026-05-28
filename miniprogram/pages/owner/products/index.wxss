@@ -1,0 +1,2 @@
+.page { padding: 40rpx; min-height: 100vh; background: var(--background-color, #FDF6EC); }
+.placeholder { text-align: center; color: var(--text-color, #3D2C1E); font-size: 32rpx; margin-top: 200rpx; }
