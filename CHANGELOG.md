@@ -1,5 +1,29 @@
 # 更新日志
 
+## v0.1.2 - 任务 2：MongoDB + Node 后端骨架（2026-05-28）
+
+### 服务器侧
+- 安装 MongoDB 7.0.34（仅本机 127.0.0.1:27017 监听）
+- 安装 PM2 7.0.1 全局
+- 部署目录 `/opt/couple-app/`
+- PM2 进程 `couple-app` 守护 + 开机自启
+- 日志目录 `/var/log/couple-app/`
+
+### 本地代码新增
+- `server/package.json`（express/mongoose/helmet/cors/morgan/dotenv/jwt/axios）
+- `server/ecosystem.config.js`（PM2 配置）
+- `server/.env.example`（环境变量模板）
+- `server/src/app.js`（Express 入口）
+- `server/src/config/index.js`（环境变量）
+- `server/src/config/db.js`（MongoDB 连接）
+- `server/src/routes/health.js`（GET /api/health）
+- `server/src/middlewares/errorHandler.js`（404 + 全局错误）
+
+### 验证
+- `https://api.cyruszhang.online/api/health` 端到端 OK，返回 `db: "connected"`
+
+---
+
 ## v0.0.1 - 服务器 HTTPS + 项目结构整理（2026-05-28）
 
 ### 新增
