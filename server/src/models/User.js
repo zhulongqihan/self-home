@@ -20,6 +20,7 @@ const UserSchema = new Schema({
   nickname: { type: String, default: '' },
   avatar: { type: String, default: '' },
   coins: { type: Number, default: 0 },
+  kiss_count_total: { type: Number, default: 0 },
   continuous_sign_days: { type: Number, default: 0 },
   last_sign_date: { type: String, default: '' },
   last_login_at: { type: Date, default: null },

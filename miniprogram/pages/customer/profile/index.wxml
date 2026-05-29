@@ -2,8 +2,32 @@
   <view class="card">
     <view class="avatar">😊</view>
     <view class="nickname">{{user.nickname || '宇宙第一可爱 VVVVVIP'}}</view>
-    <view class="coins" wx:if="{{user}}">💋 {{user.coins || 0}} 爱心币</view>
+    <view class="coins" wx:if="{{!loading}}">
+      {{currencyEmoji}} {{coins}} {{currencyName}}
+    </view>
+    <view class="coins loading-text" wx:else>加载中...</view>
     <view class="store">{{store.name || '我们的小窝'}}</view>
+    <view class="sign-hint" wx:if="{{continuousSignDays > 0}}">已连续签到 {{continuousSignDays}} 天</view>
   </view>
+
+  <view class="actions">
+    <view
+      class="btn-kiss {{kissing ? 'disabled' : ''}}"
+      bindtap="onKiss"
+    >
+      亲亲一下 (+1{{currencyName}})
+    </view>
+    <view class="kiss-meta">今日亲亲 {{kissToday}}/{{kissDailyMax}}</view>
+
+    <view
+      class="btn-sign {{signedToday || signing ? 'disabled' : ''}}"
+      bindtap="onSignIn"
+    >
+      <text wx:if="{{signedToday}}">今日已签到</text>
+      <text wx:elif="{{signing}}">签到中...</text>
+      <text wx:else>每日签到 (+2{{currencyName}})</text>
+    </view>
+  </view>
+
   <view class="logout" bindtap="onLogout">切换账号 / 退出登录</view>
 </view>

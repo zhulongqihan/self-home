@@ -5,7 +5,7 @@
 //   3) openid 不在白名单 (NOT_WHITELISTED) → 跳密码登录页（不再去兜底页）
 //   4) 其他错误（网络等）→ 显示错误 + 跳密码登录页（让用户兜底）
 // 特殊：?force=1 表示强制走 openid（不读本地 token），用于"切换账号"后想再试微信登录
-const { loginByOpenid, getToken, verify } = require('../../utils/auth.js')
+const { loginByOpenid, getToken, verify, logout } = require('../../utils/auth.js')
 
 Page({
   data: {
@@ -28,6 +28,7 @@ Page({
           return
         } catch (e) {
           console.warn('[Launch] verify 失败：', e.message)
+          logout()
         }
       }
 
@@ -38,18 +39,24 @@ Page({
     } catch (err) {
       console.error('[Launch] 登录失败：', err)
 
-      // 陌生人 → 直接跳密码登录页，不打扰
+      // 陌生人 / 换正式号后 openid 变了：清掉旧缓存，避免 app.onShow 误跳欢迎页白屏
       if (err.code === 'NOT_WHITELISTED' || err.code === 'WX_LOGIN_FAIL') {
+        logout()
         wx.reLaunch({ url: '/pages/launch/login' })
         return
       }
 
-      // 其他错误：显示错误 + 提供「使用暗号登录」按钮
+      logout()
       this.setData({ statusText: '微信登录失败：' + (err.message || '未知错误') })
       setTimeout(() => {
         wx.reLaunch({ url: '/pages/launch/login' })
       }, 1500)
     }
+  },
+
+  onRetry() {
+    this.setData({ statusText: '正在打开店铺...' })
+    this.start()
   },
 
   dispatchByRole(role) {

@@ -4,6 +4,12 @@
     <view class="store-name">{{store.name || '我们的小窝'}}</view>
   </view>
 
+  <view class="kiss-card" wx:if="{{kissCount7d >= 0}}">
+    <view class="kiss-title">最近 7 天亲亲</view>
+    <view class="kiss-num">{{kissCount7d}} 次</view>
+    <view class="kiss-last" wx:if="{{kissLastAt}}">最近一次：{{kissLastAt}}</view>
+  </view>
+
   <view class="grid">
     <view class="tile tile-active" data-key="products" bindtap="onTileTap">
       <view class="tile-icon">🛍️</view>

@@ -107,9 +107,17 @@ Component({
         this.triggerEvent('updated', { count: 0, total: 0 })
 
         const total = resp.data && resp.data.total_price
+        const left = resp.data && resp.data.coins_left
+        if (left != null) {
+          const user = wx.getStorageSync('auth_user')
+          if (user) {
+            user.coins = left
+            wx.setStorageSync('auth_user', user)
+          }
+        }
         wx.showModal({
           title: '下单成功',
-          content: `合计 ¥${total != null ? total : ''}`,
+          content: `消耗 ${total != null ? total : ''} 币${left != null ? `，余额 ${left}` : ''}`,
           showCancel: false,
           success: () => this.triggerEvent('ordersuccess', { total_price: total })
         })

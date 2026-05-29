@@ -5,6 +5,7 @@ const { getCartStats } = require('../../../utils/cart.js')
 Page({
   data: {
     loading: true,
+    loadError: false,
     categories: [],
     activeCategoryId: '',
     products: [],
@@ -60,7 +61,7 @@ Page({
   },
 
   async fetchCategoriesAndProducts() {
-    this.setData({ loading: true })
+    this.setData({ loading: true, loadError: false })
     try {
       const categoryResp = await get('/api/categories')
       const categories = (categoryResp.data || []).map(c => ({
@@ -73,11 +74,12 @@ Page({
       await this.fetchProducts(activeCategoryId)
     } catch (err) {
       wx.showToast({ title: err.message || '加载失败', icon: 'none' })
-      this.setData({ loading: false })
+      this.setData({ loading: false, loadError: true })
     }
   },
 
   async fetchProducts(categoryId) {
+    this.setData({ loadError: false })
     try {
       const query = categoryId ? `?category_id=${categoryId}` : ''
       const resp = await get(`/api/products${query}`)
@@ -87,7 +89,7 @@ Page({
       })
     } catch (err) {
       wx.showToast({ title: err.message || '商品加载失败', icon: 'none' })
-      this.setData({ loading: false })
+      this.setData({ loading: false, loadError: true })
     }
   },
 

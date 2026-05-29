@@ -1,5 +1,6 @@
 // 鉴权工具：openid 自动登录 + 账号密码登录 + 登录态管理
 const { post, get, TOKEN_KEY } = require('./request.js')
+const { clearCached } = require('./uiConfig.js')
 
 const USER_KEY = 'auth_user'
 const STORE_KEY = 'store_info'
@@ -49,6 +50,7 @@ function logout() {
   wx.removeStorageSync(TOKEN_KEY)
   wx.removeStorageSync(USER_KEY)
   wx.removeStorageSync(STORE_KEY)
+  clearCached()
   const app = getApp()
   if (app) {
     app.globalData.token = null

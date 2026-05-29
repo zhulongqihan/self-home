@@ -1,5 +1,6 @@
 const { post } = require('../../../utils/request')
 const { getCart, updateQty, clearCart } = require('../../../utils/cart')
+const { requestSubscribeByRole } = require('../../../utils/subscribe.js')
 
 Page({
   data: {
@@ -58,6 +59,7 @@ Page({
     this._submitting = true
     wx.showLoading({ title: '提交中', mask: true })
     try {
+      await requestSubscribeByRole()
       const payload = {
         items: items.map(i => ({
           product_id: i.product_id,
@@ -71,9 +73,16 @@ Page({
       const resp = await post('/api/orders', payload)
       clearCart()
       this.setData({ items: [], totalPrice: 0, note: '' })
+      if (resp.data && resp.data.coins_left != null) {
+        const user = wx.getStorageSync('auth_user')
+        if (user) {
+          user.coins = resp.data.coins_left
+          wx.setStorageSync('auth_user', user)
+        }
+      }
       wx.showModal({
         title: '下单成功',
-        content: `订单号：${resp.data.order_id}\n总价：¥${resp.data.total_price}`,
+        content: `订单号：${resp.data.order_id}\n消耗：${resp.data.total_price} 币`,
         showCancel: false,
         success: () => wx.switchTab({ url: '/pages/customer/orders/index' })
       })

@@ -5,28 +5,39 @@ const Product = require('../models/Product')
 const Order = require('../models/Order')
 const Review = require('../models/Review')
 const { canTransition, getNextStatuses, STATUS_TEXT } = require('../services/orderStatus')
+const User = require('../models/User')
 const { notifyOwnerNewOrder, notifyCustomerOrderStatus } = require('../services/orderNotify')
+const { mergeRawOrderItems } = require('../utils/orderItems')
+const { adjustCoins } = require('../services/coinsService')
 
 const router = express.Router()
 
 router.post('/', requireAuth, async (req, res, next) => {
   try {
+    if (req.user.role !== 'customer') {
+      return res.status(403).json({ status: 'error', code: 'FORBIDDEN', message: '仅顾客可下单' })
+    }
     const { items, delivery_type, customer_note } = req.body || {}
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ status: 'error', code: 'EMPTY_ITEMS', message: '请选择要下单的商品' })
     }
 
+    const merged = mergeRawOrderItems(items)
+    if (merged.error === 'EMPTY_ITEMS') {
+      return res.status(400).json({ status: 'error', code: 'EMPTY_ITEMS', message: '请选择要下单的商品' })
+    }
+    if (merged.error === 'INVALID_ITEM') {
+      return res.status(400).json({ status: 'error', code: 'INVALID_QTY', message: '商品数量必须为正整数' })
+    }
+
     const normalized = []
     let total = 0
 
-    for (const raw of items) {
-      if (!raw.product_id || !mongoose.Types.ObjectId.isValid(raw.product_id)) {
+    for (const raw of merged.items) {
+      if (!mongoose.Types.ObjectId.isValid(raw.product_id)) {
         return res.status(400).json({ status: 'error', code: 'INVALID_PRODUCT_ID', message: '存在无效商品' })
       }
-      const qty = Number(raw.qty || 1)
-      if (!Number.isInteger(qty) || qty < 1) {
-        return res.status(400).json({ status: 'error', code: 'INVALID_QTY', message: '商品数量必须为正整数' })
-      }
+      const qty = raw.qty
 
       const product = await Product.findById(raw.product_id).lean()
       if (!product || product.status !== 'on_sale') {
@@ -40,22 +51,49 @@ router.post('/', requireAuth, async (req, res, next) => {
         product_image: (product.images && product.images[0]) || '',
         price: product.price,
         qty,
-        specs: Array.isArray(raw.specs) ? raw.specs.map(s => String(s)) : [],
-        note: raw.note ? String(raw.note) : ''
+        specs: raw.specs,
+        note: raw.note
+      })
+    }
+
+    const deducted = await User.findOneAndUpdate(
+      { _id: req.user.sub, coins: { $gte: total } },
+      { $inc: { coins: -total } },
+      { new: true }
+    ).select('coins')
+    if (!deducted) {
+      return res.status(400).json({
+        status: 'error',
+        code: 'INSUFFICIENT_COINS',
+        message: '余额不足，去「我的」亲亲或签到攒币吧'
       })
     }
 
     const now = new Date()
-    const order = await Order.create({
-      user_id: req.user.sub,
-      items: normalized,
-      total_price: total,
-      delivery_type: delivery_type || '本人配送',
-      customer_note: customer_note || '',
-      status_history: [{ status: 'pending', changed_at: now, note: '顾客提交订单' }]
-    })
+    let order
+    try {
+      order = await Order.create({
+        user_id: req.user.sub,
+        items: normalized,
+        total_price: total,
+        delivery_type: delivery_type || '本人配送',
+        customer_note: customer_note || '',
+        status_history: [{ status: 'pending', changed_at: now, note: '顾客提交订单' }]
+      })
+    } catch (createErr) {
+      await adjustCoins(req.user.sub, total)
+      throw createErr
+    }
 
-    res.json({ status: 'ok', data: { order_id: order._id, total_price: order.total_price, status: order.status } })
+    res.json({
+      status: 'ok',
+      data: {
+        order_id: order._id,
+        total_price: order.total_price,
+        status: order.status,
+        coins_left: deducted.coins
+      }
+    })
     notifyOwnerNewOrder(order.toObject()).catch(err => {
       console.warn('[orders] notifyOwnerNewOrder:', err.message)
     })
@@ -144,6 +182,7 @@ router.patch('/:id/status', requireAuth, async (req, res, next) => {
       })
     }
 
+    const prevStatus = order.status
     const now = new Date()
     const actor = isOwner ? '店长' : '顾客'
     order.status = nextStatus
@@ -154,6 +193,10 @@ router.patch('/:id/status', requireAuth, async (req, res, next) => {
     })
     await order.save()
 
+    if (nextStatus === 'cancelled' && prevStatus === 'pending') {
+      await adjustCoins(order.user_id, order.total_price)
+    }
+
     res.json({
       status: 'ok',
       data: {
@@ -162,7 +205,7 @@ router.patch('/:id/status', requireAuth, async (req, res, next) => {
         next_statuses: getNextStatuses(order.status, role)
       }
     })
-    if (isOwner && nextStatus !== 'cancelled') {
+    if (isOwner) {
       notifyCustomerOrderStatus(order.toObject(), nextStatus).catch(err => {
         console.warn('[orders] notifyCustomerOrderStatus:', err.message)
       })
@@ -195,23 +238,44 @@ router.post('/:id/review', requireAuth, async (req, res, next) => {
       return res.status(400).json({ status: 'error', code: 'NOT_REVIEWABLE', message: '当前订单不可评价' })
     }
 
-    const productIds = new Set(order.items.map(i => String(i.product_id)))
+    if (items.length !== order.items.length) {
+      return res.status(400).json({
+        status: 'error',
+        code: 'INCOMPLETE_REVIEW',
+        message: '请为订单中每件商品打分'
+      })
+    }
+
+    const usedLines = new Set()
     const docs = []
     for (const raw of items) {
-      const pid = raw.product_id
-      const rating = Number(raw.rating)
-      if (!pid || !productIds.has(String(pid))) {
-        return res.status(400).json({ status: 'error', code: 'INVALID_PRODUCT', message: '评价商品不在订单内' })
+      const lineIndex = Number(raw.line_index)
+      if (!Number.isInteger(lineIndex) || lineIndex < 0 || lineIndex >= order.items.length) {
+        return res.status(400).json({ status: 'error', code: 'INVALID_LINE', message: '评价行无效' })
       }
+      if (usedLines.has(lineIndex)) {
+        return res.status(400).json({ status: 'error', code: 'DUPLICATE_LINE', message: '重复评价同一商品行' })
+      }
+      usedLines.add(lineIndex)
+      const line = order.items[lineIndex]
+      const rating = Number(raw.rating)
       if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
         return res.status(400).json({ status: 'error', code: 'INVALID_RATING', message: '评分须为 1-5 星' })
       }
       docs.push({
         order_id: order._id,
         user_id: req.user.sub,
-        product_id: pid,
+        product_id: line.product_id,
+        line_index: lineIndex,
         rating,
         comment: raw.comment ? String(raw.comment) : ''
+      })
+    }
+    if (usedLines.size !== order.items.length) {
+      return res.status(400).json({
+        status: 'error',
+        code: 'INCOMPLETE_REVIEW',
+        message: '请为订单中每件商品打分'
       })
     }
 

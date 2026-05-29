@@ -4,6 +4,7 @@ const { formatOrder, getNextStatuses, ACTION_TEXT } = require('../../../utils/or
 Page({
   data: {
     loading: true,
+    loadError: false,
     orders: [],
     expandedId: '',
     ratings: {}
@@ -17,7 +18,7 @@ Page({
   },
 
   async fetchOrders() {
-    this.setData({ loading: true })
+    this.setData({ loading: true, loadError: false })
     try {
       const resp = await get('/api/orders/my')
       const orders = (resp.data || []).map(o => {
@@ -25,10 +26,11 @@ Page({
         const canCancel = getNextStatuses(o.status, 'customer').includes('cancelled')
         const canReview = o.status === 'to_review'
         const review_items = canReview
-          ? (formatted.items || []).map(line => ({
+          ? (formatted.items || []).map((line, line_index) => ({
               product_id: line.product_id,
               product_name: line.product_name,
-              rating_key: `${formatted._id}_${line.product_id}`
+              line_index,
+              rating_key: `${formatted._id}_${line_index}`
             }))
           : []
         return {
@@ -39,10 +41,10 @@ Page({
           cancel_label: ACTION_TEXT.cancelled
         }
       })
-      this.setData({ orders, loading: false, ratings: {} })
+      this.setData({ orders, loading: false, loadError: false, ratings: {} })
     } catch (err) {
       wx.showToast({ title: err.message || '订单加载失败', icon: 'none' })
-      this.setData({ loading: false })
+      this.setData({ loading: false, loadError: true })
     }
   },
 
@@ -64,7 +66,7 @@ Page({
 
     const items = (order.review_items || []).map(line => {
       const rating = this.data.ratings[line.rating_key]
-      return { product_id: line.product_id, rating }
+      return { line_index: line.line_index, product_id: line.product_id, rating }
     })
     if (items.some(i => !i.rating)) {
       wx.showToast({ title: '请为每件商品打分', icon: 'none' })

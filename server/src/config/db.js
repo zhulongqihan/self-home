@@ -10,7 +10,9 @@ async function connect() {
       serverSelectionTimeoutMS: 5000,
       autoIndex: false  // 索引由我们手工或 syncIndexes 管理，避免 schema 与 DB 不一致时崩溃
     })
-    console.log('[DB] MongoDB connected:', config.mongo.uri)
+    const uri = config.mongo.uri
+    const safe = uri.replace(/\/\/([^:@/]+):([^@/]+)@/, '//***:***@')
+    console.log('[DB] MongoDB connected:', safe)
   } catch (err) {
     console.error('[DB] MongoDB connection failed:', err.message)
     throw err

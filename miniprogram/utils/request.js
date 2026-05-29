@@ -32,7 +32,7 @@ function request(opts) {
         }
         // 已登录请求的 token 失效：清缓存并回启动页（登录接口 401 不在此处理）
         if (res.statusCode === 401 && !opts.noAuth) {
-          wx.removeStorageSync(TOKEN_KEY)
+          require('./auth.js').logout()
           wx.reLaunch({ url: '/pages/launch/index' })
         }
         // 业务错误（含暗号错误 401）交给调用方展示

@@ -1,6 +1,6 @@
 {
   "name": "couple-app-server",
-  "version": "0.1.5",
+  "version": "0.3.1",
   "description": "情侣专属点单小程序 - 后端服务",
   "main": "src/app.js",
   "scripts": {
@@ -23,7 +23,8 @@
     "dotenv": "^16.4.5",
     "jsonwebtoken": "^9.0.2",
     "axios": "^1.7.9",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "express-rate-limit": "^7.5.0"
   },
   "devDependencies": {},
   "license": "MIT"

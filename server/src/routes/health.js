@@ -8,7 +8,7 @@ router.get('/health', (req, res) => {
   const dbStatus = isConnected() ? 'connected' : 'disconnected'
   res.json({
     status: 'ok',
-    version: '0.1.5',
+    version: '0.3.1',
     timestamp: new Date().toISOString(),
     uptime: Math.floor(process.uptime()),
     db: dbStatus,

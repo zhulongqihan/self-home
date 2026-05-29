@@ -103,10 +103,15 @@ router.post('/', requireAuth, requireRole('owner'), async (req, res, next) => {
       return res.status(400).json({ status: 'error', code: 'INVALID_IMAGE_STYLE', message: '图片风格无效' })
     }
 
+    const price = Number(body.price)
+    if (!Number.isFinite(price) || price < 0) {
+      return res.status(400).json({ status: 'error', code: 'INVALID_PRICE', message: '价格无效' })
+    }
+
     const product = await Product.create({
       name: String(body.name).trim(),
       category_id: body.category_id,
-      price: Number(body.price),
+      price,
       description: body.description || '',
       images: body.images || [],
       image_style: body.image_style || 'line_puppy',

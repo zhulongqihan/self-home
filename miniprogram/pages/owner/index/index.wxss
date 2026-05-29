@@ -21,6 +21,33 @@
   color: #C9986A;
 }
 
+.kiss-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 28rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 16rpx rgba(61, 44, 30, 0.06);
+}
+
+.kiss-title {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.kiss-num {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #e8b86d;
+  margin-top: 12rpx;
+}
+
+.kiss-last {
+  font-size: 22rpx;
+  color: #c9986a;
+  margin-top: 8rpx;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

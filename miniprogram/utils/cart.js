@@ -14,12 +14,19 @@ function buildKey(productId, specs) {
   return `${productId}::${specKey}`
 }
 
+function normalizeQty(qty) {
+  const n = Number(qty)
+  if (!Number.isInteger(n) || n < 1) return 1
+  return n
+}
+
 function addToCart(item) {
   const list = getCart()
   const key = buildKey(item.product_id, item.specs)
+  const addQty = normalizeQty(item.qty)
   const idx = list.findIndex(i => i.key === key)
   if (idx >= 0) {
-    list[idx].qty += item.qty || 1
+    list[idx].qty += addQty
   } else {
     list.push({
       key,
@@ -29,7 +36,7 @@ function addToCart(item) {
       price: item.price,
       specs: Array.isArray(item.specs) ? item.specs : [],
       note: item.note || '',
-      qty: item.qty || 1
+      qty: addQty
     })
   }
   saveCart(list)
@@ -41,7 +48,7 @@ function updateQty(key, qty) {
   const idx = list.findIndex(i => i.key === key)
   if (idx < 0) return list
   if (qty <= 0) list.splice(idx, 1)
-  else list[idx].qty = qty
+  else list[idx].qty = normalizeQty(qty)
   saveCart(list)
   return list
 }

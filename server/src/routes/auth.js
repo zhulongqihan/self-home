@@ -29,7 +29,9 @@ async function buildLoginResponse(user) {
         role: user.role,
         nickname: user.nickname,
         avatar: user.avatar,
-        coins: user.coins
+        coins: user.coins,
+        continuous_sign_days: user.continuous_sign_days,
+        last_sign_date: user.last_sign_date
       },
       store: {
         name: cfg ? cfg.store_name : '',
@@ -70,12 +72,15 @@ router.post('/login', async (req, res, next) => {
     else if (openid === cfg.whitelist.customer_openid) role = 'customer'
 
     if (!role) {
-      return res.status(403).json({
+      const body = {
         status: 'error',
         code: 'NOT_WHITELISTED',
-        message: 'openid 不在白名单',
-        debug_openid: openid
-      })
+        message: 'openid 不在白名单'
+      }
+      if (process.env.NODE_ENV === 'development') {
+        body.debug_openid = openid
+      }
+      return res.status(403).json(body)
     }
 
     const user = await User.findOneAndUpdate(
@@ -103,14 +108,20 @@ router.post('/login', async (req, res, next) => {
 router.post('/login-password', async (req, res, next) => {
   try {
     const { username, password } = req.body || {}
-    if (!username || !password) {
+    if (typeof username !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({
+        status: 'error', code: 'MISSING_CREDENTIALS', message: '请输入账号和密码'
+      })
+    }
+    const uname = username.trim()
+    if (!uname || !password || uname.length > 64 || password.length > 128) {
       return res.status(400).json({
         status: 'error', code: 'MISSING_CREDENTIALS', message: '请输入账号和密码'
       })
     }
 
     // 注意：password_hash 默认 select:false，需要显式 select
-    const user = await User.findOne({ username }).select('+password_hash')
+    const user = await User.findOne({ username: uname }).select('+password_hash')
     if (!user || !user.password_hash) {
       return res.status(401).json({
         status: 'error', code: 'INVALID_CREDENTIALS', message: '账号或密码错误'
@@ -127,7 +138,7 @@ router.post('/login-password', async (req, res, next) => {
     user.last_login_at = new Date()
     user.last_login_method = 'password'
     await user.save()
-    console.log(`[Auth] password login ok: ${username} (${user.role})`)
+    console.log(`[Auth] password login ok: ${uname} (${user.role})`)
 
     res.json(await buildLoginResponse(user))
   } catch (err) {
@@ -161,7 +172,9 @@ router.get('/me', requireAuth, async (req, res, next) => {
         role: user.role,
         nickname: user.nickname,
         avatar: user.avatar,
-        coins: user.coins
+        coins: user.coins,
+        continuous_sign_days: user.continuous_sign_days,
+        last_sign_date: user.last_sign_date
       }
     })
   } catch (err) {

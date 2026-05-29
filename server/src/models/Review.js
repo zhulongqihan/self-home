@@ -4,6 +4,7 @@ const ReviewSchema = new Schema({
   order_id: { type: Schema.Types.ObjectId, ref: 'Order', required: true, index: true },
   user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   product_id: { type: Schema.Types.ObjectId, ref: 'Product', required: true, index: true },
+  line_index: { type: Number, required: true, min: 0 },
   rating: { type: Number, required: true, min: 1, max: 5 },
   comment: { type: String, default: '' }
 }, {
@@ -11,6 +12,6 @@ const ReviewSchema = new Schema({
   collection: 'reviews'
 })
 
-ReviewSchema.index({ order_id: 1, product_id: 1 }, { unique: true })
+ReviewSchema.index({ order_id: 1, line_index: 1 }, { unique: true })
 
 module.exports = model('Review', ReviewSchema)

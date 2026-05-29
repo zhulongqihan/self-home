@@ -1,6 +1,6 @@
 // app.js - 应用入口
 const { API_BASE } = require('./config/env.js')
-const { getUser } = require('./utils/auth.js')
+const { getUser, getToken } = require('./utils/auth.js')
 const { loadCustomerConfig } = require('./utils/uiConfig.js')
 
 App({
@@ -15,12 +15,20 @@ App({
 
   onShow() {
     const user = getUser()
-    if (!user || user.role !== 'customer') return
+    const token = getToken()
+    if (!token || !user || user.role !== 'customer') return
     if (!this.globalData.shouldShowWelcome) return
 
     const pages = getCurrentPages()
     const cur = pages[pages.length - 1]
-    if (cur && cur.route === 'pages/customer/welcome/index') return
+    const route = cur && cur.route
+    const authRoutes = [
+      'pages/launch/index',
+      'pages/launch/login',
+      'pages/launch/forbidden'
+    ]
+    if (route && authRoutes.includes(route)) return
+    if (route === 'pages/customer/welcome/index') return
 
     wx.reLaunch({ url: '/pages/customer/welcome/index' })
   },

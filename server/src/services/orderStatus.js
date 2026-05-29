@@ -15,7 +15,7 @@ const OWNER_TRANSITIONS = {
   preparing: ['delivering'],
   delivering: ['delivered'],
   delivered: ['to_review'],
-  to_review: ['completed'],
+  to_review: [],
   completed: [],
   cancelled: []
 }

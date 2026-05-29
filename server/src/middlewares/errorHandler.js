@@ -12,10 +12,13 @@ function notFound(req, res, next) {
 // eslint-disable-next-line no-unused-vars
 function errorHandler(err, req, res, next) {
   console.error('[Error]', err)
+  const isProd = process.env.NODE_ENV === 'production'
   res.status(err.status || 500).json({
     status: 'error',
     code: err.code || 'INTERNAL_ERROR',
-    message: err.message || 'Internal server error'
+    message: isProd && (err.status || 500) >= 500
+      ? '服务器繁忙，请稍后再试'
+      : (err.message || 'Internal server error')
   })
 }
 

@@ -1,10 +1,13 @@
 // 店长端工作台
 const { getUser, getStore, logout } = require('../../../utils/auth.js')
+const { get } = require('../../../utils/request.js')
 
 Page({
   data: {
     user: null,
-    store: null
+    store: null,
+    kissCount7d: 0,
+    kissLastAt: ''
   },
 
   onShow() {
@@ -12,6 +15,25 @@ Page({
       user: getUser(),
       store: getStore()
     })
+    this.fetchKissStats()
+  },
+
+  async fetchKissStats() {
+    try {
+      const resp = await get('/api/coins/owner/kiss-stats?days=7')
+      const d = resp.data || {}
+      let kissLastAt = ''
+      if (d.last_at) {
+        const dt = new Date(d.last_at)
+        kissLastAt = `${dt.getMonth() + 1}/${dt.getDate()} ${dt.getHours()}:${String(dt.getMinutes()).padStart(2, '0')}`
+      }
+      this.setData({
+        kissCount7d: d.count || 0,
+        kissLastAt
+      })
+    } catch (e) {
+      // 静默
+    }
   },
 
   goSettings() {

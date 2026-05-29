@@ -37,12 +37,15 @@ async function code2session(code) {
 
 /** 签发 JWT */
 function signToken(payload) {
-  return jwt.sign(payload, env.jwt.secret, { expiresIn: env.jwt.expiresIn })
+  return jwt.sign(payload, env.jwt.secret, {
+    expiresIn: env.jwt.expiresIn,
+    algorithm: 'HS256'
+  })
 }
 
 /** 验证 JWT */
 function verifyToken(token) {
-  return jwt.verify(token, env.jwt.secret)
+  return jwt.verify(token, env.jwt.secret, { algorithms: ['HS256'] })
 }
 
 module.exports = { code2session, signToken, verifyToken }
