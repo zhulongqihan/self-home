@@ -4,6 +4,7 @@ const { addToCart } = require('../../../utils/cart')
 Page({
   data: {
     loading: true,
+    loadError: false,
     productId: '',
     product: null,
     selectedSpecs: {},
@@ -20,7 +21,7 @@ Page({
   },
 
   async fetchDetail(id) {
-    this.setData({ loading: true })
+    this.setData({ loading: true, loadError: false })
     try {
       const resp = await get(`/api/products/${id}`)
       const product = resp.data
@@ -31,7 +32,7 @@ Page({
       this.setData({ product, selectedSpecs, loading: false })
     } catch (err) {
       wx.showToast({ title: err.message || '加载失败', icon: 'none' })
-      this.setData({ loading: false })
+      this.setData({ loading: false, loadError: true, product: null })
     }
   },
 

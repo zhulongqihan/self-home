@@ -1,5 +1,6 @@
 <view class="page">
   <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{loadError}}" class="state-text">加载失败，请返回重试</view>
   <view wx:elif="{{!product}}" class="state-text">商品不存在</view>
 
   <view wx:else>
