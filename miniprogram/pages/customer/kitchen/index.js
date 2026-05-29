@@ -26,6 +26,10 @@ Page({
     }
   },
 
+  onHide() {
+    this.setData({ specVisible: false, specProduct: null, drawerOpen: false })
+  },
+
   refreshCartBar() {
     const { count, totalPrice } = getCartStats()
     this.setData({ cartCount: count, cartTotal: totalPrice })
@@ -33,11 +37,25 @@ Page({
     if (bar && bar.refresh) bar.refresh()
   },
 
+  formatProductMeta(p) {
+    const sales = p.sales_count || 0
+    if (p.review_count > 0) {
+      return `★ ${p.rating_avg} · 月销 ${sales}`
+    }
+    return `暂无评价 · 月销 ${sales}`
+  },
+
   mapProducts(list) {
     return (list || []).map(p => {
       const cover = getProductCover(p)
       const hasSpecs = Array.isArray(p.specs) && p.specs.length > 0
-      return { ...p, coverUrl: cover.url, coverEmoji: cover.emoji, hasSpecs }
+      return {
+        ...p,
+        coverUrl: cover.url,
+        coverEmoji: cover.emoji,
+        hasSpecs,
+        metaText: this.formatProductMeta(p)
+      }
     })
   },
 
@@ -71,6 +89,15 @@ Page({
       wx.showToast({ title: err.message || '商品加载失败', icon: 'none' })
       this.setData({ loading: false })
     }
+  },
+
+  onCoverError(e) {
+    const id = e.currentTarget.dataset.id
+    const products = this.data.products.map(p => {
+      if (p._id !== id) return p
+      return { ...p, coverUrl: '', coverEmoji: p.coverEmoji || '🍵' }
+    })
+    this.setData({ products })
   },
 
   onSwitchCategory(e) {
@@ -129,7 +156,13 @@ Page({
   },
 
   onOrderSuccess() {
-    this.setData({ drawerOpen: false })
+    this.setData({
+      drawerOpen: false,
+      specVisible: false,
+      specProduct: null,
+      cartCount: 0,
+      cartTotal: 0
+    })
     this.refreshCartBar()
     wx.switchTab({ url: '/pages/customer/orders/index' })
   }

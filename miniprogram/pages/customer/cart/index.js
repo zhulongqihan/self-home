@@ -48,12 +48,15 @@ Page({
   },
 
   async onSubmitOrder() {
+    if (this._submitting) return
     const { items, deliveryType, note } = this.data
     if (!items.length) {
       wx.showToast({ title: '购物车是空的', icon: 'none' })
       return
     }
 
+    this._submitting = true
+    wx.showLoading({ title: '提交中', mask: true })
     try {
       const payload = {
         items: items.map(i => ({
@@ -67,15 +70,18 @@ Page({
       }
       const resp = await post('/api/orders', payload)
       clearCart()
-      this.loadCart()
+      this.setData({ items: [], totalPrice: 0, note: '' })
       wx.showModal({
         title: '下单成功',
         content: `订单号：${resp.data.order_id}\n总价：¥${resp.data.total_price}`,
         showCancel: false,
-        success: () => wx.navigateTo({ url: '/pages/customer/orders/index' })
+        success: () => wx.switchTab({ url: '/pages/customer/orders/index' })
       })
     } catch (err) {
       wx.showToast({ title: err.message || '下单失败', icon: 'none' })
+    } finally {
+      wx.hideLoading()
+      this._submitting = false
     }
   }
 })

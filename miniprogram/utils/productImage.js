@@ -2,24 +2,18 @@ const STYLE_EMOJI = {
   chikawa: '🐹',
   line_puppy: '🐶',
   bubu: '🧸',
-  yier: '🐰'
+  yier: '🐰',
+  custom: '🖼️'
 }
 
-const STYLE_PLACEHOLDER = {
-  chikawa: '/assets/placeholders/chikawa.png',
-  line_puppy: '/assets/placeholders/line_puppy.png',
-  bubu: '/assets/placeholders/bubu.png',
-  yier: '/assets/placeholders/yier.png'
-}
-
+/** 内置风格暂无本地 png 资源，用 emoji 卡片占位，避免 image 加载失败呈空白 */
 function getProductCover(product) {
   if (!product) return { url: '', emoji: '🍵' }
-  if (product.display_image) {
-    return { url: product.display_image, emoji: '' }
+  const customUrl = product.display_image || (product.images && product.images[0])
+  if (customUrl) {
+    return { url: customUrl, emoji: STYLE_EMOJI[product.image_style] || '🍵' }
   }
   const style = product.image_style || 'line_puppy'
-  const local = STYLE_PLACEHOLDER[style]
-  if (local) return { url: local, emoji: STYLE_EMOJI[style] || '🍵' }
   return { url: '', emoji: STYLE_EMOJI[style] || '🍵' }
 }
 

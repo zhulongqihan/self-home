@@ -14,6 +14,7 @@
     "pages/customer/cart/index",
     "pages/owner/index/index",
     "pages/owner/products/index",
+    "pages/owner/products/edit",
     "pages/owner/orders/index",
     "pages/owner/analytics/index",
     "pages/owner/settings/index"

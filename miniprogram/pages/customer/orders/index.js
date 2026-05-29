@@ -1,11 +1,12 @@
-const { get, patch } = require('../../../utils/request')
+const { get, patch, post } = require('../../../utils/request')
 const { formatOrder, getNextStatuses, ACTION_TEXT } = require('../../../utils/orderStatus')
 
 Page({
   data: {
     loading: true,
     orders: [],
-    expandedId: ''
+    expandedId: '',
+    ratings: {}
   },
 
   onShow() {
@@ -22,13 +23,23 @@ Page({
       const orders = (resp.data || []).map(o => {
         const formatted = formatOrder(o)
         const canCancel = getNextStatuses(o.status, 'customer').includes('cancelled')
+        const canReview = o.status === 'to_review'
+        const review_items = canReview
+          ? (formatted.items || []).map(line => ({
+              product_id: line.product_id,
+              product_name: line.product_name,
+              rating_key: `${formatted._id}_${line.product_id}`
+            }))
+          : []
         return {
           ...formatted,
           can_cancel: canCancel,
+          can_review: canReview,
+          review_items,
           cancel_label: ACTION_TEXT.cancelled
         }
       })
-      this.setData({ orders, loading: false })
+      this.setData({ orders, loading: false, ratings: {} })
     } catch (err) {
       wx.showToast({ title: err.message || '订单加载失败', icon: 'none' })
       this.setData({ loading: false })
@@ -38,6 +49,38 @@ Page({
   onToggle(e) {
     const id = e.currentTarget.dataset.id
     this.setData({ expandedId: this.data.expandedId === id ? '' : id })
+  },
+
+  onPickStar(e) {
+    const { key, star } = e.currentTarget.dataset
+    const ratings = { ...this.data.ratings, [key]: Number(star) }
+    this.setData({ ratings })
+  },
+
+  async onSubmitReview(e) {
+    const orderId = e.currentTarget.dataset.id
+    const order = this.data.orders.find(o => o._id === orderId)
+    if (!order) return
+
+    const items = (order.review_items || []).map(line => {
+      const rating = this.data.ratings[line.rating_key]
+      return { product_id: line.product_id, rating }
+    })
+    if (items.some(i => !i.rating)) {
+      wx.showToast({ title: '请为每件商品打分', icon: 'none' })
+      return
+    }
+
+    wx.showLoading({ title: '提交中' })
+    try {
+      await post(`/api/orders/${orderId}/review`, { items })
+      wx.showToast({ title: '评价成功', icon: 'success' })
+      await this.fetchOrders()
+    } catch (err) {
+      wx.showToast({ title: err.message || '提交失败', icon: 'none' })
+    } finally {
+      wx.hideLoading()
+    }
   },
 
   async onCancel(e) {

@@ -1,3 +1,45 @@
 <view class="page">
-  <view class="placeholder">🚧 {{title}} 页面 - 待开发</view>
+  <view class="toolbar">
+    <picker mode="selector" range="{{categories}}" range-key="name" value="{{categoryIndex}}" bindchange="onCategoryChange">
+      <view class="picker-btn">{{categories[categoryIndex].name}} ▾</view>
+    </picker>
+    <view class="filters">
+      <text class="filter {{filterStatus === 'all' ? 'active' : ''}}" data-status="all" bindtap="onFilterStatus">全部</text>
+      <text class="filter {{filterStatus === 'on_sale' ? 'active' : ''}}" data-status="on_sale" bindtap="onFilterStatus">在售</text>
+      <text class="filter {{filterStatus === 'off_sale' ? 'active' : ''}}" data-status="off_sale" bindtap="onFilterStatus">下架</text>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!filteredProducts.length}}" class="state-text">暂无商品，点右下角添加</view>
+
+  <view wx:else class="list">
+    <view wx:for="{{filteredProducts}}" wx:key="_id" class="product-card">
+      <view class="thumb">
+        <image wx:if="{{item.cover_url}}" class="thumb-img" src="{{item.cover_url}}" mode="aspectFill" />
+        <text wx:else class="thumb-emoji">{{item.cover_emoji}}</text>
+      </view>
+      <view class="info" data-id="{{item._id}}" bindtap="onEdit">
+        <text class="name">{{item.name}}</text>
+        <text class="meta">¥{{item.price}} · {{item.status_text}} · 库存{{item.stock}}</text>
+        <text class="desc">{{item.description}}</text>
+      </view>
+      <view class="ops">
+        <view
+          class="op-btn"
+          data-id="{{item._id}}"
+          data-status="{{item.status}}"
+          bindtap="onToggleStatus"
+        >{{item.status === 'on_sale' ? '下架' : '上架'}}</view>
+        <view
+          class="op-btn danger"
+          data-id="{{item._id}}"
+          data-name="{{item.name}}"
+          bindtap="onDelete"
+        >删除</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="fab" bindtap="onAdd">＋ 新建商品</view>
 </view>

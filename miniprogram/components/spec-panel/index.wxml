@@ -1,5 +1,6 @@
-<view wx:if="{{visible && product}}" class="mask" catchtouchmove="true">
-  <view class="panel" catchtap="">
+<view wx:if="{{show && product}}" class="mask">
+  <view class="mask-bg" catchtouchmove="noop" bindtap="onMaskTap"></view>
+  <view class="panel">
     <view class="head">
       <text class="name">{{product.name}}</text>
       <text class="close" bindtap="onMaskTap">×</text>
@@ -28,5 +29,4 @@
     </view>
     <view class="confirm" bindtap="onConfirm">加入购物车</view>
   </view>
-  <view class="mask-bg" bindtap="onMaskTap"></view>
 </view>

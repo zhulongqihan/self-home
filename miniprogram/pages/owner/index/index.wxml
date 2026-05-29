@@ -5,10 +5,10 @@
   </view>
 
   <view class="grid">
-    <view class="tile tile-disabled" data-key="products">
+    <view class="tile tile-active" data-key="products" bindtap="onTileTap">
       <view class="tile-icon">🛍️</view>
       <view class="tile-name">商品管理</view>
-      <view class="tile-status">任务 8 开发中</view>
+      <view class="tile-status">增删改与上下架</view>
     </view>
     <view class="tile tile-active" data-key="orders" bindtap="onTileTap">
       <view class="tile-icon">📦</view>

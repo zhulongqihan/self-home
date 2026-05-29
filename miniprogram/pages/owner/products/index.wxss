@@ -1,2 +1,139 @@
-.page { padding: 40rpx; min-height: 100vh; background: var(--background-color, #FDF6EC); }
-.placeholder { text-align: center; color: var(--text-color, #3D2C1E); font-size: 32rpx; margin-top: 200rpx; }
+.page {
+  min-height: 100vh;
+  background: #fdf6ec;
+  padding: 20rpx 20rpx 140rpx;
+  box-sizing: border-box;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.picker-btn {
+  background: #fff;
+  padding: 12rpx 20rpx;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  color: #5f4738;
+}
+
+.filters {
+  display: flex;
+  gap: 12rpx;
+}
+
+.filter {
+  font-size: 22rpx;
+  color: #a09080;
+  padding: 8rpx 14rpx;
+  border-radius: 20rpx;
+  background: #fff;
+}
+
+.filter.active {
+  background: #e8b86d;
+  color: #fff;
+}
+
+.state-text {
+  text-align: center;
+  margin-top: 180rpx;
+  color: #8f7560;
+  font-size: 28rpx;
+}
+
+.product-card {
+  display: flex;
+  gap: 14rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.thumb {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 12rpx;
+  background: #f8f0e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.thumb-img {
+  width: 100%;
+  height: 100%;
+}
+
+.thumb-emoji {
+  font-size: 48rpx;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #3d2c1e;
+}
+
+.meta {
+  display: block;
+  font-size: 22rpx;
+  color: #c9986a;
+  margin-top: 4rpx;
+}
+
+.desc {
+  display: block;
+  font-size: 20rpx;
+  color: #a09080;
+  margin-top: 6rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ops {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  justify-content: center;
+}
+
+.op-btn {
+  font-size: 22rpx;
+  padding: 10rpx 16rpx;
+  border-radius: 10rpx;
+  background: #f8f0e8;
+  color: #6f5745;
+  text-align: center;
+}
+
+.op-btn.danger {
+  background: #f5ebe8;
+  color: #b07a6a;
+}
+
+.fab {
+  position: fixed;
+  right: 32rpx;
+  bottom: 48rpx;
+  background: #e8b86d;
+  color: #fff;
+  padding: 22rpx 32rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  box-shadow: 0 8rpx 24rpx rgba(232, 184, 109, 0.45);
+}

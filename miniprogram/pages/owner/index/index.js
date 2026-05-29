@@ -22,6 +22,10 @@ Page({
     wx.navigateTo({ url: '/pages/owner/orders/index' })
   },
 
+  goProducts() {
+    wx.navigateTo({ url: '/pages/owner/products/index' })
+  },
+
   onTileTap(e) {
     const key = e.currentTarget.dataset.key
     if (key === 'settings') {
@@ -30,6 +34,10 @@ Page({
     }
     if (key === 'orders') {
       this.goOrders()
+      return
+    }
+    if (key === 'products') {
+      this.goProducts()
     }
   },
 

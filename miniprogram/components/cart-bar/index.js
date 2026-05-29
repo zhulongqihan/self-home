@@ -13,7 +13,8 @@ Component({
     deliveryOptions: ['本人配送', '外卖代下', '视频陪伴', '立即兑现'],
     deliveryIndex: 0,
     deliveryType: '本人配送',
-    note: ''
+    note: '',
+    submitting: false
   },
 
   observers: {
@@ -71,11 +72,15 @@ Component({
     },
 
     async onSubmit() {
+      if (this.data.submitting) return
       const items = this.data.items
       if (!items.length) {
         wx.showToast({ title: '购物车是空的', icon: 'none' })
         return
       }
+
+      this.setData({ submitting: true })
+      wx.showLoading({ title: '提交中', mask: true })
       try {
         const resp = await post('/api/orders', {
           items: items.map(i => ({
@@ -87,20 +92,35 @@ Component({
           delivery_type: this.data.deliveryType,
           customer_note: this.data.note
         })
+
         clearCart()
-        this.loadItems()
+        this.setData({
+          items: [],
+          note: '',
+          deliveryIndex: 0,
+          deliveryType: this.data.deliveryOptions[0]
+        })
+        // 先关抽屉、同步父页面角标，再弹成功框（避免遮罩叠层导致“卡住”）
+        this.triggerEvent('close')
+        this.triggerEvent('updated', { count: 0, total: 0 })
+
+        const total = resp.data && resp.data.total_price
         wx.showModal({
           title: '下单成功',
-          content: `合计 ¥${resp.data.total_price}`,
+          content: `合计 ¥${total != null ? total : ''}`,
           showCancel: false,
-          success: () => this.triggerEvent('ordersuccess')
+          success: () => this.triggerEvent('ordersuccess', { total_price: total })
         })
       } catch (err) {
         wx.showToast({ title: err.message || '下单失败', icon: 'none' })
+      } finally {
+        wx.hideLoading()
+        this.setData({ submitting: false })
       }
     },
 
     onSubmitTap() {
+      if (this.data.submitting) return
       if (this.properties.count <= 0) return
       if (!this.properties.drawerOpen) {
         this.triggerEvent('toggle')

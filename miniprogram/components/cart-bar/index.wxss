@@ -8,13 +8,11 @@
   right: 0;
   bottom: var(--tab-bar-total-h);
   z-index: 200;
-  pointer-events: none;
-}
-
-.wrap .bar,
-.wrap .drawer,
-.wrap .mask {
-  pointer-events: auto;
+  /* 仅包裹底部购物车条高度，避免误挡上方商品列表点击 */
+  top: auto;
+  width: 100%;
+  height: auto;
+  overflow: visible;
 }
 
 .mask {

@@ -2,7 +2,7 @@ const { addToCart } = require('../../utils/cart.js')
 
 Component({
   properties: {
-    visible: { type: Boolean, value: false },
+    show: { type: Boolean, value: false },
     product: { type: Object, value: null }
   },
 
@@ -23,6 +23,8 @@ Component({
   },
 
   methods: {
+    noop() {},
+
     onMaskTap() {
       this.triggerEvent('close')
     },

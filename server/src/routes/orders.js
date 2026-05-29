@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const { requireAuth, requireRole } = require('../middlewares/auth')
 const Product = require('../models/Product')
 const Order = require('../models/Order')
+const Review = require('../models/Review')
 const { canTransition, getNextStatuses, STATUS_TEXT } = require('../services/orderStatus')
 
 const router = express.Router()
@@ -158,6 +159,68 @@ router.patch('/:id/status', requireAuth, async (req, res, next) => {
       }
     })
   } catch (err) {
+    next(err)
+  }
+})
+
+/** 顾客：订单评价（待评价 → 已完成） */
+router.post('/:id/review', requireAuth, async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const { items } = req.body || {}
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ status: 'error', code: 'INVALID_ORDER_ID', message: '订单 ID 无效' })
+    }
+    if (!Array.isArray(items) || !items.length) {
+      return res.status(400).json({ status: 'error', code: 'EMPTY_REVIEW', message: '请为商品打分' })
+    }
+
+    const order = await Order.findById(id)
+    if (!order) {
+      return res.status(404).json({ status: 'error', code: 'ORDER_NOT_FOUND', message: '订单不存在' })
+    }
+    if (String(order.user_id) !== String(req.user.sub)) {
+      return res.status(403).json({ status: 'error', code: 'FORBIDDEN', message: '无权评价此订单' })
+    }
+    if (order.status !== 'to_review') {
+      return res.status(400).json({ status: 'error', code: 'NOT_REVIEWABLE', message: '当前订单不可评价' })
+    }
+
+    const productIds = new Set(order.items.map(i => String(i.product_id)))
+    const docs = []
+    for (const raw of items) {
+      const pid = raw.product_id
+      const rating = Number(raw.rating)
+      if (!pid || !productIds.has(String(pid))) {
+        return res.status(400).json({ status: 'error', code: 'INVALID_PRODUCT', message: '评价商品不在订单内' })
+      }
+      if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+        return res.status(400).json({ status: 'error', code: 'INVALID_RATING', message: '评分须为 1-5 星' })
+      }
+      docs.push({
+        order_id: order._id,
+        user_id: req.user.sub,
+        product_id: pid,
+        rating,
+        comment: raw.comment ? String(raw.comment) : ''
+      })
+    }
+
+    await Review.insertMany(docs)
+    const now = new Date()
+    order.status = 'completed'
+    order.status_history.push({
+      status: 'completed',
+      changed_at: now,
+      note: '顾客完成评价'
+    })
+    await order.save()
+
+    res.json({ status: 'ok', data: { order_id: order._id, status: order.status } })
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ status: 'error', code: 'ALREADY_REVIEWED', message: '该订单已评价' })
+    }
     next(err)
   }
 })

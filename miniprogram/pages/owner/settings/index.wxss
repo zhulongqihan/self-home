@@ -31,10 +31,21 @@
 
 .input-line {
   width: 100%;
+  height: 88rpx;
+  min-height: 88rpx;
+  line-height: 88rpx;
   background: #f8f0e8;
   border-radius: 12rpx;
-  padding: 20rpx 16rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: #3d2c1e;
+  box-sizing: border-box;
+}
+
+.field-placeholder {
+  color: #b0a090;
   font-size: 26rpx;
+  line-height: 88rpx;
 }
 
 .hint {

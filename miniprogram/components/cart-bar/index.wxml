@@ -36,8 +36,8 @@
       <text wx:else class="total">¥{{total}}</text>
     </view>
     <view
-      class="submit {{count > 0 ? 'active' : ''}}"
+      class="submit {{count > 0 && !submitting ? 'active' : ''}}"
       catchtap="onSubmitTap"
-    >下单</view>
+    >{{submitting ? '提交中' : '下单'}}</view>
   </view>
 </view>

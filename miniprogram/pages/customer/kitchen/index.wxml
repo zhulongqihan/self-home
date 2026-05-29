@@ -26,11 +26,18 @@
         wx:key="_id"
         class="product-row"
       >
-        <image wx:if="{{item.coverUrl}}" class="thumb" src="{{item.coverUrl}}" mode="aspectFill" />
+        <image
+          wx:if="{{item.coverUrl}}"
+          class="thumb"
+          src="{{item.coverUrl}}"
+          mode="aspectFill"
+          data-id="{{item._id}}"
+          binderror="onCoverError"
+        />
         <view wx:else class="thumb thumb-emoji">{{item.coverEmoji}}</view>
         <view class="info">
           <view class="name">{{item.name}}</view>
-          <view class="meta">★ 5.0 · 月销 0</view>
+          <view class="meta">{{item.metaText}}</view>
           <view class="desc">{{item.description}}</view>
           <view class="price-row">
             <text class="price">¥{{item.price}}</text>
@@ -38,13 +45,13 @@
               wx:if="{{item.hasSpecs}}"
               class="btn-spec"
               data-id="{{item._id}}"
-              catchtap="onTapSpec"
+              bindtap="onTapSpec"
             >选规格</view>
             <view
               wx:else
               class="btn-add"
               data-id="{{item._id}}"
-              catchtap="onTapAdd"
+              bindtap="onTapAdd"
             >+</view>
           </view>
         </view>
@@ -65,7 +72,8 @@
   />
 
   <spec-panel
-    visible="{{specVisible}}"
+    wx:if="{{specVisible && specProduct}}"
+    show="{{true}}"
     product="{{specProduct}}"
     bind:close="onSpecClose"
     bind:added="onSpecAdded"

@@ -15,6 +15,7 @@
       class="input-line"
       value="{{welcomeImageUrl}}"
       placeholder="https://... 或留空用默认"
+      placeholder-class="field-placeholder"
       bindinput="onInputImage"
     />
     <view class="hint">支持网络图片；任务 8 将支持本地上传</view>

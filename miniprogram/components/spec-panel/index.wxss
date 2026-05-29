@@ -4,7 +4,8 @@
   right: 0;
   top: 0;
   bottom: 0;
-  z-index: 200;
+  z-index: 300;
+  pointer-events: auto;
 }
 
 .mask-bg {
@@ -14,6 +15,7 @@
   top: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.45);
+  z-index: 0;
 }
 
 .panel {
@@ -24,8 +26,10 @@
   background: #fff;
   border-radius: 24rpx 24rpx 0 0;
   padding: 32rpx;
-  padding-bottom: calc(env(safe-area-inset-bottom) + 32rpx);
-  z-index: 1;
+  /* 底部留出 TabBar 高度，主按钮便于点击 */
+  padding-bottom: calc(env(safe-area-inset-bottom) + 112rpx + 40rpx);
+  z-index: 2;
+  box-sizing: border-box;
 }
 
 .head {

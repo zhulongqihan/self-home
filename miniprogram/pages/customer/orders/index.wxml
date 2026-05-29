@@ -40,6 +40,25 @@
           </view>
         </view>
 
+        <view wx:if="{{item.can_review}}" class="review-box">
+          <view class="timeline-title">评价订单</view>
+          <view wx:for="{{item.review_items}}" wx:key="rating_key" wx:for-item="line" class="review-line">
+            <text class="review-name">{{line.product_name}}</text>
+            <view class="stars">
+              <text
+                wx:for="{{[1,2,3,4,5]}}"
+                wx:key="*this"
+                wx:for-item="star"
+                class="star {{ratings[line.rating_key] >= star ? 'on' : ''}}"
+                data-key="{{line.rating_key}}"
+                data-star="{{star}}"
+                bindtap="onPickStar"
+              >★</text>
+            </view>
+          </view>
+          <view class="review-submit" data-id="{{item._id}}" bindtap="onSubmitReview">提交评价</view>
+        </view>
+
         <view wx:if="{{item.can_cancel}}" class="cancel-wrap">
           <view class="cancel-btn" data-id="{{item._id}}" bindtap="onCancel">{{item.cancel_label}}</view>
         </view>
