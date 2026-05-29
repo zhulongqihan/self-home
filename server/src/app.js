@@ -41,7 +41,7 @@ app.use('/api/config', configRouter)
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.1.7',
+    version: '0.1.8',
     endpoints: [
       'GET /api/health',
       'POST /api/auth/login',
@@ -52,6 +52,10 @@ app.get('/', (req, res) => {
       'GET /api/products/:id',
       'POST /api/orders',
       'GET /api/orders/my',
+      'GET /api/orders/owner/all',
+      'GET /api/orders/:id',
+      'PATCH /api/orders/:id/status',
+      'PATCH /api/orders/:id/reply',
       'GET /api/config/customer',
       'GET /api/config/welcome',
       'PUT /api/config/welcome'

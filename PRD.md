@@ -361,13 +361,13 @@ config { _id: 'global',
 1. **分版本开发**：每完成 1 个任务即为 1 个版本（v0.1.1 → v0.1.2 …；小修复可用 v0.1.7.1 等补丁号）
 2. **每版本必须用户验收**：未通过验收不得进入下一个任务，**不得打 Tag / 发 Release**
 3. **每版本必须同步 GitHub + Release（验收通过后立即执行 · 强制）**  
-   任一小版本（含 UI 修复）在用户回复「通过」后，**同一轮对话内**必须完成：
+   远程仓库使用 **SSH**（`git@github.com:...`，不用 HTTPS）。任一小版本在用户回复「通过」后，**同一轮对话内**必须完成：
    - `git add` + `git commit`（说明写进 `CHANGELOG.md`）
-   - `git push origin main`（或当前开发分支）
+   - `git push origin main`（经 SSH 推送到 GitHub）
    - `git tag -a vX.Y.Z -m "..."` + `git push origin vX.Y.Z`
-   - GitHub **Release**（附 `docs/acceptance/vX.Y.Z.md` 摘要；可用 `gh release create`）
+   - GitHub **Release**（附 `docs/acceptance/vX.Y.Z.md` 摘要；Web 端或 `gh release create`）
    - **禁止**只改本地不推送；**禁止**只 commit 不打 Tag、不发 Release
-4. **可回退**：任何版本出问题，通过 Tag 回退，例如 `git checkout v0.1.5` 或 `git reset --hard v0.1.5`（需用户确认后再 force push）
+4. **可回退**：任何版本出问题，通过 Tag 回退，例如 `git checkout v0.1.5` 或 `git reset --hard v0.1.5`（需用户确认后再 `git push -f origin main`）
 5. **多 Agent 并行**：无依赖关系的任务可并行执行，便于用户分块检验
 6. **不偏离 PRD**：任何超出本文档的实现需求需先回来更新文档
 7. **不破坏既有服务**：服务器上博客和 agent 项目零中断（除证书续期）
@@ -375,14 +375,27 @@ config { _id: 'global',
 
 ### 9.1 版本存档检查清单（AI / 开发必做）
 
+**本仓库远程（SSH）**：`git@github.com:zhulongqihan/self-home.git`  
+首次配置：`git remote add origin git@github.com:<用户>/<仓库>.git`（勿用 `https://`）
+
 | 步骤 | 命令/动作 |
 |------|-----------|
 | 更新变更说明 | `CHANGELOG.md` + `docs/acceptance/vX.Y.Z.md` |
-| 提交 | `git commit`（语义化说明「为什么」） |
-| 推送代码 | `git push origin main` |
-| 打标签 | `git tag -a vX.Y.Z` → `git push origin vX.Y.Z` |
-| 发 Release | GitHub Release 标题 `vX.Y.Z`，正文链到验收清单 |
-| 服务器（如有后端改动） | 仅 `scp` `/opt/couple-app` + `pm2 restart couple-app`，不动 blog/agent |
+| 提交 | `git add .` → `git commit -m "..."` |
+| 推送代码（SSH） | `git push origin main` |
+| 打标签并推送 | `git tag -a vX.Y.Z -m "..."` → `git push origin vX.Y.Z` |
+| 发 Release | [GitHub Releases](https://github.com/zhulongqihan/self-home/releases) 新建，或 `gh release create vX.Y.Z` |
+| 服务器（如有后端改动） | `scp -r server/src/* root@118.31.221.81:/opt/couple-app/src/` → `ssh root@118.31.221.81 'pm2 restart couple-app'`（不动 blog/agent） |
+
+```bash
+# 验收通过后一键存档示例（v0.1.7）
+git add .
+git commit -m "feat(v0.1.7): <简述>"
+git push origin main
+git tag -a v0.1.7 -m "v0.1.7: <简述>"
+git push origin v0.1.7
+# Release：打开 GitHub → Releases → Draft new release → 选择 tag v0.1.7
+```
 
 ---
 

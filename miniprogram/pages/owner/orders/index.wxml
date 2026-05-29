@@ -1,3 +1,77 @@
 <view class="page">
-  <view class="placeholder">🚧 {{title}} 页面 - 待开发</view>
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!orders.length}}" class="state-text">暂无订单</view>
+
+  <view wx:else>
+    <view
+      wx:for="{{orders}}"
+      wx:key="_id"
+      class="order-card {{expandedId === item._id ? 'expanded' : ''}}"
+    >
+      <view class="order-head" data-id="{{item._id}}" bindtap="onToggle">
+        <view>
+          <text class="order-id">#{{item.short_id}}</text>
+          <text class="order-time">{{item.created_at_text}}</text>
+        </view>
+        <text class="order-status status-{{item.status}}">{{item.status_text}}</text>
+      </view>
+
+      <view wx:for="{{item.items}}" wx:key="product_id" wx:for-item="line" class="order-item">
+        <text>{{line.product_name}} x{{line.qty}}</text>
+        <text>¥{{line.price * line.qty}}</text>
+      </view>
+
+      <view class="order-foot">
+        <text>{{item.delivery_type}} · ¥{{item.total_price}}</text>
+        <text class="toggle-hint">{{expandedId === item._id ? '收起' : '处理'}}</text>
+      </view>
+
+      <view wx:if="{{expandedId === item._id}}" class="order-detail">
+        <view class="timeline">
+          <view wx:for="{{item.status_history}}" wx:key="changed_at" wx:for-item="h" class="timeline-row">
+            <view class="dot"></view>
+            <view class="timeline-body">
+              <text class="timeline-status">{{h.status_text}}</text>
+              <text class="timeline-note">{{h.changed_at_text}} {{h.note}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{item.customer_note}}" class="note-block">
+          <text class="note-label">顾客备注</text>
+          <text>{{item.customer_note}}</text>
+        </view>
+
+        <view wx:if="{{item.owner_reply}}" class="note-block owner">
+          <text class="note-label">店长回复</text>
+          <text>{{item.owner_reply}}</text>
+        </view>
+
+        <view class="reply-box">
+          <text class="note-label">店长备注</text>
+          <textarea
+            class="reply-input"
+            data-id="{{item._id}}"
+            value="{{replyDraft[item._id]}}"
+            bindinput="onReplyInput"
+            placeholder="给顾客留言，如预计送达时间"
+            maxlength="200"
+          />
+          <view class="reply-save" data-id="{{item._id}}" bindtap="onSaveReply">保存备注</view>
+        </view>
+
+        <view wx:if="{{item.next_actions.length}}" class="actions">
+          <view
+            wx:for="{{item.next_actions}}"
+            wx:key="status"
+            wx:for-item="act"
+            class="action-btn {{act.status === 'cancelled' ? 'danger' : 'primary'}}"
+            data-id="{{item._id}}"
+            data-status="{{act.status}}"
+            bindtap="onAction"
+          >{{act.label}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

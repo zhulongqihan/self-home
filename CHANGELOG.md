@@ -1,5 +1,17 @@
 # 更新日志
 
+## v0.1.8 - 任务 8：订单状态机 + 流转 API（2026-05-29）
+
+### 后端
+- `orderStatus` 服务：店长/顾客合法状态流转
+- `GET /api/orders/owner/all`、`GET /api/orders/:id`
+- `PATCH /api/orders/:id/status`、`PATCH /api/orders/:id/reply`
+
+### 前端
+- 店长订单管理：接单、推进、取消、备注
+- 顾客订单：进度时间线、待接单取消、店长回复展示
+- `request.patch`、共享 `utils/orderStatus.js`
+
 ## v0.1.7.1 - 多端适配与登录/工作台修复（2026-05-29）
 
 ### 修复

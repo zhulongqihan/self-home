@@ -10,10 +10,10 @@
       <view class="tile-name">商品管理</view>
       <view class="tile-status">任务 8 开发中</view>
     </view>
-    <view class="tile tile-disabled" data-key="orders">
+    <view class="tile tile-active" data-key="orders" bindtap="onTileTap">
       <view class="tile-icon">📦</view>
       <view class="tile-name">订单管理</view>
-      <view class="tile-status">任务 8 开发中</view>
+      <view class="tile-status">接单与状态流转</view>
     </view>
     <view class="tile tile-disabled" data-key="analytics">
       <view class="tile-icon">📊</view>

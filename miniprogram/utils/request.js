@@ -54,6 +54,7 @@ function request(opts) {
 const get = (url, opts = {}) => request({ ...opts, url, method: 'GET' })
 const post = (url, data, opts = {}) => request({ ...opts, url, method: 'POST', data })
 const put = (url, data, opts = {}) => request({ ...opts, url, method: 'PUT', data })
+const patch = (url, data, opts = {}) => request({ ...opts, url, method: 'PATCH', data })
 const del = (url, opts = {}) => request({ ...opts, url, method: 'DELETE' })
 
-module.exports = { request, get, post, put, del, TOKEN_KEY }
+module.exports = { request, get, post, put, patch, del, TOKEN_KEY }

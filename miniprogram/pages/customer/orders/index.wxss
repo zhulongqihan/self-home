@@ -59,3 +59,83 @@
   font-weight: 700;
   font-size: 28rpx;
 }
+
+.order-card.expanded {
+  box-shadow: 0 8rpx 24rpx rgba(61, 44, 30, 0.06);
+}
+
+.status-cancelled {
+  color: #b07a6a;
+}
+
+.status-completed {
+  color: #7a9a6a;
+}
+
+.owner-reply {
+  margin-top: 12rpx;
+  padding: 12rpx 14rpx;
+  background: #fff5e8;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  color: #6f5745;
+}
+
+.reply-label {
+  display: block;
+  font-size: 22rpx;
+  color: #c9986a;
+  margin-bottom: 4rpx;
+}
+
+.order-detail {
+  margin-top: 14rpx;
+  padding-top: 14rpx;
+  border-top: 1px dashed #f1e8dd;
+}
+
+.timeline-title {
+  font-size: 24rpx;
+  color: #8f7560;
+  margin-bottom: 10rpx;
+}
+
+.timeline-row {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 10rpx;
+}
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #e8b86d;
+  margin-top: 8rpx;
+  flex-shrink: 0;
+}
+
+.timeline-status {
+  display: block;
+  font-size: 24rpx;
+  color: #5f4738;
+  font-weight: 600;
+}
+
+.timeline-note {
+  font-size: 20rpx;
+  color: #a09080;
+}
+
+.cancel-wrap {
+  margin-top: 16rpx;
+}
+
+.cancel-btn {
+  text-align: center;
+  padding: 18rpx;
+  border-radius: 12rpx;
+  background: #f5ebe8;
+  color: #b07a6a;
+  font-size: 26rpx;
+}

@@ -18,11 +18,18 @@ Page({
     wx.navigateTo({ url: '/pages/owner/settings/index' })
   },
 
+  goOrders() {
+    wx.navigateTo({ url: '/pages/owner/orders/index' })
+  },
+
   onTileTap(e) {
     const key = e.currentTarget.dataset.key
     if (key === 'settings') {
       this.goSettings()
       return
+    }
+    if (key === 'orders') {
+      this.goOrders()
     }
   },
 

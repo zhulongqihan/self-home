@@ -9,7 +9,7 @@
 你是 **总指挥 Agent（Orchestrator）**，负责：
 - 阅读 `PRD.md`（项目最高红线，不可违反）
 - 把任务分发给子 Agent 并行执行
-- 收口每个版本，提交 Git → 推 GitHub → 打 Tag → 发 Release
+- 收口每个版本，提交 Git → SSH 推 GitHub → 打 Tag → 发 Release
 - 把测试入口和验收清单交给用户
 - 等待用户验收通过后才能进入下一个任务
 
@@ -22,7 +22,7 @@
 3. ✅ **后台可配置**：任何商品/分类/节日/文案/价格/主题色/彩蛋开关 → 必须存数据库，禁止硬编码
 4. ✅ **分版本开发**：每完成 1 个任务 = 1 个 Git Tag + 1 个 GitHub Release
 5. ✅ **用户验收强约束**：每个版本完成后，**必须停下来**给用户提供验收清单，**用户回复"通过"才能继续**
-6. ✅ **GitHub 同步强制**：用户回复「通过」后，**同一轮内**必须 `commit` → `push` → `tag` → `push tag` → **GitHub Release**（细则见 PRD §9.1）；不得只改本地仓库
+6. ✅ **GitHub 同步强制（SSH）**：用户回复「通过」后，**同一轮内**必须 `commit` → `git push origin main`（SSH）→ `tag` → `git push origin vX.Y.Z` → **GitHub Release**（细则见 PRD §9.1）；不得只改本地仓库
 7. ✅ **可回退**：任何版本出问题，用户说"回退到 vX.Y.Z" → 立即 `git reset --hard <tag>`
 8. ✅ **并行不冲突**：多 Agent 并行的任务必须改不同文件夹/不同模块，避免合并冲突
 
@@ -31,17 +31,18 @@
 ## 2. 仓库与版本规范
 
 ### 2.1 仓库初始化（首次执行 1 次）
-等用户提供 GitHub 仓库地址后：
+等用户提供 GitHub 仓库地址后，**远程必须用 SSH 格式**（`git@github.com:用户/仓库.git`），不要用 HTTPS：
 ```bash
 git init
-git remote add origin <用户提供的 GitHub 链接>
+git remote add origin git@github.com:<用户>/<仓库>.git
 git branch -M main
 git add .
 git commit -m "chore: 初始化项目，导入 PRD v2.0"
-git push -u origin main
+git push -u origin main          # 经 SSH 上传
 git tag v0.0.0
 git push origin v0.0.0
 ```
+本仓库已配置：`git@github.com:zhulongqihan/self-home.git`
 
 ### 2.2 版本号规则（SemVer 简化版）
 - `v0.X.Y`：开发期，X = Phase 编号（1/2/3），Y = 任务编号
@@ -49,22 +50,23 @@ git push origin v0.0.0
 - Phase 全部完成 → 升 `v0.X.0-final`
 - 全部完成 → `v1.0.0` 正式版
 
-### 2.3 每次任务完成的存档动作（强制）
+### 2.3 每次任务完成的存档动作（强制 · SSH 推送）
 ```bash
 git add .
 git commit -m "feat(phaseX-taskN): <任务名> - 描述"
 git tag -a v0.X.Y -m "<任务名>"
-git push origin main
-git push origin v0.X.Y
-gh release create v0.X.Y --title "<任务名>" --notes-file RELEASE_NOTES.md
+git push origin main              # SSH → GitHub
+git push origin v0.X.Y            # 推送 Tag
 ```
-> 若用户未安装 `gh` CLI，则改用 `git push origin v0.X.Y` 后提示用户去 GitHub Web 端手动 Release。
+**Release**（二选一）：
+- GitHub Web：[zhulongqihan/self-home Releases](https://github.com/zhulongqihan/self-home/releases) → Draft new release → 选 tag `v0.X.Y`
+- 或本机已装 `gh`：`gh release create v0.X.Y --title "<任务名>" --notes-file docs/acceptance/v0.X.Y.md`
 
 ### 2.4 回退流程
 用户说"回退到 v0.1.3"时：
 ```bash
 git reset --hard v0.1.3
-git push -f origin main  # 仅在用户明确确认后
+git push -f origin main  # SSH 强制推送，仅在用户明确确认后
 ```
 
 ---

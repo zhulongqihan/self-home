@@ -120,10 +120,11 @@ MongoDB (本机存储)
 
 ## 🛠️ 开发流程（强约束）
 
-1. **分版本开发**：每完成 1 个任务 = 1 个 Git Tag + 1 个 Release
+1. **分版本开发**：每完成 1 个任务 = 1 个 Git Tag + 1 个 GitHub Release
 2. **用户验收强制**：每个版本完成后必须通过 [`docs/acceptance/`](./docs/acceptance/) 清单验收
-3. **多 Agent 并行**：按 [`AI_EXECUTION_PROMPT.md`](./AI_EXECUTION_PROMPT.md) 的 Harness 模式协作
-4. **可回退**：任何版本出问题，`git reset --hard <tag>` 立即回滚
+3. **GitHub 同步（SSH）**：验收通过后 `git push origin main` + `git push origin vX.Y.Z`（远程 `git@github.com:zhulongqihan/self-home.git`），详见 PRD §9.1
+4. **多 Agent 并行**：按 [`AI_EXECUTION_PROMPT.md`](./AI_EXECUTION_PROMPT.md) 的 Harness 模式协作
+5. **可回退**：任何版本出问题，`git checkout vX.Y.Z` 或 `git reset --hard <tag>` 立即回滚
 
 完整工作手册见 [`AI_EXECUTION_PROMPT.md`](./AI_EXECUTION_PROMPT.md)。
 

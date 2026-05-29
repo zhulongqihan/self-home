@@ -3,18 +3,46 @@
   <view wx:elif="{{!orders.length}}" class="state-text">还没有订单，快去下第一单吧</view>
 
   <view wx:else>
-    <view wx:for="{{orders}}" wx:key="_id" class="order-card">
-      <view class="order-head">
-        <text class="order-id">订单 {{item.short_id}}</text>
-        <text class="order-status">{{item.status_text}}</text>
+    <view
+      wx:for="{{orders}}"
+      wx:key="_id"
+      class="order-card {{expandedId === item._id ? 'expanded' : ''}}"
+    >
+      <view class="order-head" data-id="{{item._id}}" bindtap="onToggle">
+        <text class="order-id">订单 #{{item.short_id}}</text>
+        <text class="order-status status-{{item.status}}">{{item.status_text}}</text>
       </view>
+
       <view wx:for="{{item.items}}" wx:key="product_id" wx:for-item="line" class="order-item">
         <text>{{line.product_name}} x{{line.qty}}</text>
         <text>¥{{line.price * line.qty}}</text>
       </view>
+
       <view class="order-foot">
         <text>配送：{{item.delivery_type}}</text>
         <text class="order-total">合计 ¥{{item.total_price}}</text>
+      </view>
+
+      <view wx:if="{{item.owner_reply}}" class="owner-reply">
+        <text class="reply-label">店长说</text>
+        <text>{{item.owner_reply}}</text>
+      </view>
+
+      <view wx:if="{{expandedId === item._id}}" class="order-detail">
+        <view class="timeline-title">进度</view>
+        <view class="timeline">
+          <view wx:for="{{item.status_history}}" wx:key="changed_at" wx:for-item="h" class="timeline-row">
+            <view class="dot"></view>
+            <view class="timeline-body">
+              <text class="timeline-status">{{h.status_text}}</text>
+              <text class="timeline-note">{{h.changed_at_text}} {{h.note}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{item.can_cancel}}" class="cancel-wrap">
+          <view class="cancel-btn" data-id="{{item._id}}" bindtap="onCancel">{{item.cancel_label}}</view>
+        </view>
       </view>
     </view>
   </view>
