@@ -1,7 +1,81 @@
-// miniprogram/pages/customer/cart/index.js
+const { post } = require('../../../utils/request')
+const { getCart, updateQty, clearCart } = require('../../../utils/cart')
+
 Page({
-  data: { title: '购物车', role: 'customer' },
-  onLoad() {
-    console.log('[customer] 购物车 页面加载')
+  data: {
+    items: [],
+    deliveryType: '本人配送',
+    deliveryOptions: ['本人配送', '外卖代下', '视频陪伴', '立即兑现'],
+    deliveryIndex: 0,
+    note: '',
+    totalPrice: 0
+  },
+
+  onShow() {
+    this.loadCart()
+  },
+
+  loadCart() {
+    const items = getCart()
+    const totalPrice = items.reduce((sum, i) => sum + i.price * i.qty, 0)
+    this.setData({ items, totalPrice })
+  },
+
+  onDec(e) {
+    const key = e.currentTarget.dataset.key
+    const item = this.data.items.find(i => i.key === key)
+    if (!item) return
+    updateQty(key, item.qty - 1)
+    this.loadCart()
+  },
+
+  onInc(e) {
+    const key = e.currentTarget.dataset.key
+    const item = this.data.items.find(i => i.key === key)
+    if (!item) return
+    updateQty(key, item.qty + 1)
+    this.loadCart()
+  },
+
+  onChangeDelivery(e) {
+    const idx = Number(e.detail.value || 0)
+    const value = this.data.deliveryOptions[idx] || this.data.deliveryOptions[0]
+    this.setData({ deliveryType: value, deliveryIndex: idx })
+  },
+
+  onInputNote(e) {
+    this.setData({ note: e.detail.value || '' })
+  },
+
+  async onSubmitOrder() {
+    const { items, deliveryType, note } = this.data
+    if (!items.length) {
+      wx.showToast({ title: '购物车是空的', icon: 'none' })
+      return
+    }
+
+    try {
+      const payload = {
+        items: items.map(i => ({
+          product_id: i.product_id,
+          qty: i.qty,
+          specs: i.specs,
+          note: i.note || ''
+        })),
+        delivery_type: deliveryType,
+        customer_note: note
+      }
+      const resp = await post('/api/orders', payload)
+      clearCart()
+      this.loadCart()
+      wx.showModal({
+        title: '下单成功',
+        content: `订单号：${resp.data.order_id}\n总价：¥${resp.data.total_price}`,
+        showCancel: false,
+        success: () => wx.navigateTo({ url: '/pages/customer/orders/index' })
+      })
+    } catch (err) {
+      wx.showToast({ title: err.message || '下单失败', icon: 'none' })
+    }
   }
 })

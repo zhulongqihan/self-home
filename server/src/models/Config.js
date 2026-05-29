@@ -56,6 +56,26 @@ const ConfigSchema = new Schema({
     type: Map,
     of: Boolean,
     default: {}
+  },
+
+  // v2.3 欢迎页
+  welcome: {
+    text: { type: String, default: '今天也要好好吃饭哦～' },
+    image_url: { type: String, default: '/assets/welcome/default.png' }
+  },
+
+  // v2.3 底部 Tab 文案
+  tab_bar: {
+    kitchen: { type: String, default: '厨房' },
+    orders: { type: String, default: '订单' },
+    discover: { type: String, default: '发现' },
+    profile: { type: String, default: '我的' }
+  },
+
+  // v2.3 发现页占位
+  discover_placeholder: {
+    title: { type: String, default: '发现' },
+    desc: { type: String, default: '精彩内容筹备中，敬请期待～' }
   }
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

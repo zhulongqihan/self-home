@@ -3,12 +3,15 @@
     "pages/launch/index",
     "pages/launch/login",
     "pages/launch/forbidden",
+    "pages/customer/welcome/index",
+    "pages/customer/kitchen/index",
+    "pages/customer/orders/index",
+    "pages/customer/discover/index",
+    "pages/customer/profile/index",
     "pages/customer/index/index",
     "pages/customer/products/index",
     "pages/customer/products/detail",
     "pages/customer/cart/index",
-    "pages/customer/orders/index",
-    "pages/customer/profile/index",
     "pages/owner/index/index",
     "pages/owner/products/index",
     "pages/owner/orders/index",
@@ -23,13 +26,15 @@
     "backgroundColor": "#FDF6EC"
   },
   "tabBar": {
+    "custom": true,
     "color": "#999999",
     "selectedColor": "#E8B86D",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
-      { "pagePath": "pages/customer/index/index", "text": "首页" },
+      { "pagePath": "pages/customer/kitchen/index", "text": "厨房" },
       { "pagePath": "pages/customer/orders/index", "text": "订单" },
+      { "pagePath": "pages/customer/discover/index", "text": "发现" },
       { "pagePath": "pages/customer/profile/index", "text": "我的" }
     ]
   },

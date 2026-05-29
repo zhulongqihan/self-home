@@ -14,6 +14,18 @@ Page({
     })
   },
 
+  goSettings() {
+    wx.navigateTo({ url: '/pages/owner/settings/index' })
+  },
+
+  onTileTap(e) {
+    const key = e.currentTarget.dataset.key
+    if (key === 'settings') {
+      this.goSettings()
+      return
+    }
+  },
+
   onLogout() {
     wx.showActionSheet({
       itemList: ['切换账号（用暗号登录）', '退出登录'],

@@ -1,0 +1,9 @@
+/* 全局布局变量：TabBar / 悬浮购物车 / 底部安全区（多端适配） */
+page {
+  --tab-bar-content-h: 112rpx;
+  --tab-bar-total-h: calc(var(--tab-bar-content-h) + env(safe-area-inset-bottom));
+  --cart-bar-h: 96rpx;
+  --float-gap: 16rpx;
+  /* 厨房列表底部留白 = TabBar + 悬浮购物车 + 间距 */
+  --kitchen-bottom-pad: calc(var(--tab-bar-total-h) + var(--cart-bar-h) + var(--float-gap));
+}

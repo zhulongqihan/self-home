@@ -1,3 +1,50 @@
 <view class="page">
-  <view class="placeholder">🚧 {{title}} 页面 - 待开发</view>
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!product}}" class="state-text">商品不存在</view>
+
+  <view wx:else>
+    <swiper class="swiper" autoplay circular indicator-dots>
+      <swiper-item wx:for="{{product.images}}" wx:key="*this">
+        <image class="cover" src="{{item}}" mode="aspectFill" />
+      </swiper-item>
+    </swiper>
+
+    <view class="card">
+      <view class="name">{{product.name}}</view>
+      <view class="price">¥{{product.price}}</view>
+      <view class="desc">{{product.description}}</view>
+    </view>
+
+    <view class="card" wx:if="{{product.specs && product.specs.length}}">
+      <view class="section-title">规格选择</view>
+      <view wx:for="{{product.specs}}" wx:key="name" wx:for-item="spec" class="spec-block">
+        <view class="spec-name">{{spec.name}}</view>
+        <view class="spec-options">
+          <view
+            wx:for="{{spec.options}}"
+            wx:key="*this"
+            wx:for-item="opt"
+            class="spec-option {{selectedSpecs[spec.name] === opt ? 'active' : ''}}"
+            data-name="{{spec.name}}"
+            data-option="{{opt}}"
+            bindtap="onChooseSpec"
+          >{{opt}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card qty-row">
+      <view class="section-title">数量</view>
+      <view class="qty-box">
+        <view class="qty-btn" bindtap="onDecQty">-</view>
+        <view class="qty-val">{{qty}}</view>
+        <view class="qty-btn" bindtap="onIncQty">+</view>
+      </view>
+    </view>
+
+    <view class="bottom-actions">
+      <view class="btn secondary" bindtap="onAddToCart">加入购物车</view>
+      <view class="btn primary" bindtap="onBuyNow">立即下单</view>
+    </view>
+  </view>
 </view>

@@ -13,6 +13,7 @@ Page({
   },
 
   async onSubmit() {
+    if (this.data.loading) return
     const pwd = (this.data.password || '').trim()
     if (!pwd) {
       this.setData({ errorMsg: '请输入暗号' })
@@ -28,7 +29,9 @@ Page({
         if (role === 'owner') {
           wx.reLaunch({ url: '/pages/owner/index/index' })
         } else {
-          wx.reLaunch({ url: '/pages/customer/index/index' })
+          const app = getApp()
+          if (app) app.globalData.shouldShowWelcome = true
+          wx.reLaunch({ url: '/pages/customer/welcome/index' })
         }
       }, 500)
     } catch (err) {
@@ -41,7 +44,7 @@ Page({
   },
 
   onTryWxLogin() {
-    // 跳回启动页，重新尝试微信自动登录
-    wx.reLaunch({ url: '/pages/launch/index?force=1' })
+    // 用户主动选择微信登录（与暗号登录分离，不携带旧 token）
+    wx.reLaunch({ url: '/pages/launch/index?force=1&from=wx' })
   }
 })

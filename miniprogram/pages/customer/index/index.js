@@ -36,5 +36,13 @@ Page({
         }
       }
     })
+  },
+
+  goProducts() {
+    wx.navigateTo({ url: '/pages/customer/products/index' })
+  },
+
+  goCart() {
+    wx.navigateTo({ url: '/pages/customer/cart/index' })
   }
 })

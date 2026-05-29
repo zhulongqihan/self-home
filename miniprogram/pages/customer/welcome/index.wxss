@@ -1,0 +1,43 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fff8ee 0%, #fdf6ec 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.content {
+  width: 100%;
+  text-align: center;
+}
+
+.hero {
+  width: 420rpx;
+  height: 420rpx;
+  border-radius: 32rpx;
+  margin: 0 auto;
+  background: #f4ebe0;
+}
+
+.hero-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 120rpx;
+}
+
+.text {
+  margin-top: 48rpx;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #3d2c1e;
+  line-height: 1.6;
+}
+
+.hint {
+  margin-top: 32rpx;
+  font-size: 28rpx;
+  color: #c9986a;
+}

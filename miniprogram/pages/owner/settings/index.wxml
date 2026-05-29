@@ -1,3 +1,23 @@
 <view class="page">
-  <view class="placeholder">🚧 {{title}} 页面 - 待开发</view>
+  <view class="section">
+    <view class="label">欢迎页一句话</view>
+    <textarea
+      class="input"
+      value="{{welcomeText}}"
+      maxlength="120"
+      placeholder="例如：今天也要好好吃饭哦～"
+      bindinput="onInputText"
+    />
+  </view>
+  <view class="section">
+    <view class="label">欢迎页图片 URL</view>
+    <input
+      class="input-line"
+      value="{{welcomeImageUrl}}"
+      placeholder="https://... 或留空用默认"
+      bindinput="onInputImage"
+    />
+    <view class="hint">支持网络图片；任务 8 将支持本地上传</view>
+  </view>
+  <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : '保存欢迎页'}}</view>
 </view>

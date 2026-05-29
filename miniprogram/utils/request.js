@@ -30,12 +30,12 @@ function request(opts) {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           return resolve(res.data)
         }
-        // Token 失效：清掉本地缓存，跳回启动页重新登录
-        if (res.statusCode === 401) {
+        // 已登录请求的 token 失效：清缓存并回启动页（登录接口 401 不在此处理）
+        if (res.statusCode === 401 && !opts.noAuth) {
           wx.removeStorageSync(TOKEN_KEY)
           wx.reLaunch({ url: '/pages/launch/index' })
         }
-        // 其他业务错误，把 body 当 error 返回
+        // 业务错误（含暗号错误 401）交给调用方展示
         const err = new Error((res.data && res.data.message) || `HTTP ${res.statusCode}`)
         err.code = (res.data && res.data.code) || 'HTTP_ERROR'
         err.statusCode = res.statusCode

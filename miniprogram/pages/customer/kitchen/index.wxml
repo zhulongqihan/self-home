@@ -1,0 +1,73 @@
+<view class="page">
+  <view class="top-bar">
+    <text class="top-title">点单</text>
+    <view class="search-placeholder">搜索</view>
+  </view>
+
+  <view class="main">
+    <scroll-view class="side" scroll-y enhanced show-scrollbar="{{false}}">
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="side-item {{item.id === activeCategoryId ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onSwitchCategory"
+      >
+        <text class="side-icon">{{item.icon || '🍵'}}</text>
+        <text class="side-name">{{item.name}}</text>
+      </view>
+    </scroll-view>
+
+    <scroll-view class="list" scroll-y enhanced show-scrollbar="{{false}}">
+      <view wx:if="{{loading}}" class="state">加载中...</view>
+      <view wx:elif="{{!products.length}}" class="state">这个分类还没有商品哦</view>
+      <view
+        wx:for="{{products}}"
+        wx:key="_id"
+        class="product-row"
+      >
+        <image wx:if="{{item.coverUrl}}" class="thumb" src="{{item.coverUrl}}" mode="aspectFill" />
+        <view wx:else class="thumb thumb-emoji">{{item.coverEmoji}}</view>
+        <view class="info">
+          <view class="name">{{item.name}}</view>
+          <view class="meta">★ 5.0 · 月销 0</view>
+          <view class="desc">{{item.description}}</view>
+          <view class="price-row">
+            <text class="price">¥{{item.price}}</text>
+            <view
+              wx:if="{{item.hasSpecs}}"
+              class="btn-spec"
+              data-id="{{item._id}}"
+              catchtap="onTapSpec"
+            >选规格</view>
+            <view
+              wx:else
+              class="btn-add"
+              data-id="{{item._id}}"
+              catchtap="onTapAdd"
+            >+</view>
+          </view>
+        </view>
+      </view>
+      <view class="list-pad"></view>
+    </scroll-view>
+  </view>
+
+  <cart-bar
+    id="cartBar"
+    count="{{cartCount}}"
+    total="{{cartTotal}}"
+    drawer-open="{{drawerOpen}}"
+    bind:toggle="onToggleDrawer"
+    bind:close="onDrawerClose"
+    bind:updated="onCartUpdated"
+    bind:ordersuccess="onOrderSuccess"
+  />
+
+  <spec-panel
+    visible="{{specVisible}}"
+    product="{{specProduct}}"
+    bind:close="onSpecClose"
+    bind:added="onSpecAdded"
+  />
+</view>

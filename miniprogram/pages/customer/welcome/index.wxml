@@ -1,0 +1,14 @@
+<view class="page" bindtap="onEnter">
+  <view class="content">
+    <image
+      wx:if="{{imageUrl}}"
+      class="hero"
+      src="{{imageUrl}}"
+      mode="aspectFill"
+      binderror="onImgError"
+    />
+    <view wx:else class="hero hero-fallback">🍵</view>
+    <view class="text">{{text}}</view>
+    <view class="hint">点击进入</view>
+  </view>
+</view>

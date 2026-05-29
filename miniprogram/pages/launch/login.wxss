@@ -1,79 +1,97 @@
 .page {
   min-height: 100vh;
   background: linear-gradient(180deg, #FDF6EC 0%, #FFFFFF 100%);
-  padding: 120rpx 60rpx 60rpx;
+  padding: calc(80rpx + env(safe-area-inset-top)) 48rpx calc(48rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .logo {
-  font-size: 140rpx;
-  margin-bottom: 20rpx;
+  font-size: 120rpx;
+  margin-bottom: 16rpx;
+  line-height: 1.2;
 }
 
 .title {
   font-size: 44rpx;
   font-weight: 700;
   color: #3D2C1E;
+  line-height: 1.3;
 }
 
 .subtitle {
   margin-top: 12rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #999;
+  line-height: 1.4;
 }
 
 .input-wrap {
   width: 100%;
-  margin-top: 80rpx;
+  margin-top: 64rpx;
 }
 
 .input {
   width: 100%;
+  height: 96rpx;
+  min-height: 96rpx;
   background: #FFFFFF;
   border: 2rpx solid #E8B86D;
   border-radius: 16rpx;
-  padding: 28rpx 30rpx;
+  padding: 0 32rpx;
   font-size: 32rpx;
-  letter-spacing: 4rpx;
   color: #3D2C1E;
   text-align: center;
   box-sizing: border-box;
+  line-height: 96rpx;
+}
+
+.input-placeholder {
+  color: #c4b5a5;
+  font-size: 30rpx;
+  line-height: 96rpx;
 }
 
 .error {
   margin-top: 20rpx;
   color: #E07A5F;
   font-size: 26rpx;
-  height: 32rpx;
+  min-height: 36rpx;
+  line-height: 1.4;
 }
 
 .btn-primary {
   width: 100%;
   margin-top: 40rpx;
-  background: #E8B86D !important;
-  color: #FFFFFF !important;
+  height: 96rpx;
+  background: #E8B86D;
+  color: #FFFFFF;
   border-radius: 16rpx;
   font-size: 32rpx;
   font-weight: 600;
-  letter-spacing: 4rpx;
-  border: none;
-  height: 88rpx;
-  line-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
-.btn-primary[disabled] {
-  background: #E8B86D !important;
-  opacity: 0.6;
-  color: #fff !important;
+.btn-primary.disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.btn-primary:active {
+  opacity: 0.85;
 }
 
 .alt {
-  margin-top: 60rpx;
-  font-size: 26rpx;
+  margin-top: 48rpx;
+  font-size: 28rpx;
   color: #C9986A;
-  padding: 20rpx;
+  padding: 24rpx;
+  line-height: 1.4;
 }
 
 .alt:active {

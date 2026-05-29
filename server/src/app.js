@@ -10,6 +10,10 @@ const seed = require('./config/seed')
 
 const healthRouter = require('./routes/health')
 const authRouter = require('./routes/auth')
+const categoriesRouter = require('./routes/categories')
+const productsRouter = require('./routes/products')
+const ordersRouter = require('./routes/orders')
+const configRouter = require('./routes/config')
 
 const { notFound, errorHandler } = require('./middlewares/errorHandler')
 
@@ -28,17 +32,29 @@ app.set('trust proxy', 1)
 // ===== 路由 =====
 app.use('/api', healthRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/categories', categoriesRouter)
+app.use('/api/products', productsRouter)
+app.use('/api/orders', ordersRouter)
+app.use('/api/config', configRouter)
 
 // 根路径
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.1.5',
+    version: '0.1.7',
     endpoints: [
       'GET /api/health',
       'POST /api/auth/login',
       'POST /api/auth/login-password',
-      'GET /api/auth/me'
+      'GET /api/auth/me',
+      'GET /api/categories',
+      'GET /api/products',
+      'GET /api/products/:id',
+      'POST /api/orders',
+      'GET /api/orders/my',
+      'GET /api/config/customer',
+      'GET /api/config/welcome',
+      'PUT /api/config/welcome'
     ]
   })
 })

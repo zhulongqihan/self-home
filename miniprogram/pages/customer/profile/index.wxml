@@ -1,3 +1,9 @@
 <view class="page">
-  <view class="placeholder">🚧 {{title}} 页面 - 待开发</view>
+  <view class="card">
+    <view class="avatar">😊</view>
+    <view class="nickname">{{user.nickname || '宇宙第一可爱 VVVVVIP'}}</view>
+    <view class="coins" wx:if="{{user}}">💋 {{user.coins || 0}} 爱心币</view>
+    <view class="store">{{store.name || '我们的小窝'}}</view>
+  </view>
+  <view class="logout" bindtap="onLogout">切换账号 / 退出登录</view>
 </view>

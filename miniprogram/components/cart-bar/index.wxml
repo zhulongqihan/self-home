@@ -1,0 +1,43 @@
+<view class="wrap">
+  <view wx:if="{{drawerOpen}}" class="mask" bindtap="onMaskTap"></view>
+
+  <view wx:if="{{drawerOpen}}" class="drawer">
+    <view class="drawer-title">购物车</view>
+    <view wx:if="{{!items.length}}" class="drawer-empty">还没有选商品哦</view>
+    <scroll-view wx:else class="drawer-list" scroll-y>
+      <view wx:for="{{items}}" wx:key="key" class="drawer-item">
+        <view class="drawer-name">{{item.name}}</view>
+        <view class="drawer-specs">{{item.specs.join(' / ')}}</view>
+        <view class="drawer-row">
+          <text class="drawer-price">¥{{item.price}}</text>
+          <view class="qty-box">
+            <view class="qty-btn" data-key="{{item.key}}" catchtap="onDec">-</view>
+            <view class="qty-val">{{item.qty}}</view>
+            <view class="qty-btn" data-key="{{item.key}}" catchtap="onInc">+</view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="drawer-form">
+      <picker mode="selector" range="{{deliveryOptions}}" value="{{deliveryIndex}}" bindchange="onChangeDelivery">
+        <view class="picker-line">配送：{{deliveryType}}</view>
+      </picker>
+      <textarea class="note" placeholder="备注" maxlength="120" bindinput="onInputNote" />
+    </view>
+  </view>
+
+  <view class="bar" bindtap="onToggleBar">
+    <view class="cart-icon-wrap" catchtap="onToggleBar">
+      <text class="cart-icon">🛒</text>
+      <view wx:if="{{count > 0}}" class="badge">{{count}}</view>
+    </view>
+    <view class="bar-mid">
+      <text wx:if="{{count <= 0}}" class="empty-hint">选购商品</text>
+      <text wx:else class="total">¥{{total}}</text>
+    </view>
+    <view
+      class="submit {{count > 0 ? 'active' : ''}}"
+      catchtap="onSubmitTap"
+    >下单</view>
+  </view>
+</view>

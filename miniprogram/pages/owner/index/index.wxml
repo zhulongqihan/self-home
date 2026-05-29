@@ -5,25 +5,25 @@
   </view>
 
   <view class="grid">
-    <view class="tile">
+    <view class="tile tile-disabled" data-key="products">
       <view class="tile-icon">🛍️</view>
       <view class="tile-name">商品管理</view>
-      <view class="tile-status">任务 8 上线</view>
+      <view class="tile-status">任务 8 开发中</view>
     </view>
-    <view class="tile">
+    <view class="tile tile-disabled" data-key="orders">
       <view class="tile-icon">📦</view>
       <view class="tile-name">订单管理</view>
-      <view class="tile-status">任务 8 上线</view>
+      <view class="tile-status">任务 8 开发中</view>
     </view>
-    <view class="tile">
+    <view class="tile tile-disabled" data-key="analytics">
       <view class="tile-icon">📊</view>
       <view class="tile-name">数据看板</view>
       <view class="tile-status">Phase 3</view>
     </view>
-    <view class="tile">
+    <view class="tile tile-active" data-key="settings" bindtap="onTileTap">
       <view class="tile-icon">⚙️</view>
       <view class="tile-name">系统配置</view>
-      <view class="tile-status">任务 16</view>
+      <view class="tile-status">欢迎页文案/图片</view>
     </view>
   </view>
 

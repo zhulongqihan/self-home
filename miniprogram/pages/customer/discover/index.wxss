@@ -1,0 +1,31 @@
+.page {
+  min-height: 100vh;
+  background: #fdf6ec;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+.card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 80rpx 40rpx;
+  text-align: center;
+}
+
+.emoji {
+  font-size: 80rpx;
+}
+
+.title {
+  margin-top: 24rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #3d2c1e;
+}
+
+.desc {
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  color: #999;
+  line-height: 1.6;
+}

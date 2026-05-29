@@ -1,3 +1,51 @@
 <view class="page">
-  <view class="placeholder">🚧 {{title}} 页面 - 待开发</view>
+  <view wx:if="{{!items.length}}" class="state-text">购物车空空的，先去挑点喜欢的吧</view>
+
+  <view wx:else>
+    <view wx:for="{{items}}" wx:key="key" class="item-card">
+      <image class="item-cover" src="{{item.image}}" mode="aspectFill" />
+      <view class="item-main">
+        <view class="item-name">{{item.name}}</view>
+        <view class="item-specs">{{item.specs.join(' / ')}}</view>
+        <view class="item-bottom">
+          <text class="item-price">¥{{item.price}}</text>
+          <view class="qty-box">
+            <view class="qty-btn" data-key="{{item.key}}" bindtap="onDec">-</view>
+            <view class="qty-val">{{item.qty}}</view>
+            <view class="qty-btn" data-key="{{item.key}}" bindtap="onInc">+</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="label">配送方式</view>
+      <picker
+        mode="selector"
+        range="{{deliveryOptions}}"
+        value="{{deliveryIndex}}"
+        bindchange="onChangeDelivery"
+      >
+        <view class="picker-value">{{deliveryType}}</view>
+      </picker>
+    </view>
+
+    <view class="section">
+      <view class="label">备注</view>
+      <textarea
+        class="note-input"
+        maxlength="120"
+        placeholder="比如：少冰、要抱抱、今晚想吃辣"
+        bindinput="onInputNote"
+      />
+    </view>
+
+    <view class="bottom">
+      <view class="total">
+        合计：
+        <text class="total-price">¥{{totalPrice}}</text>
+      </view>
+      <view class="submit-btn" bindtap="onSubmitOrder">提交订单</view>
+    </view>
+  </view>
 </view>

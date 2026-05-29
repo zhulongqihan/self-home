@@ -56,7 +56,9 @@ Page({
     if (role === 'owner') {
       wx.reLaunch({ url: '/pages/owner/index/index' })
     } else if (role === 'customer') {
-      wx.reLaunch({ url: '/pages/customer/index/index' })
+      const app = getApp()
+      if (app) app.globalData.shouldShowWelcome = true
+      wx.reLaunch({ url: '/pages/customer/welcome/index' })
     } else {
       wx.reLaunch({ url: '/pages/launch/login' })
     }

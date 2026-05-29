@@ -1,0 +1,32 @@
+<view wx:if="{{visible && product}}" class="mask" catchtouchmove="true">
+  <view class="panel" catchtap="">
+    <view class="head">
+      <text class="name">{{product.name}}</text>
+      <text class="close" bindtap="onMaskTap">×</text>
+    </view>
+    <view wx:for="{{product.specs}}" wx:key="name" wx:for-item="spec" class="spec-block">
+      <view class="spec-name">{{spec.name}}</view>
+      <view class="spec-options">
+        <view
+          wx:for="{{spec.options}}"
+          wx:key="*this"
+          wx:for-item="opt"
+          class="opt {{selectedSpecs[spec.name] === opt ? 'active' : ''}}"
+          data-name="{{spec.name}}"
+          data-option="{{opt}}"
+          bindtap="onChooseSpec"
+        >{{opt}}</view>
+      </view>
+    </view>
+    <view class="qty-row">
+      <text>数量</text>
+      <view class="qty-box">
+        <view class="qty-btn" bindtap="onDec">-</view>
+        <view class="qty-val">{{qty}}</view>
+        <view class="qty-btn" bindtap="onInc">+</view>
+      </view>
+    </view>
+    <view class="confirm" bindtap="onConfirm">加入购物车</view>
+  </view>
+  <view class="mask-bg" bindtap="onMaskTap"></view>
+</view>

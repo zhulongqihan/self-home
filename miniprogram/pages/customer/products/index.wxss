@@ -1,2 +1,94 @@
-.page { padding: 40rpx; min-height: 100vh; background: var(--background-color, #FDF6EC); }
-.placeholder { text-align: center; color: var(--text-color, #3D2C1E); font-size: 32rpx; margin-top: 200rpx; }
+.page {
+  min-height: 100vh;
+  background: #FDF6EC;
+  padding: 20rpx;
+}
+
+.category-scroll {
+  white-space: nowrap;
+}
+
+.category-row {
+  display: inline-flex;
+  gap: 16rpx;
+  padding: 10rpx 4rpx 16rpx;
+}
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 14rpx 24rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  color: #3d2c1e;
+  font-size: 24rpx;
+}
+
+.category-chip.active {
+  background: #E8B86D;
+  color: #ffffff;
+}
+
+.chip-name {
+  max-width: 240rpx;
+}
+
+.state-text {
+  text-align: center;
+  color: #997963;
+  margin-top: 120rpx;
+  font-size: 28rpx;
+}
+
+.product-grid {
+  margin-top: 12rpx;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+}
+
+.product-card {
+  background: #ffffff;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.product-cover {
+  width: 100%;
+  height: 220rpx;
+  background: #f4ebe0;
+}
+
+.product-name {
+  margin: 12rpx 12rpx 0;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #3d2c1e;
+}
+
+.product-desc {
+  margin: 8rpx 12rpx 0;
+  min-height: 64rpx;
+  font-size: 22rpx;
+  color: #816752;
+  line-height: 1.4;
+}
+
+.product-footer {
+  margin: 12rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-price {
+  color: #c9986a;
+  font-weight: 700;
+  font-size: 30rpx;
+}
+
+.product-go {
+  font-size: 22rpx;
+  color: #8f7560;
+}

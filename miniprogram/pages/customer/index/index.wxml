@@ -15,14 +15,14 @@
     </view>
   </view>
 
-  <view class="placeholder-card">
-    <view class="placeholder-title">🚧 商品分类</view>
-    <view class="placeholder-desc">即将上线：饮品 / 甜品 / 撒娇套餐 / 神秘盲盒…</view>
+  <view class="placeholder-card clickable" bindtap="goProducts">
+    <view class="placeholder-title">🛍️ 商品分类</view>
+    <view class="placeholder-desc">饮品 / 甜品 / 情绪服务已上线，点我开始下单</view>
   </view>
 
-  <view class="placeholder-card">
-    <view class="placeholder-title">🎰 每日签到</view>
-    <view class="placeholder-desc">连签 7 天送大礼，敬请期待</view>
+  <view class="placeholder-card clickable" bindtap="goCart">
+    <view class="placeholder-title">🛒 购物车</view>
+    <view class="placeholder-desc">查看已选商品并提交订单</view>
   </view>
 
   <view class="logout" bindtap="onLogout">退出登录</view>

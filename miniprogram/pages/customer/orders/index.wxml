@@ -1,3 +1,21 @@
 <view class="page">
-  <view class="placeholder">🚧 {{title}} 页面 - 待开发</view>
+  <view wx:if="{{loading}}" class="state-text">加载中...</view>
+  <view wx:elif="{{!orders.length}}" class="state-text">还没有订单，快去下第一单吧</view>
+
+  <view wx:else>
+    <view wx:for="{{orders}}" wx:key="_id" class="order-card">
+      <view class="order-head">
+        <text class="order-id">订单 {{item.short_id}}</text>
+        <text class="order-status">{{item.status_text}}</text>
+      </view>
+      <view wx:for="{{item.items}}" wx:key="product_id" wx:for-item="line" class="order-item">
+        <text>{{line.product_name}} x{{line.qty}}</text>
+        <text>¥{{line.price * line.qty}}</text>
+      </view>
+      <view class="order-foot">
+        <text>配送：{{item.delivery_type}}</text>
+        <text class="order-total">合计 ¥{{item.total_price}}</text>
+      </view>
+    </view>
+  </view>
 </view>

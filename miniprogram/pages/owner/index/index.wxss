@@ -35,8 +35,13 @@
   box-shadow: 0 4rpx 16rpx rgba(232, 184, 109, 0.1);
 }
 
-.tile:active {
-  opacity: 0.7;
+.tile-active:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+.tile-disabled {
+  opacity: 0.5;
 }
 
 .tile-icon {

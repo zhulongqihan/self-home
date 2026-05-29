@@ -1,2 +1,44 @@
-.page { padding: 40rpx; min-height: 100vh; background: var(--background-color, #FDF6EC); }
-.placeholder { text-align: center; color: var(--text-color, #3D2C1E); font-size: 32rpx; margin-top: 200rpx; }
+.page {
+  min-height: 100vh;
+  background: #fdf6ec;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+.card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+  text-align: center;
+}
+
+.avatar {
+  font-size: 100rpx;
+}
+
+.nickname {
+  margin-top: 20rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #3d2c1e;
+}
+
+.coins {
+  margin-top: 12rpx;
+  font-size: 28rpx;
+  color: #c9986a;
+}
+
+.store {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.logout {
+  margin-top: 48rpx;
+  text-align: center;
+  color: #c9986a;
+  font-size: 28rpx;
+  padding: 24rpx;
+}

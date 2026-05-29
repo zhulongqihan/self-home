@@ -1,5 +1,6 @@
 /**app.wxss**/
 @import "./styles/themes/theme-default.wxss";
+@import "./styles/layout.wxss";
 
 page {
   background-color: var(--background-color);

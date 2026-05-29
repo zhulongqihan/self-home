@@ -7,20 +7,26 @@
     <input
       class="input"
       type="text"
-      password
-      placeholder="暗号"
+      password="{{true}}"
+      placeholder="请输入暗号"
+      placeholder-class="input-placeholder"
       value="{{password}}"
       bindinput="onPasswordInput"
       confirm-type="done"
       bindconfirm="onSubmit"
-      maxlength="32" />
+      maxlength="32"
+    />
   </view>
 
   <view class="error" wx:if="{{errorMsg}}">{{errorMsg}}</view>
 
-  <button class="btn-primary" bindtap="onSubmit" disabled="{{loading}}" loading="{{loading}}">
-    {{loading ? '登录中...' : '进入店铺'}}
-  </button>
+  <view
+    class="btn-primary {{loading ? 'disabled' : ''}}"
+    bindtap="onSubmit"
+  >
+    <text wx:if="{{loading}}">登录中...</text>
+    <text wx:else>进入店铺</text>
+  </view>
 
   <view class="alt" bindtap="onTryWxLogin">使用微信号登录</view>
 </view>
