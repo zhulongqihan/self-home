@@ -33,7 +33,9 @@ function request(opts) {
         // 已登录请求的 token 失效：清缓存并回启动页（登录接口 401 不在此处理）
         if (res.statusCode === 401 && !opts.noAuth) {
           require('./auth.js').logout()
-          wx.reLaunch({ url: '/pages/launch/index' })
+          // 回暗号页，避免 launch 自动微信登录把顾客顶成店长
+          wx.reLaunch({ url: '/pages/launch/login' })
+          return
         }
         // 业务错误（含暗号错误 401）交给调用方展示
         const err = new Error((res.data && res.data.message) || `HTTP ${res.statusCode}`)

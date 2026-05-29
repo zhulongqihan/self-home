@@ -24,16 +24,14 @@ Page({
     try {
       // 密码同时当 username 用（小程序场景下两人共用一个 AppID，密码即身份）
       const { role } = await loginByPassword(pwd, pwd)
-      wx.showToast({ title: '登录成功 ✨', icon: 'success' })
-      setTimeout(() => {
-        if (role === 'owner') {
-          wx.reLaunch({ url: '/pages/owner/index/index' })
-        } else {
-          const app = getApp()
-          if (app) app.globalData.shouldShowWelcome = true
-          wx.reLaunch({ url: '/pages/customer/welcome/index' })
-        }
-      }, 500)
+      this.setData({ loading: false })
+      if (role === 'owner') {
+        wx.reLaunch({ url: '/pages/owner/index/index' })
+      } else {
+        const app = getApp()
+        if (app) app.globalData.shouldShowWelcome = true
+        wx.reLaunch({ url: '/pages/customer/welcome/index' })
+      }
     } catch (err) {
       console.error('[Login] 失败：', err)
       this.setData({
