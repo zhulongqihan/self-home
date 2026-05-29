@@ -1,5 +1,6 @@
 const { getCartStats, updateQty, clearCart } = require('../../utils/cart.js')
 const { post } = require('../../utils/request.js')
+const { requestSubscribeByRole } = require('../../utils/subscribe.js')
 
 Component({
   properties: {
@@ -82,6 +83,7 @@ Component({
       this.setData({ submitting: true })
       wx.showLoading({ title: '提交中', mask: true })
       try {
+        await requestSubscribeByRole()
         const resp = await post('/api/orders', {
           items: items.map(i => ({
             product_id: i.product_id,

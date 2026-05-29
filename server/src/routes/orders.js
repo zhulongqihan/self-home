@@ -5,6 +5,7 @@ const Product = require('../models/Product')
 const Order = require('../models/Order')
 const Review = require('../models/Review')
 const { canTransition, getNextStatuses, STATUS_TEXT } = require('../services/orderStatus')
+const { notifyOwnerNewOrder, notifyCustomerOrderStatus } = require('../services/orderNotify')
 
 const router = express.Router()
 
@@ -55,6 +56,9 @@ router.post('/', requireAuth, async (req, res, next) => {
     })
 
     res.json({ status: 'ok', data: { order_id: order._id, total_price: order.total_price, status: order.status } })
+    notifyOwnerNewOrder(order.toObject()).catch(err => {
+      console.warn('[orders] notifyOwnerNewOrder:', err.message)
+    })
   } catch (err) {
     next(err)
   }
@@ -158,6 +162,11 @@ router.patch('/:id/status', requireAuth, async (req, res, next) => {
         next_statuses: getNextStatuses(order.status, role)
       }
     })
+    if (isOwner && nextStatus !== 'cancelled') {
+      notifyCustomerOrderStatus(order.toObject(), nextStatus).catch(err => {
+        console.warn('[orders] notifyCustomerOrderStatus:', err.message)
+      })
+    }
   } catch (err) {
     next(err)
   }

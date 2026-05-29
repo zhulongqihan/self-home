@@ -1,5 +1,17 @@
 # 更新日志
 
+## v0.2.0 - 微信订阅消息推送（开发中）
+
+### 后端
+- 订阅消息发送服务；下单通知店长、状态变更通知顾客
+- `GET /api/config/subscribe` 返回模板 ID
+
+### 前端
+- 下单前 / 店长订单页请求订阅授权
+
+### 配置
+- `WX_TEMPLATE_OWNER_NEW_ORDER`、`WX_TEMPLATE_CUSTOMER_ORDER_STATUS`
+
 ## v0.1.9 - 店长端商品 CRUD + 评价与体验修复（2026-05-29）
 
 ### 后端

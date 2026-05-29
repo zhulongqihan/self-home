@@ -12,7 +12,12 @@ const config = {
 
   wx: {
     appid: process.env.WX_APPID || '',
-    appsecret: process.env.WX_APPSECRET || ''
+    appsecret: process.env.WX_APPSECRET || '',
+    /** 订阅消息模板 ID，在微信公众平台申请后填入 .env */
+    templates: {
+      ownerNewOrder: process.env.WX_TEMPLATE_OWNER_NEW_ORDER || '',
+      customerOrderStatus: process.env.WX_TEMPLATE_CUSTOMER_ORDER_STATUS || ''
+    }
   },
 
   jwt: {

@@ -1,5 +1,6 @@
 const { get, patch } = require('../../../utils/request')
 const { formatOrder, getNextStatuses, ACTION_TEXT } = require('../../../utils/orderStatus')
+const { requestSubscribeByRole } = require('../../../utils/subscribe')
 
 Page({
   data: {
@@ -11,6 +12,7 @@ Page({
 
   onShow() {
     this.fetchOrders()
+    requestSubscribeByRole()
   },
 
   async fetchOrders() {

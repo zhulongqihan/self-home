@@ -1,5 +1,6 @@
 const express = require('express')
 const Config = require('../models/Config')
+const env = require('../config')
 const { requireAuth, requireRole } = require('../middlewares/auth')
 
 const router = express.Router()
@@ -16,6 +17,15 @@ function pickCustomerConfig(cfg) {
     discover_placeholder: cfg.discover_placeholder || {}
   }
 }
+
+/** GET /api/config/subscribe - 当前角色可用的订阅消息模板 ID（供前端 requestSubscribeMessage） */
+router.get('/subscribe', requireAuth, async (req, res) => {
+  const { templates } = env.wx
+  const tmplIds = req.user.role === 'owner'
+    ? [templates.ownerNewOrder].filter(Boolean)
+    : [templates.customerOrderStatus].filter(Boolean)
+  res.json({ status: 'ok', data: { tmplIds } })
+})
 
 /** GET /api/config/customer - 顾客端 UI 配置 */
 router.get('/customer', requireAuth, async (req, res, next) => {
