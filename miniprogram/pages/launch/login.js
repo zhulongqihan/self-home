@@ -42,7 +42,10 @@ Page({
   },
 
   onTryWxLogin() {
-    // 用户主动选择微信登录（与暗号登录分离，不携带旧 token）
-    wx.reLaunch({ url: '/pages/launch/index?force=1&from=wx' })
+    const { logout } = require('../../utils/auth.js')
+    logout()
+    setTimeout(() => {
+      wx.reLaunch({ url: '/pages/launch/index?force=1&from=wx' })
+    }, 50)
   }
 })

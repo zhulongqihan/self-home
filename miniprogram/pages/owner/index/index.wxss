@@ -49,15 +49,18 @@
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24rpx;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .tile {
+  width: 48%;
+  box-sizing: border-box;
   background: #FFFFFF;
   border-radius: 20rpx;
   padding: 50rpx 20rpx;
+  margin-bottom: 24rpx;
   text-align: center;
   box-shadow: 0 4rpx 16rpx rgba(232, 184, 109, 0.1);
 }

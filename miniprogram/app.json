@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/launch/index",
     "pages/launch/login",
+    "pages/launch/index",
     "pages/launch/forbidden",
     "pages/customer/welcome/index",
     "pages/customer/kitchen/index",

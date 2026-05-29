@@ -1,5 +1,5 @@
 // 店长端工作台
-const { getUser, getStore, logout } = require('../../../utils/auth.js')
+const { getUser, getStore, getToken, logout } = require('../../../utils/auth.js')
 const { get } = require('../../../utils/request.js')
 
 Page({
@@ -11,9 +11,13 @@ Page({
   },
 
   onShow() {
+    if (!getToken()) {
+      wx.reLaunch({ url: '/pages/launch/login' })
+      return
+    }
     this.setData({
       user: getUser(),
-      store: getStore()
+      store: getStore() || { name: '我们的小窝' }
     })
     this.fetchKissStats()
   },

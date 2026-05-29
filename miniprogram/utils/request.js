@@ -1,20 +1,27 @@
 // 统一网络请求封装
-// 自动注入 token、统一错误处理、自动跳转启动页（token 失效时）
 const { API_BASE } = require('../config/env.js')
+const { safeGet } = require('./storage.js')
 const TOKEN_KEY = 'auth_token'
 
+let handling401 = false
+
+function handleSessionExpired() {
+  if (handling401) return
+  handling401 = true
+  setTimeout(() => { handling401 = false }, 3000)
+  require('./auth.js').logout()
+  wx.reLaunch({ url: '/pages/launch/login' })
+}
+
 /**
- * 通用请求
  * @param {Object} opts - { url, method, data, header, noAuth }
- *   url 可以是 '/api/xxx' 或完整 URL
- *   noAuth: true 时不自动加 Authorization 头（登录接口用）
  */
 function request(opts) {
   const url = opts.url.startsWith('http') ? opts.url : API_BASE + opts.url
   const header = { 'Content-Type': 'application/json', ...(opts.header || {}) }
 
   if (!opts.noAuth) {
-    const token = wx.getStorageSync(TOKEN_KEY)
+    const token = safeGet(TOKEN_KEY, null)
     if (token) header['Authorization'] = `Bearer ${token}`
   }
 
@@ -26,18 +33,15 @@ function request(opts) {
       header,
       timeout: 10000,
       success(res) {
-        // 成功：HTTP 2xx
         if (res.statusCode >= 200 && res.statusCode < 300) {
           return resolve(res.data)
         }
-        // 已登录请求的 token 失效：清缓存并回启动页（登录接口 401 不在此处理）
         if (res.statusCode === 401 && !opts.noAuth) {
-          require('./auth.js').logout()
-          // 回暗号页，避免 launch 自动微信登录把顾客顶成店长
-          wx.reLaunch({ url: '/pages/launch/login' })
-          return
+          handleSessionExpired()
+          const err = new Error('登录已过期，请重新输入暗号')
+          err.code = 'SESSION_EXPIRED'
+          return reject(err)
         }
-        // 业务错误（含暗号错误 401）交给调用方展示
         const err = new Error((res.data && res.data.message) || `HTTP ${res.statusCode}`)
         err.code = (res.data && res.data.code) || 'HTTP_ERROR'
         err.statusCode = res.statusCode

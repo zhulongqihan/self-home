@@ -1,6 +1,6 @@
 // app.js - 应用入口
 const { API_BASE } = require('./config/env.js')
-const { getUser } = require('./utils/auth.js')
+const { getUser, getToken } = require('./utils/auth.js')
 const { loadCustomerConfig } = require('./utils/uiConfig.js')
 
 App({
@@ -9,7 +9,7 @@ App({
     // 仅冷启动时展示欢迎页（由 launch 分流到 welcome，不在 onShow 反复 reLaunch）
     this.globalData.shouldShowWelcome = true
     const user = getUser()
-    if (user && user.role === 'customer') {
+    if (getToken() && user && user.role === 'customer') {
       loadCustomerConfig(true).catch(() => {})
     }
   },
