@@ -1,17 +1,17 @@
 .tab-bar {
-  --tab-bar-content-h: 112rpx;
-  --tab-bar-total-h: calc(var(--tab-bar-content-h) + env(safe-area-inset-bottom));
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   box-sizing: border-box;
-  height: var(--tab-bar-total-h);
+  /* 避免部分基础库对 calc(env()) 兼容性问题导致高度为 0 */
+  height: 112rpx;
+  min-height: 112rpx;
   padding-bottom: env(safe-area-inset-bottom);
   background: #fff;
   border-top: 1rpx solid #eee;
   display: flex;
-  z-index: 50;
+  z-index: 400;
 }
 
 .tab-item {
