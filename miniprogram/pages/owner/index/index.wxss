@@ -1,24 +1,29 @@
 .page {
   min-height: 100vh;
   background: #FDF6EC;
+  box-sizing: border-box;
+}
+
+.content {
   padding: 40rpx 30rpx;
+  box-sizing: border-box;
 }
 
 .header {
   text-align: center;
-  margin-bottom: 50rpx;
+  margin-bottom: 40rpx;
 }
 
-.title {
-  font-size: 42rpx;
-  font-weight: 700;
-  color: #3D2C1E;
+.welcome-emoji {
+  font-size: 72rpx;
+  line-height: 1.2;
 }
 
 .store-name {
-  margin-top: 12rpx;
-  font-size: 26rpx;
+  margin-top: 16rpx;
+  font-size: 30rpx;
   color: #C9986A;
+  font-weight: 600;
 }
 
 .kiss-card {

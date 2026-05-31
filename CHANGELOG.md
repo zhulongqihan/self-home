@@ -1,5 +1,16 @@
 # 更新日志
 
+## v0.3.3 - 三大倒计时（2026-05-31）
+
+### 后端
+- `GET/PUT /api/config/countdowns`：在一起天数、距纪念日、距顾客生日
+- 配置字段 `relationship_start`（YYYY-MM-DD）、`anniversary_date` / `customer_birthday`（MM-DD）
+
+### 前端
+- 顾客「我的」：我们的小日子倒计时卡片
+- 店长「系统设置」：日期选择器配置三大倒计时
+- 店长工作台/系统设置：统一 `page-header` 顶栏
+
 ## v0.3.2 - 统一顶栏布局（2026-05-29）
 
 ### 前端

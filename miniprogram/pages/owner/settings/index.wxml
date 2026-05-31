@@ -1,24 +1,63 @@
 <view class="page">
-  <view class="section">
-    <view class="label">欢迎页一句话</view>
-    <textarea
-      class="input"
-      value="{{welcomeText}}"
-      maxlength="120"
-      placeholder="例如：今天也要好好吃饭哦～"
-      bindinput="onInputText"
-    />
+  <page-header title="系统设置" showBack="{{true}}" backUrl="/pages/owner/index/index" />
+  <view class="content">
+    <view class="section">
+      <view class="label">欢迎页一句话</view>
+      <textarea
+        class="input"
+        value="{{welcomeText}}"
+        maxlength="120"
+        placeholder="例如：今天也要好好吃饭哦～"
+        bindinput="onInputText"
+      />
+    </view>
+    <view class="section">
+      <view class="label">欢迎页图片 URL</view>
+      <input
+        class="input-line"
+        value="{{welcomeImageUrl}}"
+        placeholder="https://... 或留空用默认"
+        placeholder-class="field-placeholder"
+        bindinput="onInputImage"
+      />
+      <view class="hint">支持网络图片；任务 8 将支持本地上传</view>
+    </view>
+    <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : '保存欢迎页'}}</view>
+
+    <view class="section-head">三大倒计时</view>
+    <view class="section">
+      <view class="label">在一起起始日</view>
+      <picker mode="date" value="{{relationshipStartValue}}" start="2000-01-01" end="2099-12-31" bindchange="onPickRelationshipStart">
+        <view class="picker-field">
+          <text wx:if="{{relationshipStart}}">{{relationshipStart}}</text>
+          <text wx:else class="picker-placeholder">点击选择日期</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+    <view class="section">
+      <view class="label">纪念日（每年）</view>
+      <picker mode="date" value="{{anniversaryPickerValue}}" bindchange="onPickAnniversary">
+        <view class="picker-field">
+          <text wx:if="{{anniversaryDate}}">{{anniversaryDisplay}}</text>
+          <text wx:else class="picker-placeholder">点击选择月日</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+    <view class="section">
+      <view class="label">顾客生日</view>
+      <picker mode="date" value="{{birthdayPickerValue}}" bindchange="onPickBirthday">
+        <view class="picker-field">
+          <text wx:if="{{customerBirthday}}">{{birthdayDisplay}}</text>
+          <text wx:else class="picker-placeholder">点击选择月日</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+      <view class="hint">顾客「我的」页展示：在一起 X 天 / 距纪念日 / 距生日</view>
+    </view>
+    <view class="save-btn save-btn-secondary" bindtap="onSaveCountdowns">
+      {{savingCountdowns ? '保存中...' : '保存倒计时'}}
+    </view>
   </view>
-  <view class="section">
-    <view class="label">欢迎页图片 URL</view>
-    <input
-      class="input-line"
-      value="{{welcomeImageUrl}}"
-      placeholder="https://... 或留空用默认"
-      placeholder-class="field-placeholder"
-      bindinput="onInputImage"
-    />
-    <view class="hint">支持网络图片；任务 8 将支持本地上传</view>
-  </view>
-  <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : '保存欢迎页'}}</view>
 </view>

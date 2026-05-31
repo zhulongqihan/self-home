@@ -1,4 +1,7 @@
 {
-  "navigationBarTitleText": "店长工作台",
-  "usingComponents": {}
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "",
+  "usingComponents": {
+    "page-header": "/components/page-header/index"
+  }
 }

@@ -45,6 +45,56 @@
   color: #e8b86d;
 }
 
+.countdown-card {
+  margin-top: 32rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 32rpx 24rpx;
+}
+
+.countdown-title {
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #3d2c1e;
+  margin-bottom: 24rpx;
+}
+
+.countdown-list {
+  display: flex;
+  justify-content: space-around;
+}
+
+.countdown-item {
+  flex: 1;
+  text-align: center;
+}
+
+.countdown-value {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #e8b86d;
+  line-height: 1.2;
+}
+
+.countdown-unit {
+  font-size: 22rpx;
+  color: #c9986a;
+  margin-bottom: 8rpx;
+}
+
+.countdown-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.countdown-empty {
+  margin-top: 32rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #bbb;
+}
+
 .loading-text {
   color: #bbb;
 }

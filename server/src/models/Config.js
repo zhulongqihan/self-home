@@ -18,7 +18,8 @@ const ConfigSchema = new Schema({
     customer_openid: { type: String, default: '' }
   },
 
-  // 纪念日 / 生日（MM-DD 格式，例如 "02-18"）
+  // 纪念日 / 生日（MM-DD）；在一起起始日 YYYY-MM-DD
+  relationship_start: { type: String, default: '' },
   anniversary_date: { type: String, default: '' },
   owner_birthday: { type: String, default: '' },
   customer_birthday: { type: String, default: '' },

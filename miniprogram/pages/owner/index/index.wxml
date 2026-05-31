@@ -1,6 +1,8 @@
 <view class="page">
+  <page-header title="店长工作台" />
+  <view class="content">
   <view class="header">
-    <view class="title">🧑‍🍳 店长工作台</view>
+    <view class="welcome-emoji">🧑‍🍳</view>
     <view class="store-name">{{store.name || '我们的小窝'}}</view>
   </view>
 
@@ -29,9 +31,10 @@
     <view class="tile tile-active" data-key="settings" bindtap="onTileTap">
       <view class="tile-icon">⚙️</view>
       <view class="tile-name">系统配置</view>
-      <view class="tile-status">欢迎页文案/图片</view>
+      <view class="tile-status">欢迎页 / 倒计时</view>
     </view>
   </view>
 
   <view class="logout" bindtap="onLogout">退出登录</view>
+  </view>
 </view>

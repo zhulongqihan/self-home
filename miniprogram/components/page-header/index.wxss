@@ -8,17 +8,39 @@
 }
 
 .page-header-nav {
+  position: relative;
+  box-sizing: border-box;
+}
+
+.page-header-title-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
 }
 
+.page-header-back {
+  position: absolute;
+  left: 16rpx;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 16rpx;
+}
+
+.page-header-back-icon {
+  font-size: 52rpx;
+  font-weight: 300;
+  color: #3d2c1e;
+  line-height: 1;
+}
+
 .page-header-title {
   font-size: 34rpx;
   font-weight: 700;
   color: #3d2c1e;
-  line-height: 1.4;
+  line-height: 1;
 }
 
 /* 标题与下方白底之间的橙色缓冲 */

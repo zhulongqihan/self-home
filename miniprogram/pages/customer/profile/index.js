@@ -16,7 +16,9 @@ Page({
     kissDailyMax: 200,
     kissing: false,
     signing: false,
-    loading: true
+    loading: true,
+    countdownItems: [],
+    countdownLoading: true
   },
 
   onShow() {
@@ -25,6 +27,18 @@ Page({
     }
     this.setData({ user: getUser(), store: getStore() })
     this.fetchCoins()
+    this.fetchCountdowns()
+  },
+
+  async fetchCountdowns() {
+    this.setData({ countdownLoading: true })
+    try {
+      const resp = await get('/api/config/countdowns')
+      const items = (resp.data && resp.data.items) || []
+      this.setData({ countdownItems: items, countdownLoading: false })
+    } catch (err) {
+      this.setData({ countdownLoading: false })
+    }
   },
 
   async fetchCoins() {

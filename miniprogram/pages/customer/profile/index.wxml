@@ -12,6 +12,20 @@
     <view class="sign-hint" wx:if="{{continuousSignDays > 0}}">已连续签到 {{continuousSignDays}} 天</view>
   </view>
 
+  <view class="countdown-card" wx:if="{{countdownItems.length > 0}}">
+    <view class="countdown-title">我们的小日子</view>
+    <view class="countdown-list">
+      <view class="countdown-item" wx:for="{{countdownItems}}" wx:key="key">
+        <view class="countdown-value">{{item.value}}</view>
+        <view class="countdown-unit">{{item.unit}}</view>
+        <view class="countdown-label">{{item.label}}</view>
+      </view>
+    </view>
+  </view>
+  <view class="countdown-empty" wx:elif="{{!countdownLoading && countdownItems.length === 0}}">
+    纪念日倒计时筹备中～
+  </view>
+
   <view class="actions">
     <view
       class="btn-kiss {{kissing ? 'disabled' : ''}}"

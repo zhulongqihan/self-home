@@ -1,7 +1,12 @@
 <view class="page-header">
   <view class="page-header-status" style="height: {{statusBarHeight}}px"></view>
   <view class="page-header-nav" style="height: {{navBarHeight}}px">
-    <text class="page-header-title">{{title}}</text>
+    <view wx:if="{{showBack}}" class="page-header-back" bindtap="onBack">
+      <text class="page-header-back-icon">‹</text>
+    </view>
+    <view class="page-header-title-wrap" style="height: {{navBarHeight}}px">
+      <text class="page-header-title">{{title}}</text>
+    </view>
   </view>
   <view class="page-header-gap"></view>
 </view>

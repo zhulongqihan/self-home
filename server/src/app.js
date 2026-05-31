@@ -56,7 +56,7 @@ app.use('/api/sign-in', signInRouter)
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.3.1',
+    version: '0.3.3',
     endpoints: [
       'GET /api/health',
       'POST /api/auth/login',
@@ -79,6 +79,9 @@ app.get('/', (req, res) => {
       'PATCH /api/orders/:id/reply',
       'GET /api/config/subscribe',
       'GET /api/config/customer',
+      'GET /api/config/countdowns',
+      'GET /api/config/countdowns/owner',
+      'PUT /api/config/countdowns',
       'GET /api/config/welcome',
       'PUT /api/config/welcome',
       'GET /api/coins/me',

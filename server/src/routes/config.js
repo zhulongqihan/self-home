@@ -3,6 +3,8 @@ const Config = require('../models/Config')
 const env = require('../config')
 const { requireAuth, requireRole } = require('../middlewares/auth')
 
+const { buildCountdownItems } = require('../services/countdown')
+
 const router = express.Router()
 
 function pickCustomerConfig(cfg) {
@@ -15,6 +17,16 @@ function pickCustomerConfig(cfg) {
     welcome: cfg.welcome || {},
     tab_bar: cfg.tab_bar || {},
     discover_placeholder: cfg.discover_placeholder || {}
+  }
+}
+
+function pickCountdownConfig(cfg) {
+  if (!cfg) return null
+  return {
+    relationship_start: cfg.relationship_start || '',
+    anniversary_date: cfg.anniversary_date || '',
+    customer_birthday: cfg.customer_birthday || '',
+    items: buildCountdownItems(cfg)
   }
 }
 
@@ -35,6 +47,75 @@ router.get('/customer', requireAuth, async (req, res, next) => {
       return res.status(500).json({ status: 'error', code: 'CONFIG_MISSING', message: '服务端未初始化' })
     }
     res.json({ status: 'ok', data: pickCustomerConfig(cfg) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/** GET /api/config/countdowns - 顾客端展示三大倒计时 */
+router.get('/countdowns', requireAuth, requireRole('customer'), async (req, res, next) => {
+  try {
+    const cfg = await Config.findById('global')
+    if (!cfg) {
+      return res.status(500).json({ status: 'error', code: 'CONFIG_MISSING', message: '服务端未初始化' })
+    }
+    res.json({ status: 'ok', data: pickCountdownConfig(cfg) })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/** GET /api/config/countdowns/owner - 店长读取倒计时配置 */
+router.get('/countdowns/owner', requireAuth, requireRole('owner'), async (req, res, next) => {
+  try {
+    const cfg = await Config.findById('global')
+    if (!cfg) {
+      return res.status(500).json({ status: 'error', code: 'CONFIG_MISSING', message: '服务端未初始化' })
+    }
+    res.json({
+      status: 'ok',
+      data: {
+        relationship_start: cfg.relationship_start || '',
+        anniversary_date: cfg.anniversary_date || '',
+        customer_birthday: cfg.customer_birthday || ''
+      }
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/** PUT /api/config/countdowns - 店长修改倒计时日期 */
+router.put('/countdowns', requireAuth, requireRole('owner'), async (req, res, next) => {
+  try {
+    const { relationship_start, anniversary_date, customer_birthday } = req.body || {}
+    const cfg = await Config.findById('global')
+    if (!cfg) {
+      return res.status(500).json({ status: 'error', code: 'CONFIG_MISSING', message: '服务端未初始化' })
+    }
+    if (relationship_start !== undefined) {
+      const v = String(relationship_start).trim()
+      if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+        return res.status(400).json({ status: 'error', code: 'INVALID_DATE', message: '在一起日期请用 YYYY-MM-DD' })
+      }
+      cfg.relationship_start = v
+    }
+    if (anniversary_date !== undefined) {
+      const v = String(anniversary_date).trim()
+      if (v && !/^\d{2}-\d{2}$/.test(v)) {
+        return res.status(400).json({ status: 'error', code: 'INVALID_DATE', message: '纪念日请用 MM-DD' })
+      }
+      cfg.anniversary_date = v
+    }
+    if (customer_birthday !== undefined) {
+      const v = String(customer_birthday).trim()
+      if (v && !/^\d{2}-\d{2}$/.test(v)) {
+        return res.status(400).json({ status: 'error', code: 'INVALID_DATE', message: '生日请用 MM-DD' })
+      }
+      cfg.customer_birthday = v
+    }
+    await cfg.save()
+    res.json({ status: 'ok', data: pickCountdownConfig(cfg) })
   } catch (err) {
     next(err)
   }
