@@ -1,6 +1,8 @@
 {
-  "navigationBarTitleText": "点单",
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "",
   "usingComponents": {
+    "page-header": "/components/page-header/index",
     "cart-bar": "/components/cart-bar/index",
     "spec-panel": "/components/spec-panel/index"
   }

@@ -1,0 +1,28 @@
+.page-header {
+  flex-shrink: 0;
+  background: #e8b86d;
+}
+
+.page-header-status {
+  width: 100%;
+}
+
+.page-header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.page-header-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #3d2c1e;
+  line-height: 1.4;
+}
+
+/* 标题与下方白底之间的橙色缓冲 */
+.page-header-gap {
+  height: 28rpx;
+  background: #e8b86d;
+}

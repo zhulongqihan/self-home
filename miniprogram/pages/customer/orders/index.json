@@ -1,4 +1,7 @@
 {
-  "navigationBarTitleText": "订单",
-  "usingComponents": {}
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "",
+  "usingComponents": {
+    "page-header": "/components/page-header/index"
+  }
 }

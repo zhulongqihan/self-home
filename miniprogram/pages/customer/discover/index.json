@@ -1,1 +1,7 @@
-{ "navigationBarTitleText": "发现" }
+{
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "",
+  "usingComponents": {
+    "page-header": "/components/page-header/index"
+  }
+}

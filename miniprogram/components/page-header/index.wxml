@@ -1,0 +1,7 @@
+<view class="page-header">
+  <view class="page-header-status" style="height: {{statusBarHeight}}px"></view>
+  <view class="page-header-nav" style="height: {{navBarHeight}}px">
+    <text class="page-header-title">{{title}}</text>
+  </view>
+  <view class="page-header-gap"></view>
+</view>
