@@ -1,7 +1,10 @@
 <view class="page">
+  <page-header title="发现" />
+  <view class="content">
   <view class="card">
     <view class="emoji">🔍</view>
     <view class="title">{{title}}</view>
     <view class="desc">{{desc}}</view>
+  </view>
   </view>
 </view>

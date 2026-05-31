@@ -1,6 +1,10 @@
 .page {
   min-height: 100vh;
   background: #fdf6ec;
+  box-sizing: border-box;
+}
+
+.content {
   padding: 40rpx;
   box-sizing: border-box;
 }

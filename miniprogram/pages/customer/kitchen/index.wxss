@@ -6,26 +6,23 @@
   box-sizing: border-box;
 }
 
-.top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16rpx 24rpx;
+.search-row {
+  flex-shrink: 0;
+  padding: 24rpx 24rpx 28rpx;
   background: #fff;
-}
-
-.top-title {
-  font-size: 34rpx;
-  font-weight: 700;
-  color: #3d2c1e;
+  border-bottom: 1rpx solid #f0f0f0;
 }
 
 .search-placeholder {
-  font-size: 24rpx;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 26rpx;
   color: #999;
   background: #f5f5f5;
-  padding: 12rpx 28rpx;
+  padding: 18rpx 28rpx;
   border-radius: 999rpx;
+  text-align: center;
+  line-height: 1.4;
 }
 
 .main {

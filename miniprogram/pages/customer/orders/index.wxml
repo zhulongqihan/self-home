@@ -1,4 +1,6 @@
 <view class="page">
+  <page-header title="订单" />
+  <view class="content">
   <view wx:if="{{loading}}" class="state-text">加载中...</view>
   <view wx:elif="{{loadError}}" class="state-text">加载失败，请下拉重试</view>
   <view wx:elif="{{!orders.length}}" class="state-text">还没有订单，快去下第一单吧</view>
@@ -65,5 +67,6 @@
         </view>
       </view>
     </view>
+  </view>
   </view>
 </view>

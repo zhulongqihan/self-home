@@ -1,12 +1,16 @@
 .page {
   min-height: 100vh;
   background: #FDF6EC;
+}
+
+.content {
   padding: 20rpx;
+  box-sizing: border-box;
 }
 
 .state-text {
   text-align: center;
-  margin-top: 180rpx;
+  margin-top: 120rpx;
   color: #8f7560;
   font-size: 28rpx;
 }
@@ -14,7 +18,7 @@
 .order-card {
   background: #fff;
   border-radius: 18rpx;
-  padding: 18rpx;
+  padding: 24rpx 20rpx 20rpx;
   margin-bottom: 14rpx;
 }
 

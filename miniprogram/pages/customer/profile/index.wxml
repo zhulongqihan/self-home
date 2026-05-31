@@ -1,4 +1,6 @@
 <view class="page">
+  <page-header title="我的" />
+  <view class="content">
   <view class="card">
     <view class="avatar">😊</view>
     <view class="nickname">{{user.nickname || '宇宙第一可爱 VVVVVIP'}}</view>
@@ -30,4 +32,5 @@
   </view>
 
   <view class="logout" bindtap="onLogout">切换账号 / 退出登录</view>
+  </view>
 </view>

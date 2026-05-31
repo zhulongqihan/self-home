@@ -1,6 +1,6 @@
 <view class="page">
-  <view class="top-bar">
-    <text class="top-title">点单</text>
+  <page-header title="点单" />
+  <view class="search-row">
     <view class="search-placeholder">搜索</view>
   </view>
 
