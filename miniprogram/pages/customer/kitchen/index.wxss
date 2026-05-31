@@ -13,6 +13,55 @@
   border-bottom: 1rpx solid #f0f0f0;
 }
 
+.bullet-layer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 220rpx;
+  height: 80rpx;
+  overflow: hidden;
+  z-index: 800;
+  pointer-events: none;
+}
+
+.bullet-card {
+  display: inline-flex;
+  align-items: center;
+  max-width: 85vw;
+  white-space: nowrap;
+  background: rgba(255, 248, 238, 0.96);
+  border: 1rpx solid rgba(232, 184, 109, 0.55);
+  border-radius: 999rpx;
+  padding: 14rpx 32rpx;
+  box-shadow: 0 8rpx 28rpx rgba(61, 44, 30, 0.14);
+  animation: bullet-fly 18s linear infinite;
+  transform: translateX(100vw);
+}
+
+.bullet-label {
+  flex-shrink: 0;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #e8b86d;
+  margin-right: 12rpx;
+}
+
+.bullet-content {
+  font-size: 26rpx;
+  color: #3d2c1e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes bullet-fly {
+  0% {
+    transform: translateX(100vw);
+  }
+  100% {
+    transform: translateX(-120%);
+  }
+}
+
 .search-placeholder {
   width: 100%;
   box-sizing: border-box;

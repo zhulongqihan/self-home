@@ -18,6 +18,7 @@ const ordersRouter = require('./routes/orders')
 const configRouter = require('./routes/config')
 const coinsRouter = require('./routes/coins')
 const signInRouter = require('./routes/signIn')
+const messagesRouter = require('./routes/messages')
 
 const { notFound, errorHandler } = require('./middlewares/errorHandler')
 
@@ -51,12 +52,13 @@ app.use('/api/orders', ordersRouter)
 app.use('/api/config', configRouter)
 app.use('/api/coins', coinsRouter)
 app.use('/api/sign-in', signInRouter)
+app.use('/api/messages', messagesRouter)
 
 // 根路径
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.3.3',
+    version: '0.3.4',
     endpoints: [
       'GET /api/health',
       'POST /api/auth/login',
@@ -87,7 +89,11 @@ app.get('/', (req, res) => {
       'GET /api/coins/me',
       'POST /api/coins/kiss',
       'GET /api/coins/owner/kiss-stats',
-      'POST /api/sign-in'
+      'POST /api/sign-in',
+      'GET /api/messages/latest',
+      'GET /api/messages/owner',
+      'POST /api/messages',
+      'DELETE /api/messages/:id'
     ]
   })
 })

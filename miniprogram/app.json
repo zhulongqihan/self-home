@@ -17,7 +17,8 @@
     "pages/owner/products/edit",
     "pages/owner/orders/index",
     "pages/owner/analytics/index",
-    "pages/owner/settings/index"
+    "pages/owner/settings/index",
+    "pages/owner/messages/index"
   ],
   "window": {
     "backgroundTextStyle": "light",

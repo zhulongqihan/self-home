@@ -1,0 +1,39 @@
+<view class="page">
+  <page-header title="留言板" showBack="{{true}}" backUrl="/pages/owner/index/index" />
+  <view class="content">
+    <view class="section">
+      <view class="label">写给 TA 的一句话</view>
+      <textarea
+        class="input"
+        value="{{content}}"
+        maxlength="300"
+        placeholder="例如：今天也要好好吃饭，想你～"
+        bindinput="onInputContent"
+      />
+      <view class="char-count">{{content.length}}/300</view>
+    </view>
+    <view class="section">
+      <view class="label">配图 URL（可选）</view>
+      <input
+        class="input-line"
+        value="{{imageUrl}}"
+        placeholder="https://... 留空则无图"
+        placeholder-class="field-placeholder"
+        bindinput="onInputImage"
+      />
+    </view>
+    <view class="save-btn" bindtap="onPublish">{{publishing ? '发布中...' : '发布留言'}}</view>
+
+    <view class="section-head">历史留言</view>
+    <view wx:if="{{loading}}" class="state-text">加载中...</view>
+    <view wx:elif="{{items.length === 0}}" class="state-text">还没有留言，发第一句吧～</view>
+    <view wx:else class="history">
+      <view class="msg-card" wx:for="{{items}}" wx:key="id">
+        <view class="msg-time">{{item.timeText}}</view>
+        <view class="msg-content">{{item.content}}</view>
+        <image wx:if="{{item.image}}" class="msg-image" src="{{item.image}}" mode="aspectFill" />
+        <view class="msg-del" data-id="{{item.id}}" bindtap="onDelete">删除</view>
+      </view>
+    </view>
+  </view>
+</view>

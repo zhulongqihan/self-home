@@ -1,6 +1,8 @@
 const { get } = require('../../../utils/request.js')
 const { getProductCover } = require('../../../utils/productImage.js')
 const { getCartStats } = require('../../../utils/cart.js')
+const { getToken } = require('../../../utils/auth.js')
+const { fetchLatestOwnerMessage } = require('../../../utils/ownerMessage.js')
 
 Page({
   data: {
@@ -13,11 +15,8 @@ Page({
     cartTotal: 0,
     drawerOpen: false,
     specVisible: false,
-    specProduct: null
-  },
-
-  onLoad() {
-    this.fetchCategoriesAndProducts()
+    specProduct: null,
+    bulletText: ''
   },
 
   onShow() {
@@ -25,6 +24,46 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 })
     }
+    this.bootstrapKitchen()
+  },
+
+  bootstrapKitchen() {
+    if (!getToken()) {
+      this.setData({ loading: false, loadError: false })
+      return
+    }
+    if (this._fetchingKitchen) return
+
+    const needLoad = !this._kitchenReady || this.data.loading || this.data.loadError
+    if (!needLoad) {
+      this.scheduleBulletMessage()
+      return
+    }
+
+    this._fetchingKitchen = true
+    this.fetchCategoriesAndProducts()
+      .finally(() => {
+        this._fetchingKitchen = false
+        this._kitchenReady = true
+        this.scheduleBulletMessage()
+      })
+  },
+
+  scheduleBulletMessage() {
+    if (this._bulletTimer) clearTimeout(this._bulletTimer)
+    this._bulletTimer = setTimeout(() => this.loadBulletMessage(), 500)
+  },
+
+  loadBulletMessage() {
+    if (this._bulletLoading) return
+    this._bulletLoading = true
+    fetchLatestOwnerMessage()
+      .then(msg => {
+        this.setData({ bulletText: (msg && msg.content) ? msg.content : '' })
+      })
+      .finally(() => {
+        this._bulletLoading = false
+      })
   },
 
   onHide() {
@@ -43,7 +82,7 @@ Page({
     if (p.review_count > 0) {
       return `★ ${p.rating_avg} · 月销 ${sales}`
     }
-    return `暂无评价 · 月销 ${sales}`
+    return '暂无评价 · 月销 ' + sales
   },
 
   mapProducts(list) {
@@ -64,14 +103,20 @@ Page({
     this.setData({ loading: true, loadError: false })
     try {
       const categoryResp = await get('/api/categories')
-      const categories = (categoryResp.data || []).map(c => ({
+      const raw = categoryResp.data
+      const list = Array.isArray(raw) ? raw : []
+      const categories = list.map(c => ({
         id: c._id,
         name: c.name,
         icon: c.icon
       }))
       const activeCategoryId = categories.length ? categories[0].id : ''
       this.setData({ categories, activeCategoryId })
-      await this.fetchProducts(activeCategoryId)
+      if (activeCategoryId) {
+        await this.fetchProducts(activeCategoryId)
+      } else {
+        this.setData({ products: [], loading: false })
+      }
     } catch (err) {
       wx.showToast({ title: err.message || '加载失败', icon: 'none' })
       this.setData({ loading: false, loadError: true })
@@ -79,13 +124,18 @@ Page({
   },
 
   async fetchProducts(categoryId) {
-    this.setData({ loadError: false })
+    if (!categoryId) {
+      this.setData({ products: [], loading: false })
+      return
+    }
     try {
-      const query = categoryId ? `?category_id=${categoryId}` : ''
-      const resp = await get(`/api/products${query}`)
+      const resp = await get(`/api/products?category_id=${categoryId}`)
+      const raw = resp.data
+      const list = Array.isArray(raw) ? raw : []
       this.setData({
-        products: this.mapProducts(resp.data),
-        loading: false
+        products: this.mapProducts(list),
+        loading: false,
+        loadError: false
       })
     } catch (err) {
       wx.showToast({ title: err.message || '商品加载失败', icon: 'none' })

@@ -61,6 +61,13 @@
     </scroll-view>
   </view>
 
+  <view wx:if="{{bulletText}}" class="bullet-layer">
+    <view class="bullet-card">
+      <text class="bullet-label">小羊说</text>
+      <text class="bullet-content">{{bulletText}}</text>
+    </view>
+  </view>
+
   <cart-bar
     id="cartBar"
     count="{{cartCount}}"

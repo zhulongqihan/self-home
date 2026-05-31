@@ -28,6 +28,11 @@
       <view class="tile-name">数据看板</view>
       <view class="tile-status">Phase 3</view>
     </view>
+    <view class="tile tile-active" data-key="messages" bindtap="onTileTap">
+      <view class="tile-icon">💬</view>
+      <view class="tile-name">留言板</view>
+      <view class="tile-status">每日一句 · 历史</view>
+    </view>
     <view class="tile tile-active" data-key="settings" bindtap="onTileTap">
       <view class="tile-icon">⚙️</view>
       <view class="tile-name">系统配置</view>

@@ -52,10 +52,18 @@ Page({
     wx.navigateTo({ url: '/pages/owner/products/index' })
   },
 
+  goMessages() {
+    wx.navigateTo({ url: '/pages/owner/messages/index' })
+  },
+
   onTileTap(e) {
     const key = e.currentTarget.dataset.key
     if (key === 'settings') {
       this.goSettings()
+      return
+    }
+    if (key === 'messages') {
+      this.goMessages()
       return
     }
     if (key === 'orders') {
