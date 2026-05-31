@@ -9,7 +9,7 @@
 你是 **总指挥 Agent（Orchestrator）**，负责：
 - 阅读 `PRD.md`（项目最高红线，不可违反）
 - 把任务分发给子 Agent 并行执行
-- 收口每个版本，提交 Git → SSH 推 GitHub → 打 Tag → 发 Release
+- 收口每个版本，提交 Git → SSH 推 GitHub → 打 Tag →（大版本才）发 Release
 - 把测试入口和验收清单交给用户
 - 等待用户验收通过后才能进入下一个任务
 
@@ -20,9 +20,9 @@
 1. ✅ **PRD.md 为唯一真相**：任何实现必须严格对齐，若发现 PRD 矛盾或缺失，先停下来更新 PRD，再开发
 2. ✅ **全免费方案**：禁止引入任何付费服务（用已有阿里云服务器 + 自部署 Node.js + MongoDB + Let's Encrypt 免费证书）
 3. ✅ **后台可配置**：任何商品/分类/节日/文案/价格/主题色/彩蛋开关 → 必须存数据库，禁止硬编码
-4. ✅ **分版本开发**：每完成 1 个任务 = 1 个 Git Tag + 1 个 GitHub Release
+4. ✅ **分版本开发**：每完成 1 个任务 = 1 个 Git Tag；**GitHub Release 仅大版本**（见 §2.3）
 5. ✅ **用户验收强约束**：每个版本完成后，**必须停下来**给用户提供验收清单，**用户回复"通过"才能继续**
-6. ✅ **GitHub 同步强制（SSH）**：用户回复「通过」后，**同一轮内**必须 `commit` → `git push origin main`（SSH）→ `tag` → `git push origin vX.Y.Z` → **GitHub Release**（细则见 PRD §9.1）；不得只改本地仓库
+6. ✅ **GitHub 同步强制（SSH）**：用户回复「通过」后，**同一轮内**必须 `commit` → `git push origin main`（SSH）→ `tag` → `git push origin vX.Y.Z`；**小版本不发 Release**（细则见 PRD §9、Skill `.cursor/skills/couple-app-redline/`）
 7. ✅ **可回退**：任何版本出问题，用户说"回退到 vX.Y.Z" → 立即 `git reset --hard <tag>`
 8. ✅ **并行不冲突**：多 Agent 并行的任务必须改不同文件夹/不同模块，避免合并冲突
 
@@ -58,9 +58,13 @@ git tag -a v0.X.Y -m "<任务名>"
 git push origin main              # SSH → GitHub
 git push origin v0.X.Y            # 推送 Tag
 ```
-**Release**（二选一）：
-- GitHub Web：[zhulongqihan/self-home Releases](https://github.com/zhulongqihan/self-home/releases) → Draft new release → 选 tag `v0.X.Y`
-- 或本机已装 `gh`：`gh release create v0.X.Y --title "<任务名>" --notes-file docs/acceptance/v0.X.Y.md`
+
+**GitHub Release（仅大版本）**：
+- **小版本**（v0.3.1 / v0.3.2 …）：只 Tag，**不**建 Release
+- **大版本**（v0.4.0、v1.0.0、Phase 收口，或用户明确说「发 Release」）：
+  - Web：[self-home Releases](https://github.com/zhulongqihan/self-home/releases) → 选 tag
+  - 或 `bash scripts/create_github_releases.sh`（需 `gh auth login`）
+  - 正文：`docs/releases/vX.Y.Z.md` 或 `docs/acceptance/vX.Y.Z.md`
 
 ### 2.4 回退流程
 用户说"回退到 v0.1.3"时：

@@ -360,18 +360,21 @@ config { _id: 'global',
 
 1. **分版本开发**：每完成 1 个任务即为 1 个版本（v0.1.1 → v0.1.2 …；小修复可用 v0.1.7.1 等补丁号）
 2. **每版本必须用户验收**：未通过验收不得进入下一个任务，**不得打 Tag / 发 Release**
-3. **每版本必须同步 GitHub + Release（验收通过后立即执行 · 强制）**  
+3. **每版本必须同步 GitHub（验收通过后立即执行 · 强制）**  
    远程仓库使用 **SSH**（`git@github.com:...`，不用 HTTPS）。任一小版本在用户回复「通过」后，**同一轮对话内**必须完成：
    - `git add` + `git commit`（说明写进 `CHANGELOG.md`）
    - `git push origin main`（经 SSH 推送到 GitHub）
    - `git tag -a vX.Y.Z -m "..."` + `git push origin vX.Y.Z`
-   - GitHub **Release**（附 `docs/acceptance/vX.Y.Z.md` 摘要；Web 端或 `gh release create`）
-   - **禁止**只改本地不推送；**禁止**只 commit 不打 Tag、不发 Release
-4. **可回退**：任何版本出问题，通过 Tag 回退，例如 `git checkout v0.1.5` 或 `git reset --hard v0.1.5`（需用户确认后再 `git push -f origin main`）
-5. **多 Agent 并行**：无依赖关系的任务可并行执行，便于用户分块检验
-6. **不偏离 PRD**：任何超出本文档的实现需求需先回来更新文档
-7. **不破坏既有服务**：服务器上博客和 agent 项目零中断（除证书续期）
-8. **多端适配**：顾客端厨房悬浮购物车、TabBar、登录页等须通过安全区变量适配，不得出现遮挡或文字裁切（见 §2.4）
+   - **禁止**只改本地不推送；**禁止**验收未通过就打 Tag
+4. **GitHub Release 仅在大版本发布（2026-05 起）**  
+   - **小版本**（如 v0.3.1 / v0.3.2 / v0.3.3）：只 commit + push + **Tag**，**不**创建 GitHub Release  
+   - **大版本**：次版本里程碑（如 `v0.4.0`、`v1.0.0`）、Phase 阶段收口，或用户明确说「发 Release」时，再建 GitHub Release（Web 或 `gh release create`）  
+   - Tag 仍每个小版本都打，保证可 `git checkout vX.Y.Z` 回退
+5. **可回退**：任何版本出问题，通过 Tag 回退，例如 `git checkout v0.1.5` 或 `git reset --hard v0.1.5`（需用户确认后再 `git push -f origin main`）
+6. **多 Agent 并行**：无依赖关系的任务可并行执行，便于用户分块检验
+7. **不偏离 PRD**：任何超出本文档的实现需求需先回来更新文档
+8. **不破坏既有服务**：服务器上博客和 agent 项目零中断（除证书续期）
+9. **多端适配**：顾客端厨房悬浮购物车、TabBar、登录页等须通过安全区变量适配，不得出现遮挡或文字裁切（见 §2.4）
 
 ### 9.1 版本存档检查清单（AI / 开发必做）
 
@@ -384,7 +387,7 @@ config { _id: 'global',
 | 提交 | `git add .` → `git commit -m "..."` |
 | 推送代码（SSH） | `git push origin main` |
 | 打标签并推送 | `git tag -a vX.Y.Z -m "..."` → `git push origin vX.Y.Z` |
-| 发 Release | [GitHub Releases](https://github.com/zhulongqihan/self-home/releases) 新建，或 `gh release create vX.Y.Z` |
+| 发 Release | **仅大版本**（见 §九第 4 条）：[GitHub Releases](https://github.com/zhulongqihan/self-home/releases) 或 `gh release create` |
 | 服务器（如有后端改动） | `scp -r server/src/* root@118.31.221.81:/opt/couple-app/src/` → `ssh root@118.31.221.81 'pm2 restart couple-app'`（不动 blog/agent） |
 
 ```bash
@@ -394,7 +397,7 @@ git commit -m "feat(v0.1.7): <简述>"
 git push origin main
 git tag -a v0.1.7 -m "v0.1.7: <简述>"
 git push origin v0.1.7
-# Release：打开 GitHub → Releases → Draft new release → 选择 tag v0.1.7
+# Release（仅大版本）：GitHub → Releases → Draft new release → 选 tag
 ```
 
 ---

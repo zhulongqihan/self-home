@@ -1,14 +1,28 @@
 #!/bin/bash
-# 本地创建 GitHub Releases（需 gh 已登录：gh auth login）
+# 大版本 GitHub Release（小版本只打 Tag，不发 Release — 见 PRD §九、.cursor/skills/couple-app-redline/）
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
-if ! command -v gh >/dev/null 2>&1; then
+GH="${GH:-gh}"
+if ! command -v "$GH" >/dev/null 2>&1; then
   echo "请先安装并登录 gh: brew install gh && gh auth login"
   exit 1
 fi
-gh release create v0.1.9 --title "v0.1.9 店长商品 CRUD 与评价" --notes-file docs/acceptance/v0.1.9.md 2>/dev/null \
-  && echo "v0.1.9 release OK" || echo "v0.1.9 release 可能已存在"
-gh release create v0.2.0 --title "v0.2.0 微信订阅消息" --notes-file docs/acceptance/v0.2.0.md 2>/dev/null \
-  && echo "v0.2.0 release OK" || echo "v0.2.0 release 可能已存在"
-gh release list --limit 5
+if ! "$GH" auth status >/dev/null 2>&1; then
+  echo "请先执行: gh auth login"
+  exit 1
+fi
+REPO="zhulongqihan/self-home"
+
+create_release() {
+  local tag="$1" title="$2" notes_file="$3"
+  if "$GH" release view "$tag" --repo "$REPO" >/dev/null 2>&1; then
+    echo "$tag release 已存在，跳过"
+    return 0
+  fi
+  "$GH" release create "$tag" --repo "$REPO" --title "$title" --notes-file "$notes_file"
+  echo "$tag release OK"
+}
+
+create_release v0.3.3 "v0.3.3 - 三大倒计时" docs/releases/v0.3.3.md
+"$GH" release list --repo "$REPO" --limit 5
