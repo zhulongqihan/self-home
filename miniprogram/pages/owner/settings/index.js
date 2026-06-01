@@ -29,6 +29,12 @@ const THEME_VALUES = ['default', 'cloud']
 const STATUS_LABELS = ['营业中', '休息中']
 const STATUS_VALUES = ['open', 'closed']
 
+function normalizeHHmm(str) {
+  const m = String(str || '').trim().match(/^(\d{1,2}):(\d{2})$/)
+  if (!m) return String(str || '').trim()
+  return `${String(parseInt(m[1], 10)).padStart(2, '0')}:${m[2]}`
+}
+
 Page({
   data: {
     loading: true,
@@ -68,7 +74,16 @@ Page({
     weatherCityId: '',
     weatherCityName: '',
     weatherBanner: '',
-    weatherSimulateRainy: false
+    weatherSimulateRainy: false,
+    timeEggSlots: [],
+    timeEggStart: '07:00',
+    timeEggEnd: '10:00',
+    timeEggText: '',
+    timeEggBanner: '',
+    timeEggEnabled: true,
+    timePreviewPicker: 0,
+    timePreviewLabels: ['自动（当前时间）'],
+    savingTimeEggs: false
   },
 
   async onLoad() {
@@ -96,6 +111,20 @@ Page({
       const anniversaryDate = d.anniversary_date || ''
       const customerBirthday = d.customer_birthday || ''
       const weather = d.weather || {}
+      const timeEgg = d.time_egg || {}
+      const timeEggSlots = (timeEgg.slots || []).map(s => ({
+        start: s.start || '',
+        end: s.end || '',
+        text: s.text || '',
+        banner: s.banner || '',
+        enabled: s.enabled !== false
+      }))
+      const previewIndex = timeEgg.preview_index != null ? timeEgg.preview_index : -1
+      const timePreviewLabels = [
+        '自动（当前时间）',
+        ...timeEggSlots.map(s => `${s.start} - ${s.end}`)
+      ]
+      const timePreviewPicker = previewIndex < 0 ? 0 : previewIndex + 1
       this.setData({
         loading: false,
         storeName: d.store_name || '',
@@ -125,7 +154,10 @@ Page({
         weatherCityId: weather.city_id || '',
         weatherCityName: weather.city_name || '',
         weatherBanner: weather.banner_text || '下雨天，来杯热饮暖暖手～',
-        weatherSimulateRainy: !!weather.simulate_rainy
+        weatherSimulateRainy: !!weather.simulate_rainy,
+        timeEggSlots,
+        timePreviewPicker,
+        timePreviewLabels
       })
     } catch (err) {
       this.setData({ loading: false })
@@ -161,6 +193,98 @@ Page({
   onInputWeatherCityName(e) { this.setData({ weatherCityName: e.detail.value }) },
   onInputWeatherBanner(e) { this.setData({ weatherBanner: e.detail.value }) },
   onToggleWeatherSimulate(e) { this.setData({ weatherSimulateRainy: e.detail.value }) },
+  onInputTimeEggText(e) { this.setData({ timeEggText: e.detail.value }) },
+  onInputTimeEggBanner(e) { this.setData({ timeEggBanner: e.detail.value }) },
+  onPickTimeEggStart(e) { this.setData({ timeEggStart: e.detail.value }) },
+  onPickTimeEggEnd(e) { this.setData({ timeEggEnd: e.detail.value }) },
+  onToggleTimeEggEnabled(e) { this.setData({ timeEggEnabled: e.detail.value }) },
+  onPickTimePreview(e) {
+    this.setData({ timePreviewPicker: parseInt(e.detail.value, 10) || 0 })
+  },
+
+  onAddTimeEgg() {
+    const start = normalizeHHmm(this.data.timeEggStart)
+    const end = normalizeHHmm(this.data.timeEggEnd)
+    const text = (this.data.timeEggText || '').trim()
+    if (!start || !end || !text) {
+      wx.showToast({ title: '请填写时段与文案', icon: 'none' })
+      return
+    }
+    const slot = {
+      start,
+      end,
+      text,
+      banner: (this.data.timeEggBanner || '').trim(),
+      enabled: this.data.timeEggEnabled
+    }
+    const timeEggSlots = [...this.data.timeEggSlots, slot]
+    const timePreviewLabels = [
+      '自动（当前时间）',
+      ...timeEggSlots.map(s => `${s.start} - ${s.end}`)
+    ]
+    this.setData({
+      timeEggSlots,
+      timePreviewLabels,
+      timeEggText: '',
+      timeEggBanner: '',
+      timeEggEnabled: true
+    })
+  },
+
+  onToggleTimeSlot(e) {
+    const index = e.currentTarget.dataset.index
+    const enabled = e.detail.value
+    const timeEggSlots = this.data.timeEggSlots.map((s, i) => (
+      i === index ? { ...s, enabled } : s
+    ))
+    this.setData({ timeEggSlots })
+  },
+
+  onDeleteTimeSlot(e) {
+    const index = e.currentTarget.dataset.index
+    wx.showModal({
+      title: '删除时段',
+      content: '确定删除该时段彩蛋？',
+      success: (res) => {
+        if (!res.confirm) return
+        const timeEggSlots = this.data.timeEggSlots.filter((_, i) => i !== index)
+        const timePreviewLabels = [
+          '自动（当前时间）',
+          ...timeEggSlots.map(s => `${s.start} - ${s.end}`)
+        ]
+        let timePreviewPicker = this.data.timePreviewPicker
+        if (timePreviewPicker > timeEggSlots.length) timePreviewPicker = 0
+        this.setData({ timeEggSlots, timePreviewLabels, timePreviewPicker })
+      }
+    })
+  },
+
+  async onSaveTimeEggs() {
+    if (this.data.savingTimeEggs) return
+    const slots = this.data.timeEggSlots.map(s => ({
+      ...s,
+      start: normalizeHHmm(s.start),
+      end: normalizeHHmm(s.end)
+    }))
+    if (!slots.length) {
+      wx.showToast({ title: '请至少保留一条时段', icon: 'none' })
+      return
+    }
+    this.setData({ savingTimeEggs: true })
+    try {
+      const picker = this.data.timePreviewPicker
+      const preview_index = picker <= 0 ? -1 : picker - 1
+      await put('/api/config/owner', {
+        time_easter_eggs: slots,
+        time_egg: { preview_index }
+      })
+      wx.showToast({ title: '时段彩蛋已保存', icon: 'success' })
+    } catch (err) {
+      wx.showToast({ title: err.message || '保存失败', icon: 'none' })
+    } finally {
+      this.setData({ savingTimeEggs: false })
+    }
+  },
 
   onPickStoreStatus(e) {
     this.setData({ storeStatusIndex: parseInt(e.detail.value, 10) || 0 })

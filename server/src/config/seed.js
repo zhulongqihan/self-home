@@ -7,6 +7,7 @@ const Config = require('../models/Config')
 const User = require('../models/User')
 const Category = require('../models/Category')
 const Product = require('../models/Product')
+const { DEFAULT_TIME_EGGS } = require('../services/timeEgg')
 const { isDummyImage } = require('../utils/productImage')
 const env = require('./index')
 
@@ -83,6 +84,12 @@ async function seedConfig() {
     uiUpdated = true
   }
   if (uiUpdated) await cfg.save()
+
+  if (!cfg.time_easter_eggs || cfg.time_easter_eggs.length === 0) {
+    cfg.time_easter_eggs = DEFAULT_TIME_EGGS
+    await cfg.save()
+    console.log('[Seed] 初始化默认时段彩蛋')
+  }
 
   console.log('[Seed] Whitelist:',
     `owner=${cfg.whitelist.owner_openid ? 'set' : 'EMPTY'}`,

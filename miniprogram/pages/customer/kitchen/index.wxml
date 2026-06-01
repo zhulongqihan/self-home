@@ -1,5 +1,12 @@
 <view class="page">
   <page-header title="点单" />
+  <view wx:if="{{timeEgg}}" class="time-egg-bar">
+    <image wx:if="{{timeEgg.banner}}" class="time-egg-banner" src="{{timeEgg.banner}}" mode="aspectFill" />
+    <view class="time-egg-body">
+      <text class="time-egg-tag">⏰ {{timeEgg.start}}-{{timeEgg.end}}</text>
+      <text class="time-egg-text">{{timeEgg.text}}</text>
+    </view>
+  </view>
   <view wx:if="{{weather}}" class="weather-bar">
     <view class="weather-icon">🌧️</view>
     <view class="weather-text">

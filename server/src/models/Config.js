@@ -85,6 +85,11 @@ const ConfigSchema = new Schema({
     city_name: { type: String, default: '' },
     banner_text: { type: String, default: '下雨天，来杯热饮暖暖手～' },
     simulate_rainy: { type: Boolean, default: false }
+  },
+
+  // 时段彩蛋预览（-1=按当前时间，0+=强制展示某条）
+  time_egg: {
+    preview_index: { type: Number, default: -1 }
   }
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

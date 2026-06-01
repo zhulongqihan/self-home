@@ -5,6 +5,7 @@ const { requireAuth, requireRole } = require('../middlewares/auth')
 
 const { buildCountdownItems } = require('../services/countdown')
 const { EGG_SWITCH_META, normalizeEggsForOwner } = require('../constants/eggSwitches')
+const { pickTimeEggForOwner, validateTimeEggSlots } = require('../services/timeEgg')
 
 const router = express.Router()
 
@@ -57,7 +58,8 @@ function pickOwnerConfig(cfg) {
       city_name: (cfg.weather && cfg.weather.city_name) || '',
       banner_text: (cfg.weather && cfg.weather.banner_text) || '下雨天，来杯热饮暖暖手～',
       simulate_rainy: !!(cfg.weather && cfg.weather.simulate_rainy)
-    }
+    },
+    time_egg: pickTimeEggForOwner(cfg)
   }
 }
 
@@ -283,6 +285,16 @@ function applyOwnerConfigPatch(cfg, body) {
     }
     if (b.weather.simulate_rainy !== undefined) {
       cfg.weather.simulate_rainy = !!b.weather.simulate_rainy
+    }
+  }
+  if (b.time_easter_eggs !== undefined) {
+    cfg.time_easter_eggs = validateTimeEggSlots(b.time_easter_eggs)
+  }
+  if (b.time_egg && typeof b.time_egg === 'object') {
+    if (!cfg.time_egg) cfg.time_egg = {}
+    if (b.time_egg.preview_index !== undefined) {
+      const idx = parseInt(b.time_egg.preview_index, 10)
+      cfg.time_egg.preview_index = Number.isNaN(idx) ? -1 : Math.max(-1, Math.min(idx, 11))
     }
   }
 }

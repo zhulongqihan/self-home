@@ -4,6 +4,10 @@ const { getCartStats } = require('../../../utils/cart.js')
 const { getToken } = require('../../../utils/auth.js')
 const { fetchLatestOwnerMessage } = require('../../../utils/ownerMessage.js')
 
+function getOptional(url) {
+  return get(url).catch(() => ({ data: null }))
+}
+
 Page({
   data: {
     loading: true,
@@ -15,6 +19,7 @@ Page({
     festivalProducts: [],
     weather: null,
     weatherProducts: [],
+    timeEgg: null,
     cartCount: 0,
     cartTotal: 0,
     drawerOpen: false,
@@ -32,8 +37,13 @@ Page({
       this.setData({ loading: false, loadError: false })
       return
     }
-    this.startKitchenLoad()
+    this.scheduleKitchenLoad()
     this.scheduleBulletMessage()
+  },
+
+  scheduleKitchenLoad() {
+    if (this._loadTimer) clearTimeout(this._loadTimer)
+    this._loadTimer = setTimeout(() => this.startKitchenLoad(), 30)
   },
 
   startKitchenLoad() {
@@ -92,64 +102,87 @@ Page({
     })
   },
 
+  parseCategories(raw) {
+    const list = Array.isArray(raw) ? raw : []
+    return list
+      .map(c => ({
+        id: String(c._id || c.id || ''),
+        name: c.name,
+        icon: c.icon
+      }))
+      .filter(c => c.id)
+  },
+
+  applyFestival(festData) {
+    if (!festData) {
+      return { festival: null, festivalProducts: [] }
+    }
+    return {
+      festival: {
+        id: festData.id,
+        name: festData.name,
+        banner: festData.banner || '',
+        themeColor: festData.theme_color || '#E8B86D'
+      },
+      festivalProducts: Array.isArray(festData.products)
+        ? this.mapProducts(festData.products)
+        : []
+    }
+  },
+
+  applyWeather(weatherData) {
+    if (!weatherData || !weatherData.active) {
+      return { weather: null, weatherProducts: [] }
+    }
+    return {
+      weather: {
+        text: weatherData.text || '雨天',
+        temp: weatherData.temp || '',
+        banner: weatherData.banner || '下雨天，来杯热饮暖暖手～',
+        cityName: weatherData.city_name || ''
+      },
+      weatherProducts: Array.isArray(weatherData.products)
+        ? this.mapProducts(weatherData.products)
+        : []
+    }
+  },
+
+  applyTimeEgg(timeEggData) {
+    if (!timeEggData || !timeEggData.active) {
+      return { timeEgg: null }
+    }
+    return {
+      timeEgg: {
+        start: timeEggData.start || '',
+        end: timeEggData.end || '',
+        banner: timeEggData.banner || '',
+        text: timeEggData.text || ''
+      }
+    }
+  },
+
   async fetchKitchenData(seq) {
     this.setData({ loading: true, loadError: false })
     try {
-      const [categoryResp, festivalResp, weatherResp] = await Promise.all([
-        get('/api/categories'),
-        get('/api/festivals/active').catch(() => ({ data: null })),
-        get('/api/weather/kitchen').catch(() => ({ data: null }))
-      ])
+      const categoryResp = await get('/api/categories')
       if (seq !== this._loadSeq) return
 
-      const raw = categoryResp.data
-      const list = Array.isArray(raw) ? raw : []
-      const categories = list
-        .map(c => ({
-          id: String(c._id || c.id || ''),
-          name: c.name,
-          icon: c.icon
-        }))
-        .filter(c => c.id)
-
-      const festData = festivalResp.data || null
-      const festival = festData
-        ? {
-            id: festData.id,
-            name: festData.name,
-            banner: festData.banner || '',
-            themeColor: festData.theme_color || '#E8B86D'
-          }
-        : null
-      const festivalProducts = festData && Array.isArray(festData.products)
-        ? this.mapProducts(festData.products)
-        : []
-
-      const weatherData = weatherResp.data || null
-      const weather = weatherData && weatherData.active
-        ? {
-            text: weatherData.text || '雨天',
-            temp: weatherData.temp || '',
-            banner: weatherData.banner || '下雨天，来杯热饮暖暖手～',
-            cityName: weatherData.city_name || ''
-          }
-        : null
-      const weatherProducts = weatherData && weatherData.active && Array.isArray(weatherData.products)
-        ? this.mapProducts(weatherData.products)
-        : []
-
+      const categories = this.parseCategories(categoryResp.data)
       const prevId = this.data.activeCategoryId
       const activeCategoryId = categories.some(c => c.id === prevId)
         ? prevId
         : (categories.length ? categories[0].id : '')
 
-      this.setData({ categories, activeCategoryId, festival, festivalProducts, weather, weatherProducts })
+      this.setData({ categories, activeCategoryId })
 
       if (activeCategoryId) {
         await this.fetchProducts(activeCategoryId, seq)
       } else {
-        this.setData({ products: [], loading: false, loadError: false })
+        this.finishLoad(seq, { products: [], loading: false, loadError: false })
       }
+
+      if (seq !== this._loadSeq) return
+      this.loadKitchenExtras(seq)
     } catch (err) {
       if (seq !== this._loadSeq) return
       wx.showToast({ title: err.message || '加载失败', icon: 'none' })
@@ -157,23 +190,39 @@ Page({
     }
   },
 
+  finishLoad(seq, patch) {
+    if (seq !== this._loadSeq) return
+    this.setData(patch)
+  },
+
+  async loadKitchenExtras(seq) {
+    try {
+      const [festivalResp, weatherResp, timeEggResp] = await Promise.all([
+        getOptional('/api/festivals/active'),
+        getOptional('/api/weather/kitchen'),
+        getOptional('/api/time-eggs/kitchen')
+      ])
+      if (seq !== this._loadSeq) return
+
+      const fest = this.applyFestival(festivalResp.data)
+      const weather = this.applyWeather(weatherResp.data)
+      const timeEgg = this.applyTimeEgg(timeEggResp.data)
+      this.setData({ ...fest, ...weather, ...timeEgg })
+    } catch (e) {
+      // 彩蛋接口失败不影响主列表
+    }
+  },
+
   async fetchProducts(categoryId, seq) {
     if (!categoryId) {
-      if (seq === undefined || seq === this._loadSeq) {
-        this.setData({ products: [], loading: false })
-      }
+      this.finishLoad(seq, { products: [], loading: false })
       return
-    }
-    if (seq === undefined) {
-      seq = this._loadSeq
-      this.setData({ loading: true, loadError: false })
     }
     try {
       const resp = await get(`/api/products?category_id=${categoryId}`)
       if (seq !== this._loadSeq) return
-      const raw = resp.data
-      const list = Array.isArray(raw) ? raw : []
-      this.setData({
+      const list = Array.isArray(resp.data) ? resp.data : []
+      this.finishLoad(seq, {
         products: this.mapProducts(list),
         loading: false,
         loadError: false
@@ -201,8 +250,10 @@ Page({
   onSwitchCategory(e) {
     const id = e.currentTarget.dataset.id
     if (!id || id === this.data.activeCategoryId) return
-    this.setData({ activeCategoryId: id })
-    this.fetchProducts(id)
+    const seq = (this._loadSeq || 0) + 1
+    this._loadSeq = seq
+    this.setData({ activeCategoryId: id, loading: true })
+    this.fetchProducts(id, seq)
   },
 
   onTapAdd(e) {
