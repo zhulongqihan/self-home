@@ -20,6 +20,7 @@ const coinsRouter = require('./routes/coins')
 const signInRouter = require('./routes/signIn')
 const messagesRouter = require('./routes/messages')
 const festivalsRouter = require('./routes/festivals')
+const weatherRouter = require('./routes/weather')
 
 const { notFound, errorHandler } = require('./middlewares/errorHandler')
 
@@ -55,12 +56,13 @@ app.use('/api/coins', coinsRouter)
 app.use('/api/sign-in', signInRouter)
 app.use('/api/messages', messagesRouter)
 app.use('/api/festivals', festivalsRouter)
+app.use('/api/weather', weatherRouter)
 
 // 根路径
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.3.6',
+    version: '0.3.7',
     endpoints: [
       'GET /api/health',
       'POST /api/auth/login',
@@ -80,6 +82,7 @@ app.get('/', (req, res) => {
       'PUT /api/festivals/:id',
       'PATCH /api/festivals/:id/status',
       'DELETE /api/festivals/:id',
+      'GET /api/weather/kitchen',
       'GET /api/products',
       'GET /api/products/owner/all',
       'POST /api/products',

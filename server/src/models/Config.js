@@ -77,6 +77,14 @@ const ConfigSchema = new Schema({
   discover_placeholder: {
     title: { type: String, default: '发现' },
     desc: { type: String, default: '精彩内容筹备中，敬请期待～' }
+  },
+
+  // 天气联动（和风天气 city_id，见 dev.qweather.com）
+  weather: {
+    city_id: { type: String, default: '' },
+    city_name: { type: String, default: '' },
+    banner_text: { type: String, default: '下雨天，来杯热饮暖暖手～' },
+    simulate_rainy: { type: Boolean, default: false }
   }
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

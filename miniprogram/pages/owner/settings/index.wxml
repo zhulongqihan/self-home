@@ -74,6 +74,28 @@
         <textarea class="input" value="{{discoverDesc}}" maxlength="80" bindinput="onInputDiscoverDesc" />
       </view>
 
+      <view class="section-head">天气联动</view>
+      <view class="section">
+        <view class="hint-box">
+          <view class="hint-text">雨天时厨房置顶「热饮专场」。需在服务器 `.env` 配置 `QWEATHER_KEY`（和风天气开发版）。</view>
+        </view>
+        <view class="row">
+          <view class="row-label">城市 ID</view>
+          <input class="input-line" value="{{weatherCityId}}" placeholder="如 101210101" bindinput="onInputWeatherCityId" />
+        </view>
+        <view class="row">
+          <view class="row-label">城市名</view>
+          <input class="input-line" value="{{weatherCityName}}" placeholder="杭州（展示用）" bindinput="onInputWeatherCityName" />
+        </view>
+        <view class="label label-gap">雨天 Banner 文案</view>
+        <input class="input-line" value="{{weatherBanner}}" bindinput="onInputWeatherBanner" />
+        <view class="row switch-row">
+          <view class="row-label">模拟雨天</view>
+          <switch checked="{{weatherSimulateRainy}}" color="#E8B86D" bindchange="onToggleWeatherSimulate" />
+        </view>
+        <view class="hint">验收时可开「模拟雨天」预览热饮专区，上线前记得关</view>
+      </view>
+
       <view class="section-head">彩蛋开关</view>
       <view class="section">
         <view class="egg-row" wx:for="{{eggList}}" wx:key="key">

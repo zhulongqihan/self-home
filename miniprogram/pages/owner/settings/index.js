@@ -64,7 +64,11 @@ Page({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
-    changingPassword: false
+    changingPassword: false,
+    weatherCityId: '',
+    weatherCityName: '',
+    weatherBanner: '',
+    weatherSimulateRainy: false
   },
 
   async onLoad() {
@@ -91,6 +95,7 @@ Page({
       const relationshipStart = d.relationship_start || ''
       const anniversaryDate = d.anniversary_date || ''
       const customerBirthday = d.customer_birthday || ''
+      const weather = d.weather || {}
       this.setData({
         loading: false,
         storeName: d.store_name || '',
@@ -116,7 +121,11 @@ Page({
         anniversaryPickerValue: mmddToPickerValue(anniversaryDate),
         customerBirthday,
         birthdayDisplay: mmddToDisplay(customerBirthday),
-        birthdayPickerValue: mmddToPickerValue(customerBirthday)
+        birthdayPickerValue: mmddToPickerValue(customerBirthday),
+        weatherCityId: weather.city_id || '',
+        weatherCityName: weather.city_name || '',
+        weatherBanner: weather.banner_text || '下雨天，来杯热饮暖暖手～',
+        weatherSimulateRainy: !!weather.simulate_rainy
       })
     } catch (err) {
       this.setData({ loading: false })
@@ -148,6 +157,10 @@ Page({
   onInputCurrentPassword(e) { this.setData({ currentPassword: e.detail.value }) },
   onInputNewPassword(e) { this.setData({ newPassword: e.detail.value }) },
   onInputConfirmPassword(e) { this.setData({ confirmPassword: e.detail.value }) },
+  onInputWeatherCityId(e) { this.setData({ weatherCityId: e.detail.value }) },
+  onInputWeatherCityName(e) { this.setData({ weatherCityName: e.detail.value }) },
+  onInputWeatherBanner(e) { this.setData({ weatherBanner: e.detail.value }) },
+  onToggleWeatherSimulate(e) { this.setData({ weatherSimulateRainy: e.detail.value }) },
 
   onPickStoreStatus(e) {
     this.setData({ storeStatusIndex: parseInt(e.detail.value, 10) || 0 })
@@ -214,7 +227,13 @@ Page({
           title: this.data.discoverTitle.trim(),
           desc: this.data.discoverDesc.trim()
         },
-        eggs_switch: this.buildEggsSwitch()
+        eggs_switch: this.buildEggsSwitch(),
+        weather: {
+          city_id: this.data.weatherCityId.trim(),
+          city_name: this.data.weatherCityName.trim(),
+          banner_text: this.data.weatherBanner.trim(),
+          simulate_rainy: this.data.weatherSimulateRainy
+        }
       })
       const d = resp.data || {}
       updateStore({

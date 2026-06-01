@@ -51,7 +51,13 @@ function pickOwnerConfig(cfg) {
     anniversary_date: cfg.anniversary_date || '',
     customer_birthday: cfg.customer_birthday || '',
     eggs_switch: normalizeEggsForOwner(cfg.eggs_switch),
-    egg_meta: EGG_SWITCH_META
+    egg_meta: EGG_SWITCH_META,
+    weather: {
+      city_id: (cfg.weather && cfg.weather.city_id) || '',
+      city_name: (cfg.weather && cfg.weather.city_name) || '',
+      banner_text: (cfg.weather && cfg.weather.banner_text) || '下雨天，来杯热饮暖暖手～',
+      simulate_rainy: !!(cfg.weather && cfg.weather.simulate_rainy)
+    }
   }
 }
 
@@ -262,6 +268,21 @@ function applyOwnerConfigPatch(cfg, body) {
       if (b.eggs_switch[item.key] !== undefined) {
         cfg.eggs_switch.set(item.key, !!b.eggs_switch[item.key])
       }
+    }
+  }
+  if (b.weather && typeof b.weather === 'object') {
+    if (!cfg.weather) cfg.weather = {}
+    if (b.weather.city_id !== undefined) {
+      cfg.weather.city_id = String(b.weather.city_id).trim().slice(0, 16)
+    }
+    if (b.weather.city_name !== undefined) {
+      cfg.weather.city_name = String(b.weather.city_name).trim().slice(0, 20)
+    }
+    if (b.weather.banner_text !== undefined) {
+      cfg.weather.banner_text = String(b.weather.banner_text).trim().slice(0, 60)
+    }
+    if (b.weather.simulate_rainy !== undefined) {
+      cfg.weather.simulate_rainy = !!b.weather.simulate_rainy
     }
   }
 }

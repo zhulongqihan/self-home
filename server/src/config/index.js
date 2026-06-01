@@ -41,6 +41,11 @@ const config = {
       password: process.env.CUSTOMER_PASSWORD || '',
       nickname: process.env.CUSTOMER_NICKNAME || '宝宝'
     }
+  },
+
+  weather: {
+    qweatherKey: process.env.QWEATHER_KEY || '',
+    defaultCityId: process.env.WEATHER_CITY_ID || '101210101'
   }
 }
 

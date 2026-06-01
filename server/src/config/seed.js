@@ -146,7 +146,7 @@ async function seedCatalog() {
       description: '暖暖的一杯，帮你把困意都赶跑。',
       price: 18,
       specs: [{ name: '温度', options: ['热', '去冰', '少冰'] }, { name: '甜度', options: ['正常糖', '半糖', '无糖'] }],
-      tags: ['今日推荐'],
+      tags: ['热饮', '今日推荐'],
       sort_weight: 100
     },
     {
@@ -157,7 +157,7 @@ async function seedCatalog() {
       description: '夜晚的温柔补给，喝完要早点睡哦。',
       price: 20,
       specs: [{ name: '温度', options: ['热', '温'] }],
-      tags: ['夜猫子专区'],
+      tags: ['热饮', '夜猫子专区'],
       sort_weight: 90
     },
     {

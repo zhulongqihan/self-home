@@ -13,6 +13,8 @@ Page({
     products: [],
     festival: null,
     festivalProducts: [],
+    weather: null,
+    weatherProducts: [],
     cartCount: 0,
     cartTotal: 0,
     drawerOpen: false,
@@ -93,9 +95,10 @@ Page({
   async fetchKitchenData(seq) {
     this.setData({ loading: true, loadError: false })
     try {
-      const [categoryResp, festivalResp] = await Promise.all([
+      const [categoryResp, festivalResp, weatherResp] = await Promise.all([
         get('/api/categories'),
-        get('/api/festivals/active').catch(() => ({ data: null }))
+        get('/api/festivals/active').catch(() => ({ data: null })),
+        get('/api/weather/kitchen').catch(() => ({ data: null }))
       ])
       if (seq !== this._loadSeq) return
 
@@ -122,12 +125,25 @@ Page({
         ? this.mapProducts(festData.products)
         : []
 
+      const weatherData = weatherResp.data || null
+      const weather = weatherData && weatherData.active
+        ? {
+            text: weatherData.text || '雨天',
+            temp: weatherData.temp || '',
+            banner: weatherData.banner || '下雨天，来杯热饮暖暖手～',
+            cityName: weatherData.city_name || ''
+          }
+        : null
+      const weatherProducts = weatherData && weatherData.active && Array.isArray(weatherData.products)
+        ? this.mapProducts(weatherData.products)
+        : []
+
       const prevId = this.data.activeCategoryId
       const activeCategoryId = categories.some(c => c.id === prevId)
         ? prevId
         : (categories.length ? categories[0].id : '')
 
-      this.setData({ categories, activeCategoryId, festival, festivalProducts })
+      this.setData({ categories, activeCategoryId, festival, festivalProducts, weather, weatherProducts })
 
       if (activeCategoryId) {
         await this.fetchProducts(activeCategoryId, seq)
@@ -177,7 +193,8 @@ Page({
     })
     this.setData({
       products: patchList(this.data.products),
-      festivalProducts: patchList(this.data.festivalProducts)
+      festivalProducts: patchList(this.data.festivalProducts),
+      weatherProducts: patchList(this.data.weatherProducts)
     })
   },
 
@@ -218,6 +235,7 @@ Page({
   findProduct(id) {
     return this.data.products.find(p => p._id === id)
       || this.data.festivalProducts.find(p => p._id === id)
+      || this.data.weatherProducts.find(p => p._id === id)
   },
 
   onSpecClose() {
