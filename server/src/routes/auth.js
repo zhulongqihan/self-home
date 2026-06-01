@@ -182,4 +182,54 @@ router.get('/me', requireAuth, async (req, res, next) => {
   }
 })
 
+/**
+ * POST /api/auth/change-password
+ * body: { current_password, new_password }
+ * 暗号登录用户修改自己的密码
+ */
+router.post('/change-password', requireAuth, async (req, res, next) => {
+  try {
+    const { current_password, new_password } = req.body || {}
+    if (typeof current_password !== 'string' || typeof new_password !== 'string') {
+      return res.status(400).json({
+        status: 'error', code: 'MISSING_FIELDS', message: '请填写当前暗号和新暗号'
+      })
+    }
+    if (!new_password || new_password.length < 4 || new_password.length > 128) {
+      return res.status(400).json({
+        status: 'error', code: 'INVALID_PASSWORD', message: '新暗号长度须 4～128 位'
+      })
+    }
+    const user = await User.findById(req.user.sub).select('+password_hash')
+    if (!user || !user.password_hash) {
+      return res.status(400).json({
+        status: 'error', code: 'NO_PASSWORD_ACCOUNT', message: '当前账号不支持修改暗号'
+      })
+    }
+    const ok = await bcrypt.compare(current_password, user.password_hash)
+    if (!ok) {
+      return res.status(401).json({
+        status: 'error', code: 'INVALID_CREDENTIALS', message: '当前暗号不正确'
+      })
+    }
+    const newPwd = String(new_password).trim()
+    user.password_hash = await bcrypt.hash(newPwd, 10)
+    // 小程序暗号登录：输入的暗号同时作为 username 与 password，改密须同步 username
+    if (user.username) {
+      const taken = await User.findOne({ username: newPwd, _id: { $ne: user._id } })
+      if (taken) {
+        return res.status(400).json({
+          status: 'error', code: 'USERNAME_TAKEN', message: '该暗号已被另一账号使用'
+        })
+      }
+      user.username = newPwd
+    }
+    await user.save()
+    console.log(`[Auth] password changed: ${user.username} (${user.role})`)
+    res.json({ status: 'ok', data: { message: '暗号已更新' } })
+  } catch (err) {
+    next(err)
+  }
+})
+
 module.exports = router

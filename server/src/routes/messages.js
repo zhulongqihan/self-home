@@ -4,13 +4,12 @@ const Message = require('../models/Message')
 const Config = require('../models/Config')
 const { requireAuth, requireRole } = require('../middlewares/auth')
 
+const { resolveEggSwitch } = require('../constants/eggSwitches')
+
 const router = express.Router()
 
 function isMessageEnabled(cfg) {
-  if (!cfg || !cfg.eggs_switch) return true
-  const sw = cfg.eggs_switch
-  if (typeof sw.get === 'function') return sw.get('owner_daily_message') !== false
-  return sw.owner_daily_message !== false
+  return resolveEggSwitch(cfg && cfg.eggs_switch, 'owner_daily_message')
 }
 
 function pickMessage(doc) {

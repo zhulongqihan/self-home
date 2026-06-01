@@ -60,13 +60,15 @@ app.use('/api/festivals', festivalsRouter)
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.3.5',
+    version: '0.3.6',
     endpoints: [
       'GET /api/health',
       'POST /api/auth/login',
       'POST /api/auth/login-password',
+      'GET /api/config/owner',
+      'PUT /api/config/owner',
+      'POST /api/auth/change-password',
       'GET /api/auth/me',
-      'GET /api/categories',
       'GET /api/categories/owner/all',
       'POST /api/categories',
       'PUT /api/categories/:id',

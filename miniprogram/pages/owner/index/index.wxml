@@ -46,7 +46,7 @@
     <view class="tile tile-active" data-key="settings" bindtap="onTileTap">
       <view class="tile-icon">⚙️</view>
       <view class="tile-name">系统配置</view>
-      <view class="tile-status">欢迎页 / 倒计时</view>
+      <view class="tile-status">全局文案 / 彩蛋 / 暗号</view>
     </view>
   </view>
 

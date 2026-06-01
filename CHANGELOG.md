@@ -1,5 +1,19 @@
 # 更新日志
 
+## v0.3.6 - 全局配置后台（2026-06-01）
+
+### 后端
+- `GET/PUT /api/config/owner`：店铺名、昵称、虚拟币、营业/主题、Tab、发现页、欢迎页、倒计时、彩蛋开关
+- `POST /api/auth/change-password`：暗号修改（同步更新 `username`，与登录「暗号即身份」一致）
+- 彩蛋开关常量 `eggSwitches`；留言 API 统一读取开关
+
+### 前端
+- 店长「系统设置」扩展：全局配置表单 + 修改暗号
+- `updateStore` 保存后刷新本地店铺信息
+
+### 修复
+- 改暗号后无法登录：改密时同步 `username`；附 `scripts/fix-owner-username.js` 运维脚本
+
 ## v0.3.5 - 分类与节日管理（2026-05-31）
 
 ### 后端

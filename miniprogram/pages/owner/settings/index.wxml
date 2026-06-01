@@ -1,63 +1,145 @@
 <view class="page">
   <page-header title="系统设置" showBack="{{true}}" backUrl="/pages/owner/index/index" />
   <view class="content">
-    <view class="section">
-      <view class="label">欢迎页一句话</view>
-      <textarea
-        class="input"
-        value="{{welcomeText}}"
-        maxlength="120"
-        placeholder="例如：今天也要好好吃饭哦～"
-        bindinput="onInputText"
-      />
-    </view>
-    <view class="section">
-      <view class="label">欢迎页图片 URL</view>
-      <input
-        class="input-line"
-        value="{{welcomeImageUrl}}"
-        placeholder="https://... 或留空用默认"
-        placeholder-class="field-placeholder"
-        bindinput="onInputImage"
-      />
-      <view class="hint">支持网络图片；任务 8 将支持本地上传</view>
-    </view>
-    <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : '保存欢迎页'}}</view>
+    <view wx:if="{{loading}}" class="state-text">加载中...</view>
+    <block wx:else>
+      <view class="section-head">店铺与昵称</view>
+      <view class="section">
+        <view class="label">店铺名称</view>
+        <input class="input-line" value="{{storeName}}" placeholder="我们的小窝" bindinput="onInputStoreName" />
+      </view>
+      <view class="section">
+        <view class="label">店长昵称</view>
+        <input class="input-line" value="{{ownerNickname}}" placeholder="店长" bindinput="onInputOwnerNickname" />
+      </view>
+      <view class="section">
+        <view class="label">顾客昵称</view>
+        <input class="input-line" value="{{customerNickname}}" placeholder="宝宝" bindinput="onInputCustomerNickname" />
+      </view>
 
-    <view class="section-head">三大倒计时</view>
-    <view class="section">
-      <view class="label">在一起起始日</view>
-      <picker mode="date" value="{{relationshipStartValue}}" start="2000-01-01" end="2099-12-31" bindchange="onPickRelationshipStart">
-        <view class="picker-field">
-          <text wx:if="{{relationshipStart}}">{{relationshipStart}}</text>
-          <text wx:else class="picker-placeholder">点击选择日期</text>
-          <text class="picker-arrow">›</text>
+      <view class="section-head">虚拟币</view>
+      <view class="section">
+        <view class="row">
+          <view class="row-label">名称</view>
+          <input class="input-line" value="{{currencyName}}" placeholder="爱心币" bindinput="onInputCurrencyName" />
         </view>
-      </picker>
-    </view>
-    <view class="section">
-      <view class="label">纪念日（每年）</view>
-      <picker mode="date" value="{{anniversaryPickerValue}}" bindchange="onPickAnniversary">
-        <view class="picker-field">
-          <text wx:if="{{anniversaryDate}}">{{anniversaryDisplay}}</text>
-          <text wx:else class="picker-placeholder">点击选择月日</text>
-          <text class="picker-arrow">›</text>
+        <view class="row">
+          <view class="row-label">图标</view>
+          <input class="input-line short" value="{{currencyEmoji}}" placeholder="💋" bindinput="onInputCurrencyEmoji" />
         </view>
-      </picker>
-    </view>
-    <view class="section">
-      <view class="label">顾客生日</view>
-      <picker mode="date" value="{{birthdayPickerValue}}" bindchange="onPickBirthday">
-        <view class="picker-field">
-          <text wx:if="{{customerBirthday}}">{{birthdayDisplay}}</text>
-          <text wx:else class="picker-placeholder">点击选择月日</text>
-          <text class="picker-arrow">›</text>
+      </view>
+
+      <view class="section-head">营业与主题</view>
+      <view class="section">
+        <view class="row">
+          <view class="row-label">营业状态</view>
+          <picker mode="selector" range="{{storeStatusLabels}}" value="{{storeStatusIndex}}" bindchange="onPickStoreStatus">
+            <view class="picker-val">{{storeStatusLabels[storeStatusIndex]}}</view>
+          </picker>
         </view>
-      </picker>
-      <view class="hint">顾客「我的」页展示：在一起 X 天 / 距纪念日 / 距生日</view>
-    </view>
-    <view class="save-btn save-btn-secondary" bindtap="onSaveCountdowns">
-      {{savingCountdowns ? '保存中...' : '保存倒计时'}}
-    </view>
+        <view class="row">
+          <view class="row-label">默认主题</view>
+          <picker mode="selector" range="{{themeLabels}}" value="{{themeIndex}}" bindchange="onPickTheme">
+            <view class="picker-val">{{themeLabels[themeIndex]}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="section-head">底部 Tab 文案</view>
+      <view class="section">
+        <view class="row">
+          <view class="row-label">厨房</view>
+          <input class="input-line" value="{{tabKitchen}}" bindinput="onInputTabKitchen" />
+        </view>
+        <view class="row">
+          <view class="row-label">订单</view>
+          <input class="input-line" value="{{tabOrders}}" bindinput="onInputTabOrders" />
+        </view>
+        <view class="row">
+          <view class="row-label">发现</view>
+          <input class="input-line" value="{{tabDiscover}}" bindinput="onInputTabDiscover" />
+        </view>
+        <view class="row">
+          <view class="row-label">我的</view>
+          <input class="input-line" value="{{tabProfile}}" bindinput="onInputTabProfile" />
+        </view>
+        <view class="hint">保存后顾客端重新进入小程序生效</view>
+      </view>
+
+      <view class="section-head">发现页占位</view>
+      <view class="section">
+        <view class="label">标题</view>
+        <input class="input-line" value="{{discoverTitle}}" bindinput="onInputDiscoverTitle" />
+        <view class="label label-gap">描述</view>
+        <textarea class="input" value="{{discoverDesc}}" maxlength="80" bindinput="onInputDiscoverDesc" />
+      </view>
+
+      <view class="section-head">彩蛋开关</view>
+      <view class="section">
+        <view class="egg-row" wx:for="{{eggList}}" wx:key="key">
+          <text class="egg-label">{{item.label}}</text>
+          <switch checked="{{item.enabled}}" color="#E8B86D" data-key="{{item.key}}" bindchange="onToggleEgg" />
+        </view>
+        <view class="hint">部分彩蛋功能将在 Phase 3 接入，开关可先配置</view>
+      </view>
+
+      <view class="save-btn" bindtap="onSaveGeneral">{{savingGeneral ? '保存中...' : '保存以上配置'}}</view>
+
+      <view class="section-head">欢迎页</view>
+      <view class="section">
+        <view class="label">一句话</view>
+        <textarea class="input" value="{{welcomeText}}" maxlength="120" placeholder="今天也要好好吃饭哦～" bindinput="onInputText" />
+      </view>
+      <view class="section">
+        <view class="label">图片 URL</view>
+        <input class="input-line" value="{{welcomeImageUrl}}" placeholder="https://... 或留空用默认" bindinput="onInputImage" />
+      </view>
+      <view class="save-btn save-btn-secondary" bindtap="onSaveWelcome">{{savingWelcome ? '保存中...' : '保存欢迎页'}}</view>
+
+      <view class="section-head">三大倒计时</view>
+      <view class="section">
+        <view class="label">在一起起始日</view>
+        <picker mode="date" value="{{relationshipStartValue}}" start="2000-01-01" end="2099-12-31" bindchange="onPickRelationshipStart">
+          <view class="picker-field">
+            <text wx:if="{{relationshipStart}}">{{relationshipStart}}</text>
+            <text wx:else class="picker-placeholder">点击选择日期</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="section">
+        <view class="label">纪念日（每年）</view>
+        <picker mode="date" value="{{anniversaryPickerValue}}" bindchange="onPickAnniversary">
+          <view class="picker-field">
+            <text wx:if="{{anniversaryDate}}">{{anniversaryDisplay}}</text>
+            <text wx:else class="picker-placeholder">点击选择月日</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="section">
+        <view class="label">顾客生日</view>
+        <picker mode="date" value="{{birthdayPickerValue}}" bindchange="onPickBirthday">
+          <view class="picker-field">
+            <text wx:if="{{customerBirthday}}">{{birthdayDisplay}}</text>
+            <text wx:else class="picker-placeholder">点击选择月日</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="save-btn save-btn-secondary" bindtap="onSaveCountdowns">{{savingCountdowns ? '保存中...' : '保存倒计时'}}</view>
+
+      <view class="section-head">修改暗号</view>
+      <view class="section">
+        <view class="label">当前暗号</view>
+        <input class="input-line" password value="{{currentPassword}}" bindinput="onInputCurrentPassword" />
+        <view class="label label-gap">新暗号</view>
+        <input class="input-line" password value="{{newPassword}}" bindinput="onInputNewPassword" />
+        <view class="label label-gap">确认新暗号</view>
+        <input class="input-line" password value="{{confirmPassword}}" bindinput="onInputConfirmPassword" />
+        <view class="hint">暗号即登录身份：修改后请用新暗号登录（输入框里填新暗号即可）</view>
+      </view>
+      <view class="save-btn save-btn-secondary" bindtap="onChangePassword">{{changingPassword ? '提交中...' : '更新暗号'}}</view>
+    </block>
   </view>
 </view>

@@ -98,6 +98,13 @@ const getLoginMethod = () => safeGet(LOGIN_METHOD_KEY, '')
 const getUser = () => safeGet(USER_KEY, null)
 const getStore = () => safeGet(STORE_KEY, null)
 
+function updateStore(partial) {
+  const store = getStore() || {}
+  const next = { ...store, ...partial }
+  safeSet(STORE_KEY, next)
+  return next
+}
+
 module.exports = {
   loginByOpenid,
   loginByPassword,
@@ -106,6 +113,7 @@ module.exports = {
   getToken,
   getUser,
   getStore,
+  updateStore,
   getLoginMethod,
   LOGIN_METHOD_KEY
 }
