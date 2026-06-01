@@ -1,5 +1,16 @@
 # 更新日志
 
+## v0.3.5 - 分类与节日管理（2026-05-31）
+
+### 后端
+- 分类 CRUD：`/api/categories/owner/all`、POST/PUT/PATCH/DELETE
+- 节日模型与 CRUD；`GET /api/festivals/active`（今日节日 + 专属在售商品）
+- 顾客分类 API：非节日日隐藏 `festival_only` 分类
+
+### 前端
+- 店长工作台：分类管理、节日管理（含说明文案）
+- 顾客厨房：修复 Tab 预加载卡「加载中...」；节日当天 Banner/主题色 + 专属菜单置顶
+
 ## v0.3.4 - 店长留言板（2026-05-31）
 
 ### 后端

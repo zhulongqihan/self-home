@@ -23,6 +23,16 @@
       <view class="tile-name">订单管理</view>
       <view class="tile-status">接单与状态流转</view>
     </view>
+    <view class="tile tile-active" data-key="categories" bindtap="onTileTap">
+      <view class="tile-icon">🏷️</view>
+      <view class="tile-name">分类管理</view>
+      <view class="tile-status">图标 · 排序 · 节日</view>
+    </view>
+    <view class="tile tile-active" data-key="festivals" bindtap="onTileTap">
+      <view class="tile-icon">🎉</view>
+      <view class="tile-name">节日管理</view>
+      <view class="tile-status">Banner · 专属菜单</view>
+    </view>
     <view class="tile tile-disabled" data-key="analytics">
       <view class="tile-icon">📊</view>
       <view class="tile-name">数据看板</view>

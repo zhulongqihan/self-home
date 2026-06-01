@@ -1,5 +1,12 @@
 <view class="page">
   <page-header title="点单" />
+  <view wx:if="{{festival}}" class="festival-bar" style="background: {{festival.themeColor}};">
+    <image wx:if="{{festival.banner}}" class="festival-banner" src="{{festival.banner}}" mode="aspectFill" />
+    <view class="festival-text">
+      <text class="festival-tag">今日节日</text>
+      <text class="festival-name">{{festival.name}}</text>
+    </view>
+  </view>
   <view class="search-row">
     <view class="search-placeholder">搜索</view>
   </view>
@@ -20,43 +27,83 @@
 
     <scroll-view class="list" scroll-y enhanced show-scrollbar="{{false}}">
       <view wx:if="{{loading}}" class="state">加载中...</view>
-      <view wx:elif="{{loadError}}" class="state">加载失败，请稍后重试</view>
-      <view wx:elif="{{!products.length}}" class="state">这个分类还没有商品哦</view>
-      <view
-        wx:for="{{products}}"
-        wx:key="_id"
-        class="product-row"
-      >
-        <image
-          wx:if="{{item.coverUrl}}"
-          class="thumb"
-          src="{{item.coverUrl}}"
-          mode="aspectFill"
-          data-id="{{item._id}}"
-          binderror="onCoverError"
-        />
-        <view wx:else class="thumb thumb-emoji">{{item.coverEmoji}}</view>
-        <view class="info">
-          <view class="name">{{item.name}}</view>
-          <view class="meta">{{item.metaText}}</view>
-          <view class="desc">{{item.description}}</view>
-          <view class="price-row">
-            <text class="price">¥{{item.price}}</text>
-            <view
-              wx:if="{{item.hasSpecs}}"
-              class="btn-spec"
+      <view wx:elif="{{loadError}}" class="state">加载失败，请切换 Tab 再回来</view>
+      <view wx:elif="{{!categories.length}}" class="state">暂无可用分类，请联系店长配置</view>
+      <block wx:else>
+        <view wx:if="{{festivalProducts.length}}" class="festival-section">
+          <view class="festival-section-title">🎉 {{festival.name}} · 专属菜单</view>
+          <view
+            wx:for="{{festivalProducts}}"
+            wx:key="_id"
+            class="product-row festival-product"
+          >
+            <image
+              wx:if="{{item.coverUrl}}"
+              class="thumb"
+              src="{{item.coverUrl}}"
+              mode="aspectFill"
               data-id="{{item._id}}"
-              bindtap="onTapSpec"
-            >选规格</view>
-            <view
-              wx:else
-              class="btn-add"
-              data-id="{{item._id}}"
-              bindtap="onTapAdd"
-            >+</view>
+              binderror="onCoverError"
+            />
+            <view wx:else class="thumb thumb-emoji">{{item.coverEmoji}}</view>
+            <view class="info">
+              <view class="name">{{item.name}}</view>
+              <view class="meta">{{item.metaText}}</view>
+              <view class="price-row">
+                <text class="price">¥{{item.price}}</text>
+                <view
+                  wx:if="{{item.hasSpecs}}"
+                  class="btn-spec"
+                  data-id="{{item._id}}"
+                  bindtap="onTapSpec"
+                >选规格</view>
+                <view
+                  wx:else
+                  class="btn-add"
+                  data-id="{{item._id}}"
+                  bindtap="onTapAdd"
+                >+</view>
+              </view>
+            </view>
           </view>
         </view>
-      </view>
+        <view wx:if="{{!products.length}}" class="state">这个分类还没有商品哦</view>
+        <view
+          wx:for="{{products}}"
+          wx:key="_id"
+          class="product-row"
+        >
+          <image
+            wx:if="{{item.coverUrl}}"
+            class="thumb"
+            src="{{item.coverUrl}}"
+            mode="aspectFill"
+            data-id="{{item._id}}"
+            binderror="onCoverError"
+          />
+          <view wx:else class="thumb thumb-emoji">{{item.coverEmoji}}</view>
+          <view class="info">
+            <view class="name">{{item.name}}</view>
+            <view class="meta">{{item.metaText}}</view>
+            <view class="desc">{{item.description}}</view>
+            <view class="price-row">
+              <text class="price">¥{{item.price}}</text>
+              <view
+                wx:if="{{item.hasSpecs}}"
+                class="btn-spec"
+                data-id="{{item._id}}"
+                bindtap="onTapSpec"
+              >选规格</view>
+              <view
+                wx:else
+                class="btn-add"
+                data-id="{{item._id}}"
+                bindtap="onTapAdd"
+              >+</view>
+            </view>
+          </view>
+        </view>
+      </block>
       <view class="list-pad"></view>
     </scroll-view>
   </view>

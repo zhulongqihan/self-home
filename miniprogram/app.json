@@ -18,7 +18,9 @@
     "pages/owner/orders/index",
     "pages/owner/analytics/index",
     "pages/owner/settings/index",
-    "pages/owner/messages/index"
+    "pages/owner/messages/index",
+    "pages/owner/categories/index",
+    "pages/owner/festivals/index"
   ],
   "window": {
     "backgroundTextStyle": "light",

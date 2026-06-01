@@ -56,6 +56,14 @@ Page({
     wx.navigateTo({ url: '/pages/owner/messages/index' })
   },
 
+  goCategories() {
+    wx.navigateTo({ url: '/pages/owner/categories/index' })
+  },
+
+  goFestivals() {
+    wx.navigateTo({ url: '/pages/owner/festivals/index' })
+  },
+
   onTileTap(e) {
     const key = e.currentTarget.dataset.key
     if (key === 'settings') {
@@ -64,6 +72,14 @@ Page({
     }
     if (key === 'messages') {
       this.goMessages()
+      return
+    }
+    if (key === 'categories') {
+      this.goCategories()
+      return
+    }
+    if (key === 'festivals') {
+      this.goFestivals()
       return
     }
     if (key === 'orders') {

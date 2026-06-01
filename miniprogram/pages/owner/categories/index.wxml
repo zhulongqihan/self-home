@@ -1,0 +1,52 @@
+<view class="page">
+  <page-header title="分类管理" showBack="{{true}}" backUrl="/pages/owner/index/index" />
+  <view class="content">
+    <view class="section">
+      <view class="label">{{editingId ? '编辑分类' : '新建分类'}}</view>
+      <view class="row">
+        <view class="row-label">名称</view>
+        <input class="input-line" value="{{name}}" placeholder="如：热菜" bindinput="onInputName" />
+      </view>
+      <view class="row">
+        <view class="row-label">图标</view>
+        <input class="input-line short" value="{{icon}}" placeholder="🍲" bindinput="onInputIcon" />
+      </view>
+      <view class="row">
+        <view class="row-label">排序</view>
+        <input class="input-line short" type="number" value="{{sortOrder}}" placeholder="0" bindinput="onInputSort" />
+      </view>
+      <view class="row switch-row">
+        <view class="row-label">仅节日展示</view>
+        <switch checked="{{festivalOnly}}" color="#E8B86D" bindchange="onToggleFestivalOnly" />
+      </view>
+      <view class="hint-text">开启后：仅在该节日当天（公历）对顾客显示此分类</view>
+      <view class="btn-row">
+        <view wx:if="{{editingId}}" class="btn-secondary" bindtap="onCancelEdit">取消</view>
+        <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : (editingId ? '保存修改' : '添加分类')}}</view>
+      </view>
+    </view>
+
+    <view class="section-head">全部分类</view>
+    <view wx:if="{{loading}}" class="state-text">加载中...</view>
+    <view wx:elif="{{items.length === 0}}" class="state-text">还没有分类</view>
+    <view wx:else class="list">
+      <view class="card" wx:for="{{items}}" wx:key="id">
+        <view class="card-main">
+          <view class="card-icon">{{item.icon || '📁'}}</view>
+          <view class="card-info">
+            <view class="card-name">{{item.name}}</view>
+            <view class="card-meta">排序 {{item.sort_order}} · {{item.festival_only ? '节日专属' : '常显'}}</view>
+          </view>
+          <view class="status-tag {{item.status === 'enabled' ? 'on' : 'off'}}">{{item.status === 'enabled' ? '启用' : '停用'}}</view>
+        </view>
+        <view class="card-actions">
+          <view class="action" data-id="{{item.id}}" bindtap="onEdit">编辑</view>
+          <view class="action" data-id="{{item.id}}" data-status="{{item.status === 'enabled' ? 'disabled' : 'enabled'}}" bindtap="onToggleStatus">
+            {{item.status === 'enabled' ? '停用' : '启用'}}
+          </view>
+          <view class="action danger" data-id="{{item.id}}" bindtap="onDelete">删除</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

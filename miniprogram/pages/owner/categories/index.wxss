@@ -1,0 +1,119 @@
+@import "../messages/index.wxss";
+
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.row-label {
+  width: 160rpx;
+  font-size: 26rpx;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.input-line.short {
+  flex: 1;
+}
+
+.switch-row {
+  justify-content: space-between;
+  padding: 8rpx 0;
+}
+
+.btn-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 8rpx;
+}
+
+.btn-secondary {
+  flex: 1;
+  text-align: center;
+  padding: 28rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #666;
+  background: #f0e6da;
+}
+
+.save-btn {
+  flex: 2;
+  margin-bottom: 0;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.card-main {
+  display: flex;
+  align-items: center;
+}
+
+.card-icon {
+  font-size: 44rpx;
+  margin-right: 16rpx;
+}
+
+.card-info {
+  flex: 1;
+}
+
+.card-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #3d2c1e;
+}
+
+.card-meta {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 6rpx;
+}
+
+.status-tag {
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.status-tag.on {
+  background: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-tag.off {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24rpx;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0e6da;
+}
+
+.action {
+  font-size: 26rpx;
+  color: #c9986a;
+}
+
+.action.danger {
+  color: #d9534f;
+}
+
+.hint-text {
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.5;
+  margin-top: -8rpx;
+  margin-bottom: 8rpx;
+}

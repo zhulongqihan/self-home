@@ -11,6 +11,8 @@ Page({
     categories: [],
     activeCategoryId: '',
     products: [],
+    festival: null,
+    festivalProducts: [],
     cartCount: 0,
     cartTotal: 0,
     drawerOpen: false,
@@ -24,29 +26,18 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 })
     }
-    this.bootstrapKitchen()
-  },
-
-  bootstrapKitchen() {
     if (!getToken()) {
       this.setData({ loading: false, loadError: false })
       return
     }
-    if (this._fetchingKitchen) return
+    this.startKitchenLoad()
+    this.scheduleBulletMessage()
+  },
 
-    const needLoad = !this._kitchenReady || this.data.loading || this.data.loadError
-    if (!needLoad) {
-      this.scheduleBulletMessage()
-      return
-    }
-
-    this._fetchingKitchen = true
-    this.fetchCategoriesAndProducts()
-      .finally(() => {
-        this._fetchingKitchen = false
-        this._kitchenReady = true
-        this.scheduleBulletMessage()
-      })
+  startKitchenLoad() {
+    const seq = (this._loadSeq || 0) + 1
+    this._loadSeq = seq
+    this.fetchKitchenData(seq)
   },
 
   scheduleBulletMessage() {
@@ -99,37 +90,71 @@ Page({
     })
   },
 
-  async fetchCategoriesAndProducts() {
+  async fetchKitchenData(seq) {
     this.setData({ loading: true, loadError: false })
     try {
-      const categoryResp = await get('/api/categories')
+      const [categoryResp, festivalResp] = await Promise.all([
+        get('/api/categories'),
+        get('/api/festivals/active').catch(() => ({ data: null }))
+      ])
+      if (seq !== this._loadSeq) return
+
       const raw = categoryResp.data
       const list = Array.isArray(raw) ? raw : []
-      const categories = list.map(c => ({
-        id: c._id,
-        name: c.name,
-        icon: c.icon
-      }))
-      const activeCategoryId = categories.length ? categories[0].id : ''
-      this.setData({ categories, activeCategoryId })
+      const categories = list
+        .map(c => ({
+          id: String(c._id || c.id || ''),
+          name: c.name,
+          icon: c.icon
+        }))
+        .filter(c => c.id)
+
+      const festData = festivalResp.data || null
+      const festival = festData
+        ? {
+            id: festData.id,
+            name: festData.name,
+            banner: festData.banner || '',
+            themeColor: festData.theme_color || '#E8B86D'
+          }
+        : null
+      const festivalProducts = festData && Array.isArray(festData.products)
+        ? this.mapProducts(festData.products)
+        : []
+
+      const prevId = this.data.activeCategoryId
+      const activeCategoryId = categories.some(c => c.id === prevId)
+        ? prevId
+        : (categories.length ? categories[0].id : '')
+
+      this.setData({ categories, activeCategoryId, festival, festivalProducts })
+
       if (activeCategoryId) {
-        await this.fetchProducts(activeCategoryId)
+        await this.fetchProducts(activeCategoryId, seq)
       } else {
-        this.setData({ products: [], loading: false })
+        this.setData({ products: [], loading: false, loadError: false })
       }
     } catch (err) {
+      if (seq !== this._loadSeq) return
       wx.showToast({ title: err.message || '加载失败', icon: 'none' })
       this.setData({ loading: false, loadError: true })
     }
   },
 
-  async fetchProducts(categoryId) {
+  async fetchProducts(categoryId, seq) {
     if (!categoryId) {
-      this.setData({ products: [], loading: false })
+      if (seq === undefined || seq === this._loadSeq) {
+        this.setData({ products: [], loading: false })
+      }
       return
+    }
+    if (seq === undefined) {
+      seq = this._loadSeq
+      this.setData({ loading: true, loadError: false })
     }
     try {
       const resp = await get(`/api/products?category_id=${categoryId}`)
+      if (seq !== this._loadSeq) return
       const raw = resp.data
       const list = Array.isArray(raw) ? raw : []
       this.setData({
@@ -138,6 +163,7 @@ Page({
         loadError: false
       })
     } catch (err) {
+      if (seq !== this._loadSeq) return
       wx.showToast({ title: err.message || '商品加载失败', icon: 'none' })
       this.setData({ loading: false, loadError: true })
     }
@@ -145,23 +171,26 @@ Page({
 
   onCoverError(e) {
     const id = e.currentTarget.dataset.id
-    const products = this.data.products.map(p => {
+    const patchList = list => (list || []).map(p => {
       if (p._id !== id) return p
       return { ...p, coverUrl: '', coverEmoji: p.coverEmoji || '🍵' }
     })
-    this.setData({ products })
+    this.setData({
+      products: patchList(this.data.products),
+      festivalProducts: patchList(this.data.festivalProducts)
+    })
   },
 
   onSwitchCategory(e) {
     const id = e.currentTarget.dataset.id
     if (!id || id === this.data.activeCategoryId) return
-    this.setData({ activeCategoryId: id, loading: true })
+    this.setData({ activeCategoryId: id })
     this.fetchProducts(id)
   },
 
   onTapAdd(e) {
     const id = e.currentTarget.dataset.id
-    const product = this.data.products.find(p => p._id === id)
+    const product = this.findProduct(id)
     if (!product) return
     if (product.hasSpecs) {
       this.setData({ specVisible: true, specProduct: product })
@@ -182,8 +211,13 @@ Page({
 
   onTapSpec(e) {
     const id = e.currentTarget.dataset.id
-    const product = this.data.products.find(p => p._id === id)
+    const product = this.findProduct(id)
     if (product) this.setData({ specVisible: true, specProduct: product })
+  },
+
+  findProduct(id) {
+    return this.data.products.find(p => p._id === id)
+      || this.data.festivalProducts.find(p => p._id === id)
   },
 
   onSpecClose() {

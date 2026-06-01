@@ -1,0 +1,87 @@
+<view class="page">
+  <page-header title="节日管理" showBack="{{true}}" backUrl="/pages/owner/index/index" />
+  <view class="content">
+    <view class="section">
+      <view class="hint-box">
+        <view class="hint-title">顾客端何时生效？</view>
+        <view class="hint-text">到节日当天（公历 MM-DD），且状态为「启用」时：</view>
+        <view class="hint-text">· 厨房顶部显示节日 Banner 与主题色</view>
+        <view class="hint-text">· 下方出现「专属菜单」商品区（勾选的在售商品）</view>
+        <view class="hint-text">· 「仅节日展示」的分类也会一并显示</view>
+      </view>
+      <view class="label">{{editingId ? '编辑节日' : '新建节日'}}</view>
+      <view class="row">
+        <view class="row-label">名称</view>
+        <input class="input-line" value="{{name}}" placeholder="如：情人节" bindinput="onInputName" />
+      </view>
+      <view class="row">
+        <view class="row-label">日期类型</view>
+        <picker mode="selector" range="{{dateTypeLabels}}" value="{{dateTypeIndex}}" bindchange="onDateTypeChange">
+          <view class="picker-val">{{dateTypeLabels[dateTypeIndex]}}</view>
+        </picker>
+      </view>
+      <view class="row">
+        <view class="row-label">日期</view>
+        <input class="input-line" value="{{date}}" placeholder="MM-DD，如 02-14" bindinput="onInputDate" />
+      </view>
+      <view class="row">
+        <view class="row-label">Banner</view>
+        <input class="input-line" value="{{banner}}" placeholder="图片 URL（可选）" bindinput="onInputBanner" />
+      </view>
+      <view class="row">
+        <view class="row-label">主题色</view>
+        <input class="input-line short" value="{{themeColor}}" placeholder="#E8B86D" bindinput="onInputThemeColor" />
+        <view class="color-dot" style="background: {{themeColor || '#E8B86D'}}"></view>
+      </view>
+      <view class="row col">
+        <view class="row-label">推送文案</view>
+        <input class="input-line" value="{{pushTemplate}}" placeholder="订阅消息模板（可选）" bindinput="onInputPush" />
+      </view>
+      <view class="sub-label">专属菜单（勾选商品，节日当天在顾客厨房置顶展示）</view>
+      <view wx:if="{{productsLoading}}" class="hint">加载商品...</view>
+      <view wx:elif="{{products.length === 0}}" class="hint">暂无商品可选</view>
+      <view wx:else class="product-picks">
+        <view
+          class="pick-item {{item.checked ? 'checked' : ''}}"
+          wx:for="{{products}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onToggleProduct"
+        >
+          <text class="pick-check">{{item.checked ? '✓' : ''}}</text>
+          <text class="pick-name">{{item.name}}</text>
+        </view>
+      </view>
+      <view class="btn-row">
+        <view wx:if="{{editingId}}" class="btn-secondary" bindtap="onCancelEdit">取消</view>
+        <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : (editingId ? '保存修改' : '添加节日')}}</view>
+      </view>
+    </view>
+
+    <view class="section-head">全部节日</view>
+    <view wx:if="{{loading}}" class="state-text">加载中...</view>
+    <view wx:elif="{{items.length === 0}}" class="state-text">还没有节日，先添加一个吧</view>
+    <view wx:else class="list">
+      <view class="card" wx:for="{{items}}" wx:key="id">
+        <view class="card-main">
+          <view class="color-bar" style="background: {{item.theme_color || '#E8B86D'}}"></view>
+          <view class="card-info">
+            <view class="card-name">{{item.name}}</view>
+            <view class="card-meta">
+              {{item.date_type === 'lunar' ? '农历' : '公历'}} {{item.date || '未设日期'}}
+              · 商品 {{item.product_ids.length}} 个
+            </view>
+          </view>
+          <view class="status-tag {{item.status === 'enabled' ? 'on' : 'off'}}">{{item.status === 'enabled' ? '启用' : '停用'}}</view>
+        </view>
+        <view class="card-actions">
+          <view class="action" data-id="{{item.id}}" bindtap="onEdit">编辑</view>
+          <view class="action" data-id="{{item.id}}" data-status="{{item.status === 'enabled' ? 'disabled' : 'enabled'}}" bindtap="onToggleStatus">
+            {{item.status === 'enabled' ? '停用' : '启用'}}
+          </view>
+          <view class="action danger" data-id="{{item.id}}" bindtap="onDelete">删除</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
