@@ -25,6 +25,7 @@
     "pages/owner/settings/time-egg/index",
     "pages/owner/settings/badges/index",
     "pages/owner/settings/blind-box/index",
+    "pages/owner/settings/emotion-alert/index",
     "pages/owner/settings/password/index",
     "pages/owner/messages/index",
     "pages/owner/categories/index",

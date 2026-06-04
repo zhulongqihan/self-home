@@ -11,6 +11,7 @@ const { mergeRawOrderItems } = require('../utils/orderItems')
 const { adjustCoins } = require('../services/coinsService')
 const { checkAndUnlock } = require('../services/achievement')
 const { getTodayRevealCounts } = require('../services/blindBox')
+const { handleEmotionOrderPlaced } = require('../services/emotionAlert')
 
 const router = express.Router()
 
@@ -104,6 +105,9 @@ router.post('/', requireAuth, async (req, res, next) => {
       notifyOwnerNewOrder(order.toObject()).catch(err => {
         console.warn('[orders] notifyOwnerNewOrder:', err.message)
       })
+      handleEmotionOrderPlaced(order.toObject()).catch(err => {
+        console.warn('[orders] handleEmotionOrderPlaced:', err.message)
+      })
       return
     }
 
@@ -148,6 +152,9 @@ router.post('/', requireAuth, async (req, res, next) => {
     })
     notifyOwnerNewOrder(order.toObject()).catch(err => {
       console.warn('[orders] notifyOwnerNewOrder:', err.message)
+    })
+    handleEmotionOrderPlaced(order.toObject()).catch(err => {
+      console.warn('[orders] handleEmotionOrderPlaced:', err.message)
     })
   } catch (err) {
     next(err)

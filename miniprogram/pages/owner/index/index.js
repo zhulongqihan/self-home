@@ -1,13 +1,15 @@
 // 店长端工作台
 const { getUser, getStore, getToken, logout } = require('../../../utils/auth.js')
-const { get } = require('../../../utils/request.js')
+const { get, post } = require('../../../utils/request.js')
+const { requestSubscribeByRole } = require('../../../utils/subscribe.js')
 
 Page({
   data: {
     user: null,
     store: null,
     kissCount7d: 0,
-    kissLastAt: ''
+    kissLastAt: '',
+    emotionAlert: null
   },
 
   onShow() {
@@ -20,6 +22,8 @@ Page({
       store: getStore() || { name: '我们的小窝' }
     })
     this.fetchKissStats()
+    this.fetchEmotionAlert()
+    requestSubscribeByRole()
   },
 
   async fetchKissStats() {
@@ -38,6 +42,51 @@ Page({
     } catch (e) {
       // 静默
     }
+  },
+
+  async fetchEmotionAlert() {
+    try {
+      const resp = await get('/api/emotion-alert/status')
+      const d = resp.data || {}
+      this.setData({ emotionAlert: d })
+      if (d.active && d.message && (d.order_id || d.streak_key)) {
+        const alertKey = d.order_id || d.streak_key
+        const shownKey = wx.getStorageSync('emotion_alert_modal_key')
+        if (shownKey !== alertKey) {
+          wx.showModal({
+            title: '情绪预警',
+            content: d.message,
+            confirmText: '知道了',
+            showCancel: false,
+            success: async res => {
+              if (res.confirm) {
+                try {
+                  await post('/api/emotion-alert/dismiss', { order_id: alertKey })
+                  wx.setStorageSync('emotion_alert_modal_key', alertKey)
+                  this.setData({ 'emotionAlert.active': false })
+                } catch (e) { /* ignore */ }
+              }
+            }
+          })
+        }
+      }
+    } catch (e) { /* 静默 */ }
+  },
+
+  onDismissEmotionBanner() {
+    const d = this.data.emotionAlert
+    const alertKey = d && (d.order_id || d.streak_key)
+    if (!alertKey) return
+    post('/api/emotion-alert/dismiss', { order_id: alertKey })
+      .then(() => {
+        wx.setStorageSync('emotion_alert_modal_key', alertKey)
+        this.setData({ 'emotionAlert.active': false })
+      })
+      .catch(() => {})
+  },
+
+  goEmotionSettings() {
+    wx.navigateTo({ url: '/pages/owner/settings/emotion-alert/index' })
   },
 
   goSettings() {

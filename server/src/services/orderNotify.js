@@ -110,4 +110,33 @@ async function notifyOwnerKiss() {
   })
 }
 
-module.exports = { notifyOwnerNewOrder, notifyCustomerOrderStatus, notifyOwnerKiss }
+/** 情绪类订单 → 通知店长（订阅消息） */
+async function notifyOwnerEmotionOrder(order, emotionLines, customerNickname) {
+  const tmpl = env.wx.templates.ownerNewOrder
+  if (!tmpl) return false
+  const owner = await User.findOne({ role: 'owner', openid: { $exists: true, $ne: '' } })
+    .select('openid')
+    .lean()
+  if (!owner || !owner.openid) return false
+
+  const names = (emotionLines || [])
+    .map(l => `${l.product_name || '商品'}×${l.qty || 1}`)
+    .join(' ')
+    .slice(0, 20)
+
+  const data = {
+    character_string1: { value: orderNo(order) },
+    amount2: { value: fmtAmount(order.total_price) },
+    thing3: { value: names || '情绪类商品' },
+    time4: { value: fmtTime(order.created_at || new Date()) },
+    thing5: { value: `情绪预警·${(customerNickname || '她').slice(0, 6)}需要关心` }
+  }
+  return sendSubscribeMessage({
+    openid: owner.openid,
+    templateId: tmpl,
+    page: 'pages/owner/orders/index',
+    data
+  })
+}
+
+module.exports = { notifyOwnerNewOrder, notifyCustomerOrderStatus, notifyOwnerKiss, notifyOwnerEmotionOrder }

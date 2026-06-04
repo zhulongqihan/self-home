@@ -1,0 +1,26 @@
+<view class="page">
+  <page-header title="情绪预警" showBack="{{true}}" />
+  <view wx:if="{{loading}}" class="state">加载中...</view>
+  <scroll-view wx:else class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="tip card">
+      顾客每下一单「情绪服务」「撒娇」等分类（或带情绪标签）的商品，店长会收到微信订阅消息，并在工作台弹窗提醒。
+    </view>
+    <view class="card">
+      <view class="label">说明</view>
+      <view class="hint">请在工作台或订单页允许「订阅消息」，否则只能看到小程序内弹窗。彩蛋开关在「店铺与基础」。</view>
+    </view>
+    <view class="card row-card">
+      <view>
+        <view class="label">模拟验收预警</view>
+        <view class="hint">开启后工作台立刻弹窗（无需真实下单），验收完请关闭</view>
+      </view>
+      <switch checked="{{simulateActive}}" bindchange="onToggleSimulate" color="#E8B86D" />
+    </view>
+    <view wx:if="{{previewActive}}" class="card preview">
+      <view class="label">当前预警预览</view>
+      <view class="preview-msg">{{previewMessage}}</view>
+    </view>
+    <button class="save-btn" loading="{{saving}}" disabled="{{saving}}" bindtap="onSave">保存</button>
+    <view class="pad"></view>
+  </scroll-view>
+</view>

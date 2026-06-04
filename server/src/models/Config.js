@@ -121,6 +121,12 @@ const ConfigSchema = new Schema({
     daily_limit: { type: Number, default: 3 },
     product_ids: { type: [String], default: [] },
     simulate_shake: { type: Boolean, default: false }
+  },
+
+  // 情绪预警（连续多日情绪类下单提醒店长）
+  emotion_alert: {
+    simulate_active: { type: Boolean, default: false },
+    simulate_dismissed: { type: Boolean, default: false }
   }
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

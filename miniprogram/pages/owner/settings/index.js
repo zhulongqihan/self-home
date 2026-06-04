@@ -51,6 +51,13 @@ Page({
         url: '/pages/owner/settings/blind-box/index'
       },
       {
+        key: 'emotion-alert',
+        icon: '💝',
+        title: '情绪预警',
+        desc: '每单情绪类商品即时提醒',
+        url: '/pages/owner/settings/emotion-alert/index'
+      },
+      {
         key: 'password',
         icon: '🔐',
         title: '修改暗号',

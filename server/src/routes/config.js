@@ -8,6 +8,7 @@ const { EGG_SWITCH_META, normalizeEggsForOwner } = require('../constants/eggSwit
 const { pickTimeEggForOwner, validateTimeEggSlots } = require('../services/timeEgg')
 const { pickBadgesForOwner, validateBadges } = require('../services/achievement')
 const { pickBlindBoxForOwner, validateBlindBoxPatch } = require('../services/blindBox')
+const { pickEmotionAlertForOwner, validateEmotionAlertPatch } = require('../services/emotionAlert')
 
 const router = express.Router()
 
@@ -63,7 +64,8 @@ function pickOwnerConfig(cfg) {
     },
     time_egg: pickTimeEggForOwner(cfg),
     achievement: pickBadgesForOwner(cfg),
-    blind_box: pickBlindBoxForOwner(cfg)
+    blind_box: pickBlindBoxForOwner(cfg),
+    emotion_alert: pickEmotionAlertForOwner(cfg)
   }
 }
 
@@ -314,6 +316,11 @@ function applyOwnerConfigPatch(cfg, body) {
     if (!cfg.blind_box) cfg.blind_box = {}
     const patch = validateBlindBoxPatch(b.blind_box)
     Object.assign(cfg.blind_box, patch)
+  }
+  if (b.emotion_alert && typeof b.emotion_alert === 'object') {
+    if (!cfg.emotion_alert) cfg.emotion_alert = {}
+    const patch = validateEmotionAlertPatch(b.emotion_alert)
+    Object.assign(cfg.emotion_alert, patch)
   }
 }
 
