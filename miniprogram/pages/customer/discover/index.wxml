@@ -1,10 +1,49 @@
 <view class="page">
   <page-header title="发现" />
-  <view class="content">
-  <view class="card">
-    <view class="emoji">🔍</view>
-    <view class="title">{{title}}</view>
-    <view class="desc">{{desc}}</view>
+
+  <view wx:if="{{loading}}" class="state">加载中...</view>
+
+  <view wx:elif="{{!enabled}}" class="content">
+    <view class="card placeholder-card">
+      <view class="emoji">🔍</view>
+      <view class="title">{{placeholder.title}}</view>
+      <view class="desc">{{placeholder.desc}}</view>
+    </view>
   </view>
-  </view>
+
+  <scroll-view wx:else class="timeline-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hero">
+      <text class="hero-emoji">💕</text>
+      <view class="hero-title">恋爱时光机</view>
+      <view wx:if="{{daysTogether}}" class="hero-sub">在一起 {{daysTogether}} 天 · {{subtitle}}</view>
+      <view wx:else class="hero-sub">{{subtitle}}</view>
+    </view>
+
+    <view wx:if="{{!events.length}}" class="empty">还没有记录，去厨房下第一单吧～</view>
+
+    <view class="timeline">
+      <view
+        wx:for="{{events}}"
+        wx:key="id"
+        class="tl-item type-{{item.type}}"
+        data-id="{{item.id}}"
+        bindtap="onGoOrder"
+      >
+        <view class="tl-axis">
+          <view class="tl-dot"></view>
+          <view wx:if="{{index < events.length - 1}}" class="tl-line"></view>
+        </view>
+        <view class="tl-card">
+          <view class="tl-head">
+            <text class="tl-emoji">{{item.emoji}}</text>
+            <text class="tl-status">{{item.status_text}}</text>
+            <text class="tl-time">{{item.at_text}}</text>
+          </view>
+          <view class="tl-title">{{item.title}}</view>
+          <view class="tl-desc">{{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="bottom-pad"></view>
+  </scroll-view>
 </view>
