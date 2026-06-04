@@ -25,6 +25,7 @@ const timeEggsRouter = require('./routes/timeEggs')
 const achievementsRouter = require('./routes/achievements')
 const blindBoxRouter = require('./routes/blindBox')
 const emotionAlertRouter = require('./routes/emotionAlert')
+const analyticsRouter = require('./routes/analytics')
 
 const { notFound, errorHandler } = require('./middlewares/errorHandler')
 
@@ -65,12 +66,13 @@ app.use('/api/time-eggs', timeEggsRouter)
 app.use('/api/achievements', achievementsRouter)
 app.use('/api/blind-box', blindBoxRouter)
 app.use('/api/emotion-alert', emotionAlertRouter)
+app.use('/api/analytics', analyticsRouter)
 
 // 根路径
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.3.11',
+    version: '0.3.12',
     endpoints: [
       'GET /api/health',
       'POST /api/auth/login',
@@ -97,6 +99,7 @@ app.get('/', (req, res) => {
       'POST /api/blind-box/shake',
       'GET /api/emotion-alert/status',
       'POST /api/emotion-alert/dismiss',
+      'GET /api/analytics/owner/dashboard',
       'GET /api/products',
       'GET /api/products/owner/all',
       'POST /api/products',

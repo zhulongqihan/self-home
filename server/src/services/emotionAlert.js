@@ -234,6 +234,7 @@ async function dismissEmotionAlert(key) {
 module.exports = {
   pickEmotionAlertForOwner,
   validateEmotionAlertPatch,
+  getEmotionProductIdSet,
   getEmotionLinesFromOrderItems,
   handleEmotionOrderPlaced,
   getOwnerEmotionAlertStatus,

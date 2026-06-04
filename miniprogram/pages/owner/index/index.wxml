@@ -42,10 +42,10 @@
       <view class="tile-name">节日管理</view>
       <view class="tile-status">Banner · 专属菜单</view>
     </view>
-    <view class="tile tile-disabled" data-key="analytics">
+    <view class="tile tile-active" data-key="analytics" bindtap="onTileTap">
       <view class="tile-icon">📊</view>
       <view class="tile-name">数据看板</view>
-      <view class="tile-status">Phase 3</view>
+      <view class="tile-status">Top10 · 趋势 · 心情</view>
     </view>
     <view class="tile tile-active" data-key="messages" bindtap="onTileTap">
       <view class="tile-icon">💬</view>

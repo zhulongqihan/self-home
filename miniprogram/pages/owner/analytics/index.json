@@ -1,4 +1,6 @@
 {
-  "navigationBarTitleText": "数据看板",
-  "usingComponents": {}
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "page-header": "/components/page-header/index"
+  }
 }

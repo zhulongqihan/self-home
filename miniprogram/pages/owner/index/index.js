@@ -113,6 +113,10 @@ Page({
     wx.navigateTo({ url: '/pages/owner/festivals/index' })
   },
 
+  goAnalytics() {
+    wx.navigateTo({ url: '/pages/owner/analytics/index' })
+  },
+
   onTileTap(e) {
     const key = e.currentTarget.dataset.key
     if (key === 'settings') {
@@ -137,6 +141,10 @@ Page({
     }
     if (key === 'products') {
       this.goProducts()
+      return
+    }
+    if (key === 'analytics') {
+      this.goAnalytics()
     }
   },
 

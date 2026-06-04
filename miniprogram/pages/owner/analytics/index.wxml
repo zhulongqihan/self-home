@@ -1,3 +1,109 @@
 <view class="page">
-  <view class="placeholder">🚧 {{title}} 页面 - 待开发</view>
+  <page-header title="数据看板" showBack="{{true}}" backUrl="/pages/owner/index/index" />
+
+  <view wx:if="{{loading}}" class="state">加载中...</view>
+  <view wx:elif="{{loadError}}" class="state">加载失败，请下拉重试</view>
+
+  <scroll-view wx:else class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hint">近 30 天数据（上海时区）</view>
+
+    <view class="grid4">
+      <view class="stat">
+        <text class="stat-num">{{summary.order_count_30d || 0}}</text>
+        <text class="stat-label">订单数</text>
+      </view>
+      <view class="stat">
+        <text class="stat-num">{{summary.total_spent_30d || 0}}</text>
+        <text class="stat-label">消费{{currencyEmoji}}</text>
+      </view>
+      <view class="stat">
+        <text class="stat-num">{{summary.avg_rating || '-'}}</text>
+        <text class="stat-label">均分★</text>
+      </view>
+      <view class="stat">
+        <text class="stat-num">{{summary.kiss_count_7d || 0}}</text>
+        <text class="stat-label">7日亲亲</text>
+      </view>
+    </view>
+
+    <view wx:if="{{emotionPending}}" class="card warn" bindtap="onGoOrders">
+      <text class="warn-title">💝 情绪预警待处理</text>
+      <text class="warn-desc">{{emotionPending.message}}</text>
+    </view>
+
+    <view class="card">
+      <view class="card-title">情绪类订单（30天）</view>
+      <view class="row-meta">
+        <text>下单 {{summary.emotion_orders_30d || 0}} 笔</text>
+        <text>预警 {{summary.emotion_alerts_30d || 0}} 次</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">商品 Top 10（销量）</view>
+      <view wx:if="{{!topProducts.length}}" class="empty">暂无销售数据</view>
+      <view wx:for="{{topProducts}}" wx:key="product_id" class="top-row">
+        <text class="rank">{{item.rank}}</text>
+        <view class="top-body">
+          <text class="top-name">{{item.product_name}}</text>
+          <text class="top-meta">×{{item.qty}} · {{item.amountText}}{{currencyEmoji}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">月度趋势 · 订单量</view>
+      <scroll-view class="chart-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="chart-bars">
+          <view wx:for="{{monthlyTrend}}" wx:key="date" class="bar-col">
+            <view class="bar-track">
+              <view class="bar-fill orders" style="height: {{item.orders_pct}}%;"></view>
+            </view>
+            <text class="bar-label">{{item.label}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">月度趋势 · 消费额</view>
+      <scroll-view class="chart-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="chart-bars">
+          <view wx:for="{{monthlyTrend}}" wx:key="date" class="bar-col">
+            <view class="bar-track">
+              <view class="bar-fill amount" style="height: {{item.amount_pct}}%;"></view>
+            </view>
+            <text class="bar-label">{{item.label}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">心情曲线（评价均分）</view>
+      <view class="sub-hint">有评价的日期显示星级高度；柱高为评价条数</view>
+      <scroll-view class="chart-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="chart-bars mood">
+          <view wx:for="{{moodCurve}}" wx:key="date" class="bar-col">
+            <view class="bar-track">
+              <view
+                wx:if="{{item.showRating}}"
+                class="bar-fill mood-rating"
+                style="height: {{item.height_pct}}%;"
+              ></view>
+              <view
+                wx:if="{{item.count}}"
+                class="bar-fill mood-count"
+                style="height: {{item.count_pct}}%;"
+              ></view>
+            </view>
+            <text class="bar-label">{{item.label}}</text>
+            <text wx:if="{{item.showRating}}" class="bar-sub">{{item.avg_rating}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="pad"></view>
+  </scroll-view>
 </view>
