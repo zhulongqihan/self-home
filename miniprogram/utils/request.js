@@ -7,6 +7,11 @@ let handling401 = false
 
 function handleSessionExpired() {
   if (handling401) return
+  const { isLoggingOut } = require('./auth.js')
+  if (isLoggingOut && isLoggingOut()) return
+  const pages = getCurrentPages()
+  const route = pages.length ? pages[pages.length - 1].route : ''
+  if (route && (route.startsWith('pages/launch/') || route === 'pages/launch/login')) return
   handling401 = true
   setTimeout(() => { handling401 = false }, 3000)
   require('./auth.js').logout()
@@ -37,9 +42,10 @@ function request(opts) {
           return resolve(res.data)
         }
         if (res.statusCode === 401 && !opts.noAuth) {
-          handleSessionExpired()
+          const { isLoggingOut } = require('./auth.js')
+          if (!(isLoggingOut && isLoggingOut())) handleSessionExpired()
           const err = new Error('登录已过期，请重新输入暗号')
-          err.code = 'SESSION_EXPIRED'
+          err.code = isLoggingOut && isLoggingOut() ? 'NO_TOKEN' : 'SESSION_EXPIRED'
           return reject(err)
         }
         const err = new Error((res.data && res.data.message) || `HTTP ${res.statusCode}`)

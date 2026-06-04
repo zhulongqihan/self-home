@@ -111,6 +111,16 @@ const ConfigSchema = new Schema({
 
   achievement: {
     preview_all: { type: Boolean, default: false }
+  },
+
+  // 摇一摇盲盒
+  blind_box: {
+    title: { type: String, default: '摇一摇开盲盒' },
+    hint: { type: String, default: '摇一摇，随机解锁今日隐藏款～' },
+    button_text: { type: String, default: '点我摇一下' },
+    daily_limit: { type: Number, default: 3 },
+    product_ids: { type: [String], default: [] },
+    simulate_shake: { type: Boolean, default: false }
   }
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

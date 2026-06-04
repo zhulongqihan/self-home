@@ -1,4 +1,5 @@
-const { loadCustomerConfig } = require('../../../utils/uiConfig.js')
+const { getToken } = require('../../../utils/auth.js')
+const { loadCustomerConfig, getCached, resolveWelcomeImageUrl } = require('../../../utils/uiConfig.js')
 
 Page({
   data: {
@@ -9,11 +10,12 @@ Page({
 
   async onLoad() {
     try {
-      const cfg = await loadCustomerConfig()
+      let cfg = getCached()
+      if (!cfg && getToken()) cfg = await loadCustomerConfig()
       const welcome = (cfg && cfg.welcome) || {}
       this.setData({
         text: welcome.text || this.data.text,
-        imageUrl: welcome.image_url || '',
+        imageUrl: resolveWelcomeImageUrl(welcome.image_url),
         loading: false
       })
     } catch (e) {

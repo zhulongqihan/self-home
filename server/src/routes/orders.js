@@ -10,6 +10,7 @@ const { notifyOwnerNewOrder, notifyCustomerOrderStatus } = require('../services/
 const { mergeRawOrderItems } = require('../utils/orderItems')
 const { adjustCoins } = require('../services/coinsService')
 const { checkAndUnlock } = require('../services/achievement')
+const { getTodayRevealCounts } = require('../services/blindBox')
 
 const router = express.Router()
 
@@ -33,28 +34,77 @@ router.post('/', requireAuth, async (req, res, next) => {
 
     const normalized = []
     let total = 0
+    const revealCounts = await getTodayRevealCounts(req.user.sub)
+    const usedBlindQty = {}
 
     for (const raw of merged.items) {
       if (!mongoose.Types.ObjectId.isValid(raw.product_id)) {
         return res.status(400).json({ status: 'error', code: 'INVALID_PRODUCT_ID', message: '存在无效商品' })
       }
       const qty = raw.qty
+      const pid = String(raw.product_id)
 
       const product = await Product.findById(raw.product_id).lean()
       if (!product || product.status !== 'on_sale') {
         return res.status(400).json({ status: 'error', code: 'PRODUCT_UNAVAILABLE', message: '商品不存在或已下架' })
       }
 
-      total += product.price * qty
+      let linePrice = product.price
+      if (raw.blind_free) {
+        const allowed = revealCounts.get(pid) || 0
+        const used = usedBlindQty[pid] || 0
+        if (used + qty > allowed) {
+          return res.status(400).json({
+            status: 'error',
+            code: 'BLIND_FREE_MISMATCH',
+            message: '盲盒免费数量与今日摇中记录不符，请清空购物车后重试'
+          })
+        }
+        usedBlindQty[pid] = used + qty
+        linePrice = 0
+      }
+
+      total += linePrice * qty
       normalized.push({
         product_id: product._id,
         product_name: product.name,
         product_image: (product.images && product.images[0]) || '',
-        price: product.price,
+        price: linePrice,
         qty,
         specs: raw.specs,
         note: raw.note
       })
+    }
+
+    if (total === 0) {
+      const user = await User.findById(req.user.sub).select('coins').lean()
+      if (!user) {
+        return res.status(404).json({ status: 'error', code: 'USER_NOT_FOUND', message: '用户不存在' })
+      }
+      const now = new Date()
+      const order = await Order.create({
+        user_id: req.user.sub,
+        items: normalized,
+        total_price: 0,
+        delivery_type: delivery_type || '本人配送',
+        customer_note: customer_note || '',
+        status_history: [{ status: 'pending', changed_at: now, note: '顾客提交订单（含盲盒免费）' }]
+      })
+      const newBadges = await checkAndUnlock(req.user.sub)
+      res.json({
+        status: 'ok',
+        data: {
+          order_id: order._id,
+          total_price: 0,
+          status: order.status,
+          coins_left: user.coins || 0,
+          new_badges: newBadges
+        }
+      })
+      notifyOwnerNewOrder(order.toObject()).catch(err => {
+        console.warn('[orders] notifyOwnerNewOrder:', err.message)
+      })
+      return
     }
 
     const deducted = await User.findOneAndUpdate(

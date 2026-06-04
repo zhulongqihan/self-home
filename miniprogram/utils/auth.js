@@ -51,6 +51,10 @@ function loginByPassword(username, password) {
 /** 清除本地登录状态 */
 let loggingOut = false
 
+function isLoggingOut() {
+  return loggingOut
+}
+
 function logout() {
   if (loggingOut) return
   loggingOut = true
@@ -59,9 +63,11 @@ function logout() {
     app.globalData.token = null
     app.globalData.userInfo = null
     app.globalData.role = null
+    app.globalData.uiConfig = null
   }
+  // 立即移除 token，避免 reLaunch 过渡期间仍带旧 token / 或无 token 仍打需鉴权接口
+  safeRemove(TOKEN_KEY)
   const run = () => {
-    safeRemove(TOKEN_KEY)
     safeRemove(USER_KEY)
     safeRemove(STORE_KEY)
     safeRemove(LOGIN_METHOD_KEY)
@@ -70,7 +76,7 @@ function logout() {
     } catch (e) {
       console.warn('[auth] clearCached:', e.message || e)
     }
-    loggingOut = false
+    setTimeout(() => { loggingOut = false }, 800)
   }
   if (typeof wx.nextTick === 'function') wx.nextTick(run)
   else setTimeout(run, 0)
@@ -109,6 +115,7 @@ module.exports = {
   loginByOpenid,
   loginByPassword,
   logout,
+  isLoggingOut,
   verify,
   getToken,
   getUser,

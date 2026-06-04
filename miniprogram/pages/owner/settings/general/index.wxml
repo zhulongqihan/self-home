@@ -1,0 +1,90 @@
+<view class="sub-page">
+  <page-header title="店铺与基础" showBack="{{true}}" backUrl="/pages/owner/settings/index" />
+  <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="sub-content">
+      <view wx:if="{{loading}}" class="state-text">加载中...</view>
+      <block wx:else>
+        <view class="section-head">店铺与昵称</view>
+        <view class="section">
+          <view class="label">店铺名称</view>
+          <input class="input-line" value="{{storeName}}" placeholder="我们的小窝" bindinput="onInputStoreName" />
+        </view>
+        <view class="section">
+          <view class="label">店长昵称</view>
+          <input class="input-line" value="{{ownerNickname}}" placeholder="店长" bindinput="onInputOwnerNickname" />
+        </view>
+        <view class="section">
+          <view class="label">顾客昵称</view>
+          <input class="input-line" value="{{customerNickname}}" placeholder="宝宝" bindinput="onInputCustomerNickname" />
+        </view>
+
+        <view class="section-head">虚拟币</view>
+        <view class="section">
+          <view class="row">
+            <view class="row-label">名称</view>
+            <input class="input-line" value="{{currencyName}}" placeholder="爱心币" bindinput="onInputCurrencyName" />
+          </view>
+          <view class="row">
+            <view class="row-label">图标</view>
+            <input class="input-line short" value="{{currencyEmoji}}" placeholder="💋" bindinput="onInputCurrencyEmoji" />
+          </view>
+        </view>
+
+        <view class="section-head">营业与主题</view>
+        <view class="section">
+          <view class="row">
+            <view class="row-label">营业状态</view>
+            <picker mode="selector" range="{{storeStatusLabels}}" value="{{storeStatusIndex}}" bindchange="onPickStoreStatus">
+              <view class="picker-val">{{storeStatusLabels[storeStatusIndex]}}</view>
+            </picker>
+          </view>
+          <view class="row">
+            <view class="row-label">默认主题</view>
+            <picker mode="selector" range="{{themeLabels}}" value="{{themeIndex}}" bindchange="onPickTheme">
+              <view class="picker-val">{{themeLabels[themeIndex]}}</view>
+            </picker>
+          </view>
+        </view>
+
+        <view class="section-head">底部 Tab 文案</view>
+        <view class="section">
+          <view class="row">
+            <view class="row-label">厨房</view>
+            <input class="input-line" value="{{tabKitchen}}" bindinput="onInputTabKitchen" />
+          </view>
+          <view class="row">
+            <view class="row-label">订单</view>
+            <input class="input-line" value="{{tabOrders}}" bindinput="onInputTabOrders" />
+          </view>
+          <view class="row">
+            <view class="row-label">发现</view>
+            <input class="input-line" value="{{tabDiscover}}" bindinput="onInputTabDiscover" />
+          </view>
+          <view class="row">
+            <view class="row-label">我的</view>
+            <input class="input-line" value="{{tabProfile}}" bindinput="onInputTabProfile" />
+          </view>
+          <view class="hint">保存后顾客端重新进入小程序生效</view>
+        </view>
+
+        <view class="section-head">发现页占位</view>
+        <view class="section">
+          <view class="label">标题</view>
+          <input class="input-line" value="{{discoverTitle}}" bindinput="onInputDiscoverTitle" />
+          <view class="label label-gap">描述</view>
+          <textarea class="input" value="{{discoverDesc}}" maxlength="80" bindinput="onInputDiscoverDesc" />
+        </view>
+
+        <view class="section-head">彩蛋开关</view>
+        <view class="section">
+          <view class="egg-row" wx:for="{{eggList}}" wx:key="key">
+            <text class="egg-label">{{item.label}}</text>
+            <switch checked="{{item.enabled}}" color="#E8B86D" data-key="{{item.key}}" bindchange="onToggleEgg" />
+          </view>
+        </view>
+
+        <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : '保存'}}</view>
+      </block>
+    </view>
+  </scroll-view>
+</view>

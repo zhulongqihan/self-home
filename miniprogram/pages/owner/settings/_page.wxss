@@ -1,0 +1,19 @@
+@import './common.wxss';
+
+.sub-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fdf6ec;
+  box-sizing: border-box;
+}
+
+.sub-scroll {
+  flex: 1;
+  height: 0;
+}
+
+.sub-content {
+  padding: 24rpx 32rpx 48rpx;
+  box-sizing: border-box;
+}

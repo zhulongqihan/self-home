@@ -1,0 +1,41 @@
+<view class="sub-page">
+  <page-header title="三大倒计时" showBack="{{true}}" backUrl="/pages/owner/settings/index" />
+  <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="sub-content">
+      <view wx:if="{{loading}}" class="state-text">加载中...</view>
+      <block wx:else>
+        <view class="section">
+          <view class="label">在一起起始日</view>
+          <picker mode="date" value="{{relationshipStartValue}}" start="2000-01-01" end="2099-12-31" bindchange="onPickRelationshipStart">
+            <view class="picker-field">
+              <text wx:if="{{relationshipStart}}">{{relationshipStart}}</text>
+              <text wx:else class="picker-placeholder">点击选择日期</text>
+              <text class="picker-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+        <view class="section">
+          <view class="label">纪念日（每年）</view>
+          <picker mode="date" value="{{anniversaryPickerValue}}" bindchange="onPickAnniversary">
+            <view class="picker-field">
+              <text wx:if="{{anniversaryDate}}">{{anniversaryDisplay}}</text>
+              <text wx:else class="picker-placeholder">点击选择月日</text>
+              <text class="picker-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+        <view class="section">
+          <view class="label">顾客生日</view>
+          <picker mode="date" value="{{birthdayPickerValue}}" bindchange="onPickBirthday">
+            <view class="picker-field">
+              <text wx:if="{{customerBirthday}}">{{birthdayDisplay}}</text>
+              <text wx:else class="picker-placeholder">点击选择月日</text>
+              <text class="picker-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+        <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : '保存'}}</view>
+      </block>
+    </view>
+  </scroll-view>
+</view>

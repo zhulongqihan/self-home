@@ -1,8 +1,8 @@
-const { get } = require('../../../utils/request.js')
+const { get, post } = require('../../../utils/request.js')
 const { getProductCover } = require('../../../utils/productImage.js')
 const { getCartStats } = require('../../../utils/cart.js')
 const { getToken } = require('../../../utils/auth.js')
-const { fetchLatestOwnerMessage } = require('../../../utils/ownerMessage.js')
+const { fetchUnreadOwnerMessage, markOwnerMessageSeen } = require('../../../utils/ownerMessage.js')
 
 function getOptional(url) {
   return get(url).catch(() => ({ data: null }))
@@ -20,25 +20,51 @@ Page({
     weather: null,
     weatherProducts: [],
     timeEgg: null,
+    blindBox: null,
+    blindRevealVisible: false,
+    blindRevealProduct: null,
+    blindShaking: false,
     cartCount: 0,
     cartTotal: 0,
     drawerOpen: false,
     specVisible: false,
     specProduct: null,
-    bulletText: ''
+    bulletText: '',
+    bulletMsgId: ''
   },
 
   onShow() {
-    this.refreshCartBar()
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 0 })
+    if (this._showBusy) return
+    this._showBusy = true
+    try {
+      this.refreshCartBar()
+      if (typeof this.getTabBar === 'function') {
+        const tabBar = this.getTabBar()
+        if (tabBar && tabBar.data.selected !== 0) {
+          tabBar.setData({ selected: 0 })
+        }
+      }
+      wx.hideLoading()
+      if (!getToken()) {
+        this.setData({ loading: false, loadError: false })
+        return
+      }
+      this.scheduleKitchenLoad()
+      this.scheduleBulletMessage()
+    } finally {
+      this._showBusy = false
     }
-    if (!getToken()) {
-      this.setData({ loading: false, loadError: false })
-      return
-    }
-    this.scheduleKitchenLoad()
-    this.scheduleBulletMessage()
+  },
+
+  onHide() {
+    this.setData({ specVisible: false, specProduct: null, drawerOpen: false, blindRevealVisible: false })
+    this.stopBlindBoxListener()
+    this.dismissBulletMessage()
+    wx.hideLoading()
+  },
+
+  onUnload() {
+    this.stopBlindBoxListener()
   },
 
   scheduleKitchenLoad() {
@@ -60,24 +86,39 @@ Page({
   loadBulletMessage() {
     if (this._bulletLoading) return
     this._bulletLoading = true
-    fetchLatestOwnerMessage()
+    fetchUnreadOwnerMessage()
       .then(msg => {
-        this.setData({ bulletText: (msg && msg.content) ? msg.content : '' })
+        if (!msg || !msg.content) {
+          this.setData({ bulletText: '', bulletMsgId: '' })
+          return
+        }
+        this.setData({ bulletText: msg.content, bulletMsgId: msg.id })
+        if (this._bulletHideTimer) clearTimeout(this._bulletHideTimer)
+        this._bulletHideTimer = setTimeout(() => this.dismissBulletMessage(), 16000)
       })
       .finally(() => {
         this._bulletLoading = false
       })
   },
 
-  onHide() {
-    this.setData({ specVisible: false, specProduct: null, drawerOpen: false })
+  dismissBulletMessage() {
+    if (this._bulletHideTimer) {
+      clearTimeout(this._bulletHideTimer)
+      this._bulletHideTimer = null
+    }
+    const id = this.data.bulletMsgId
+    if (id) markOwnerMessageSeen({ id })
+    this.setData({ bulletText: '', bulletMsgId: '' })
   },
 
   refreshCartBar() {
     const { count, totalPrice } = getCartStats()
-    this.setData({ cartCount: count, cartTotal: totalPrice })
+    const changed = this.data.cartCount !== count || this.data.cartTotal !== totalPrice
+    if (changed) {
+      this.setData({ cartCount: count, cartTotal: totalPrice })
+    }
     const bar = this.selectComponent('#cartBar')
-    if (bar && bar.refresh) bar.refresh()
+    if (bar && bar.refresh) bar.refresh(true)
   },
 
   formatProductMeta(p) {
@@ -97,7 +138,9 @@ Page({
         coverUrl: cover.url,
         coverEmoji: cover.emoji,
         hasSpecs,
-        metaText: this.formatProductMeta(p)
+        metaText: this.formatProductMeta(p),
+        blind_free: !!p.blind_free,
+        original_price: p.original_price != null ? p.original_price : p.price
       }
     })
   },
@@ -161,6 +204,130 @@ Page({
     }
   },
 
+  applyBlindBox(blindData) {
+    if (!blindData || !blindData.enabled) {
+      this.stopBlindBoxListener()
+      return { blindBox: null }
+    }
+    const blindBox = {
+      title: blindData.title || '摇一摇开盲盒',
+      hint: blindData.hint || '',
+      buttonText: blindData.button_text || '点我摇一下',
+      shakesLeft: blindData.shakes_left || 0,
+      poolCount: blindData.pool_count || 0,
+      simulateShake: !!blindData.simulate_shake
+    }
+    this.startBlindBoxListener(blindBox)
+    return { blindBox }
+  },
+
+  startBlindBoxListener(blindBox) {
+    if (!blindBox || blindBox.shakesLeft <= 0 || blindBox.poolCount <= 0) {
+      this.stopBlindBoxListener()
+      return
+    }
+    if (this.data.drawerOpen || this.data.specVisible || this.data.blindRevealVisible) {
+      this.stopBlindBoxListener()
+      return
+    }
+    if (this._accelStarted) return
+    this._accelStarted = true
+    this._lastAccel = { x: 0, y: 0, z: 0 }
+    this._lastShakeAt = 0
+    wx.startAccelerometer({ interval: 'game' })
+    wx.onAccelerometerChange(this._onAccelerometerChange = (res) => {
+      const { x, y, z } = res
+      const delta = Math.abs(x + y + z - this._lastAccel.x - this._lastAccel.y - this._lastAccel.z)
+      this._lastAccel = { x, y, z }
+      if (delta > 1.15 && Date.now() - this._lastShakeAt > 2200) {
+        if (this.data.drawerOpen || this.data.specVisible || this.data.blindRevealVisible || this.data.blindShaking) {
+          return
+        }
+        this._lastShakeAt = Date.now()
+        this.doBlindShake()
+      }
+    })
+  },
+
+  stopBlindBoxListener() {
+    if (!this._accelStarted) return
+    this._accelStarted = false
+    if (this._onAccelerometerChange) {
+      wx.offAccelerometerChange(this._onAccelerometerChange)
+      this._onAccelerometerChange = null
+    }
+    wx.stopAccelerometer()
+  },
+
+  onTapBlindShake() {
+    this.doBlindShake()
+  },
+
+  async doBlindShake() {
+    const box = this.data.blindBox
+    if (!box || this.data.blindShaking) return
+    if (box.shakesLeft <= 0) {
+      wx.showToast({ title: '今日次数已用完', icon: 'none' })
+      return
+    }
+    if (box.poolCount <= 0) {
+      wx.showToast({ title: '暂无在售商品', icon: 'none' })
+      return
+    }
+    this.setData({ blindShaking: true })
+    try {
+      const resp = await post('/api/blind-box/shake')
+      const d = resp.data || {}
+      const product = d.product ? this.mapProducts([d.product])[0] : null
+      if (!product) {
+        wx.showToast({ title: '开奖失败', icon: 'none' })
+        return
+      }
+      const blindBox = {
+        ...this.data.blindBox,
+        shakesLeft: d.shakes_left != null ? d.shakes_left : box.shakesLeft - 1
+      }
+      this.setData({
+        blindBox,
+        blindRevealProduct: product,
+        blindRevealVisible: true
+      })
+      if (blindBox.shakesLeft <= 0) this.stopBlindBoxListener()
+      wx.showToast({ title: '恭喜开盒！', icon: 'success' })
+    } catch (err) {
+      wx.showToast({ title: err.message || '摇一摇失败', icon: 'none' })
+    } finally {
+      this.setData({ blindShaking: false })
+    }
+  },
+
+  onCloseBlindReveal() {
+    this.setData({ blindRevealVisible: false, blindRevealProduct: null })
+    if (this.data.blindBox) this.startBlindBoxListener(this.data.blindBox)
+  },
+
+  onBlindAddToCart() {
+    const product = this.data.blindRevealProduct
+    if (!product) return
+    if (product.hasSpecs) {
+      this.setData({ blindRevealVisible: false, specVisible: true, specProduct: product })
+      return
+    }
+    const { addToCart } = require('../../../utils/cart.js')
+    addToCart({
+      product_id: product._id,
+      name: product.name,
+      image: product.coverUrl || product.coverEmoji,
+      price: 0,
+      blind_free: true,
+      specs: [],
+      qty: 1
+    })
+    this.refreshCartBar()
+    this.setData({ blindRevealVisible: false })
+    wx.showToast({ title: '已加入购物车', icon: 'success' })
+  },
+
   async fetchKitchenData(seq) {
     this.setData({ loading: true, loadError: false })
     try {
@@ -197,17 +364,19 @@ Page({
 
   async loadKitchenExtras(seq) {
     try {
-      const [festivalResp, weatherResp, timeEggResp] = await Promise.all([
+      const [festivalResp, weatherResp, timeEggResp, blindResp] = await Promise.all([
         getOptional('/api/festivals/active'),
         getOptional('/api/weather/kitchen'),
-        getOptional('/api/time-eggs/kitchen')
+        getOptional('/api/time-eggs/kitchen'),
+        getOptional('/api/blind-box/kitchen')
       ])
       if (seq !== this._loadSeq) return
 
       const fest = this.applyFestival(festivalResp.data)
       const weather = this.applyWeather(weatherResp.data)
       const timeEgg = this.applyTimeEgg(timeEggResp.data)
-      this.setData({ ...fest, ...weather, ...timeEgg })
+      const blind = this.applyBlindBox(blindResp.data)
+      this.setData({ ...fest, ...weather, ...timeEgg, ...blind })
     } catch (e) {
       // 彩蛋接口失败不影响主列表
     }
@@ -287,10 +456,14 @@ Page({
     return this.data.products.find(p => p._id === id)
       || this.data.festivalProducts.find(p => p._id === id)
       || this.data.weatherProducts.find(p => p._id === id)
+      || (this.data.blindRevealProduct && this.data.blindRevealProduct._id === id
+        ? this.data.blindRevealProduct
+        : null)
   },
 
   onSpecClose() {
     this.setData({ specVisible: false, specProduct: null })
+    if (this.data.blindBox) this.startBlindBoxListener(this.data.blindBox)
   },
 
   onSpecAdded() {
@@ -299,11 +472,15 @@ Page({
   },
 
   onToggleDrawer() {
-    this.setData({ drawerOpen: !this.data.drawerOpen })
+    const open = !this.data.drawerOpen
+    this.setData({ drawerOpen: open })
+    if (open) this.stopBlindBoxListener()
+    else if (this.data.blindBox) this.startBlindBoxListener(this.data.blindBox)
   },
 
   onDrawerClose() {
     this.setData({ drawerOpen: false })
+    if (this.data.blindBox) this.startBlindBoxListener(this.data.blindBox)
   },
 
   onCartUpdated() {

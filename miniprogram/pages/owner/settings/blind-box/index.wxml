@@ -1,0 +1,31 @@
+<view class="sub-page">
+  <page-header title="摇一摇盲盒" showBack="{{true}}" backUrl="/pages/owner/settings/index" />
+  <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="sub-content">
+      <view wx:if="{{loading}}" class="state-text">加载中...</view>
+      <block wx:else>
+        <view class="hint-box">
+          <view class="hint-text">从全店在售商品中随机揭晓；摇中款当日下单免费。商品照常显示在厨房菜单，无需勾选池子。</view>
+        </view>
+        <view class="section">
+          <view class="label">标题</view>
+          <input class="input-line" value="{{blindBoxTitle}}" bindinput="onInputBlindTitle" />
+          <view class="label label-gap">提示文案</view>
+          <input class="input-line" value="{{blindBoxHint}}" bindinput="onInputBlindHint" />
+          <view class="label label-gap">按钮文案</view>
+          <input class="input-line" value="{{blindBoxButton}}" bindinput="onInputBlindButton" />
+          <view class="row">
+            <view class="row-label">每日次数</view>
+            <input class="input-line short" type="number" value="{{blindBoxDailyLimit}}" bindinput="onInputBlindDailyLimit" />
+          </view>
+          <view class="row switch-row">
+            <view class="row-label">模拟摇一摇</view>
+            <switch checked="{{blindBoxSimulate}}" color="#E8B86D" bindchange="onToggleBlindSimulate" />
+          </view>
+          <view class="hint">模拟器可点厨房右下角 🎲 按钮验收；真机可摇手机</view>
+        </view>
+        <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : '保存'}}</view>
+      </block>
+    </view>
+  </scroll-view>
+</view>

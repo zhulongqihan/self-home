@@ -1,3 +1,4 @@
+const { getToken } = require('../utils/auth.js')
 const { getCached, loadCustomerConfig } = require('../utils/uiConfig.js')
 
 Component({
@@ -21,7 +22,7 @@ Component({
     async applyLabels() {
       try {
         let cfg = getCached()
-        if (!cfg) cfg = await loadCustomerConfig()
+        if (!cfg && getToken()) cfg = await loadCustomerConfig()
         const tb = (cfg && cfg.tab_bar) || {}
         const list = [
           { pagePath: '/pages/customer/kitchen/index', text: tb.kitchen || '厨房' },

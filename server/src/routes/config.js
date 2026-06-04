@@ -7,6 +7,7 @@ const { buildCountdownItems } = require('../services/countdown')
 const { EGG_SWITCH_META, normalizeEggsForOwner } = require('../constants/eggSwitches')
 const { pickTimeEggForOwner, validateTimeEggSlots } = require('../services/timeEgg')
 const { pickBadgesForOwner, validateBadges } = require('../services/achievement')
+const { pickBlindBoxForOwner, validateBlindBoxPatch } = require('../services/blindBox')
 
 const router = express.Router()
 
@@ -61,7 +62,8 @@ function pickOwnerConfig(cfg) {
       simulate_rainy: !!(cfg.weather && cfg.weather.simulate_rainy)
     },
     time_egg: pickTimeEggForOwner(cfg),
-    achievement: pickBadgesForOwner(cfg)
+    achievement: pickBadgesForOwner(cfg),
+    blind_box: pickBlindBoxForOwner(cfg)
   }
 }
 
@@ -307,6 +309,11 @@ function applyOwnerConfigPatch(cfg, body) {
     if (b.achievement.preview_all !== undefined) {
       cfg.achievement.preview_all = !!b.achievement.preview_all
     }
+  }
+  if (b.blind_box && typeof b.blind_box === 'object') {
+    if (!cfg.blind_box) cfg.blind_box = {}
+    const patch = validateBlindBoxPatch(b.blind_box)
+    Object.assign(cfg.blind_box, patch)
   }
 }
 

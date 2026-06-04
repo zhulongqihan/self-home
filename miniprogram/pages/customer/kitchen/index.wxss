@@ -346,3 +346,168 @@
   height: var(--kitchen-bottom-pad);
   min-height: 280rpx;
 }
+
+.blind-hint-bar {
+  flex-shrink: 0;
+  padding: 12rpx 24rpx;
+  background: linear-gradient(135deg, #9b7ed8 0%, #7b5fbf 100%);
+}
+
+.blind-hint-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.blind-hint-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #fff;
+}
+
+.blind-hint-sub,
+.blind-hint-meta {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.blind-float {
+  position: fixed;
+  right: 24rpx;
+  bottom: calc(var(--tab-bar-total-h) + var(--cart-bar-h) + 24rpx);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #b894f0, #7b5fbf);
+  box-shadow: 0 8rpx 24rpx rgba(123, 95, 191, 0.45);
+}
+
+.blind-float.shaking {
+  opacity: 0.7;
+}
+
+.blind-float-emoji {
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+.blind-float-text {
+  margin-top: 4rpx;
+  font-size: 18rpx;
+  color: #fff;
+  font-weight: 600;
+}
+
+.blind-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx;
+  box-sizing: border-box;
+}
+
+.blind-modal {
+  width: 100%;
+  max-width: 600rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 40rpx 32rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.blind-modal-title {
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #3d2c1e;
+  margin-bottom: 24rpx;
+}
+
+.blind-modal-product {
+  text-align: center;
+}
+
+.blind-modal-thumb {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 16rpx;
+  margin: 0 auto;
+}
+
+.blind-modal-emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72rpx;
+  background: #fdf6ec;
+}
+
+.blind-modal-name {
+  margin-top: 16rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #3d2c1e;
+}
+
+.blind-modal-price {
+  margin-top: 8rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.blind-free-tag {
+  font-size: 30rpx;
+  color: #7b5fbf;
+  font-weight: 700;
+}
+
+.blind-origin-price {
+  font-size: 22rpx;
+  color: #bbb;
+  text-decoration: line-through;
+}
+
+.blind-modal-desc {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.5;
+}
+
+.blind-modal-actions {
+  margin-top: 32rpx;
+}
+
+.blind-btn {
+  text-align: center;
+  padding: 24rpx;
+  border-radius: 48rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.blind-btn-primary {
+  background: #e8b86d;
+  color: #3d2c1e;
+}
+
+.blind-btn-ghost {
+  background: #f5f5f5;
+  color: #999;
+  margin-bottom: 0;
+}

@@ -138,6 +138,11 @@ Page({
         ? `签到 +${d.reward}（含连签奖励）`
         : `签到 +${d.reward || 2}`
       wx.showToast({ title: tip, icon: 'success' })
+      if (d.blind_box_bonus) {
+        setTimeout(() => {
+          wx.showToast({ title: '连签奖励：额外 1 次摇盲盒', icon: 'none', duration: 2200 })
+        }, 1600)
+      }
       this.setData({
         signing: false,
         signedToday: true,

@@ -25,10 +25,12 @@ Component({
   },
 
   methods: {
-    refresh() {
+    refresh(silent) {
       const { items, count, totalPrice } = getCartStats()
       this.setData({ items, count, totalPrice })
-      this.triggerEvent('updated', { count, total: totalPrice })
+      if (!silent) {
+        this.triggerEvent('updated', { count, total: totalPrice })
+      }
     },
 
     loadItems() {
@@ -89,7 +91,8 @@ Component({
             product_id: i.product_id,
             qty: i.qty,
             specs: i.specs,
-            note: i.note || ''
+            note: i.note || '',
+            blind_free: !!i.blind_free
           })),
           delivery_type: this.data.deliveryType,
           customer_note: this.data.note

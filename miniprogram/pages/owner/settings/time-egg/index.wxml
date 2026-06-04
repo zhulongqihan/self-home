@@ -1,0 +1,54 @@
+<view class="sub-page">
+  <page-header title="时段彩蛋" showBack="{{true}}" backUrl="/pages/owner/settings/index" />
+  <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="sub-content">
+      <view wx:if="{{loading}}" class="state-text">加载中...</view>
+      <block wx:else>
+        <view class="hint-box">
+          <view class="hint-text">按上海时区匹配当前时段，在顾客厨房展示 Banner。验收可选「预览时段」。</view>
+        </view>
+        <view class="section">
+          <view class="row">
+            <view class="row-label">开始</view>
+            <picker mode="time" value="{{timeEggStart}}" bindchange="onPickTimeEggStart">
+              <view class="picker-val">{{timeEggStart}}</view>
+            </picker>
+          </view>
+          <view class="row">
+            <view class="row-label">结束</view>
+            <picker mode="time" value="{{timeEggEnd}}" bindchange="onPickTimeEggEnd">
+              <view class="picker-val">{{timeEggEnd}}</view>
+            </picker>
+          </view>
+          <view class="label label-gap">展示文案</view>
+          <input class="input-line" value="{{timeEggText}}" placeholder="如：午饭时间到～" bindinput="onInputTimeEggText" />
+          <view class="label label-gap">Banner URL（可选）</view>
+          <input class="input-line" value="{{timeEggBanner}}" placeholder="https://..." bindinput="onInputTimeEggBanner" />
+          <view class="row switch-row">
+            <view class="row-label">启用</view>
+            <switch checked="{{timeEggEnabled}}" color="#E8B86D" bindchange="onToggleTimeEggEnabled" />
+          </view>
+          <view class="btn-add-slot" bindtap="onAddTimeEgg">+ 添加时段</view>
+          <view wx:if="{{timeEggSlots.length}}" class="slot-list">
+            <view class="slot-card" wx:for="{{timeEggSlots}}" wx:key="index">
+              <view class="slot-head">
+                <text class="slot-range">{{item.start}} - {{item.end}}</text>
+                <switch checked="{{item.enabled}}" color="#E8B86D" data-index="{{index}}" bindchange="onToggleTimeSlot" />
+              </view>
+              <view class="slot-text">{{item.text}}</view>
+              <view class="slot-del" data-index="{{index}}" bindtap="onDeleteTimeSlot">删除</view>
+            </view>
+          </view>
+          <view class="row">
+            <view class="row-label">预览</view>
+            <picker mode="selector" range="{{timePreviewLabels}}" value="{{timePreviewPicker}}" bindchange="onPickTimePreview">
+              <view class="picker-val">{{timePreviewLabels[timePreviewPicker]}}</view>
+            </picker>
+          </view>
+          <view class="hint">验收完请将预览改回「自动」</view>
+        </view>
+        <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : '保存'}}</view>
+      </block>
+    </view>
+  </scroll-view>
+</view>

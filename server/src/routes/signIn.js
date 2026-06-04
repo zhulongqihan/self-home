@@ -2,6 +2,7 @@ const express = require('express')
 const User = require('../models/User')
 const { requireAuth, requireRole } = require('../middlewares/auth')
 const { checkAndUnlock } = require('../services/achievement')
+const { grantSignInBlindBonus } = require('../services/blindBox')
 
 const router = express.Router()
 
@@ -56,6 +57,11 @@ router.post('/', requireAuth, requireRole('customer'), async (req, res, next) =>
     await user.save()
 
     const newBadges = await checkAndUnlock(user._id)
+    let blind_bonus = false
+    if (continuous > 0 && continuous % 7 === 0) {
+      await grantSignInBlindBonus(user._id)
+      blind_bonus = true
+    }
 
     res.json({
       status: 'ok',
@@ -64,7 +70,8 @@ router.post('/', requireAuth, requireRole('customer'), async (req, res, next) =>
         reward,
         bonus,
         continuous_sign_days: continuous,
-        new_badges: newBadges
+        new_badges: newBadges,
+        blind_box_bonus: blind_bonus
       }
     })
   } catch (err) {

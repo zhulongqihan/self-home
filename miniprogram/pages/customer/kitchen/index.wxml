@@ -21,6 +21,13 @@
       <text class="festival-name">{{festival.name}}</text>
     </view>
   </view>
+  <view wx:if="{{blindBox}}" class="blind-hint-bar">
+    <view class="blind-hint-text">
+      <text class="blind-hint-title">🎲 {{blindBox.title}}</text>
+      <text class="blind-hint-sub">{{blindBox.hint}}</text>
+      <text class="blind-hint-meta">今日剩余 {{blindBox.shakesLeft}} 次 · 从全店在售商品随机</text>
+    </view>
+  </view>
   <view class="search-row">
     <view class="search-placeholder">搜索</view>
   </view>
@@ -163,6 +170,41 @@
     <view class="bullet-card">
       <text class="bullet-label">小羊说</text>
       <text class="bullet-content">{{bulletText}}</text>
+    </view>
+  </view>
+
+  <view
+    wx:if="{{blindBox && blindBox.shakesLeft > 0 && blindBox.poolCount > 0}}"
+    class="blind-float {{blindShaking ? 'shaking' : ''}}"
+    bindtap="onTapBlindShake"
+  >
+    <text class="blind-float-emoji">🎲</text>
+    <text class="blind-float-text">{{blindBox.buttonText}}</text>
+  </view>
+
+  <view wx:if="{{blindRevealVisible && blindRevealProduct}}" class="blind-mask" bindtap="onCloseBlindReveal">
+    <view class="blind-modal" catchtap="">
+      <view class="blind-modal-title">🎉 开盒成功</view>
+      <view class="blind-modal-product">
+        <image
+          wx:if="{{blindRevealProduct.coverUrl}}"
+          class="blind-modal-thumb"
+          src="{{blindRevealProduct.coverUrl}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="blind-modal-thumb blind-modal-emoji">{{blindRevealProduct.coverEmoji}}</view>
+        <view class="blind-modal-name">{{blindRevealProduct.name}}</view>
+        <view class="blind-modal-price" wx:if="{{blindRevealProduct.blind_free}}">
+          <text class="blind-free-tag">🎁 今日盲盒免费</text>
+          <text class="blind-origin-price" wx:if="{{blindRevealProduct.original_price}}">原价 {{blindRevealProduct.original_price}} 币</text>
+        </view>
+        <view class="blind-modal-price" wx:else>{{blindRevealProduct.price}} 币</view>
+        <view class="blind-modal-desc">{{blindRevealProduct.description}}</view>
+      </view>
+      <view class="blind-modal-actions">
+        <view class="blind-btn blind-btn-primary" bindtap="onBlindAddToCart">加入购物车</view>
+        <view class="blind-btn blind-btn-ghost" bindtap="onCloseBlindReveal">稍后再说</view>
+      </view>
     </view>
   </view>
 

@@ -9,7 +9,7 @@
         <view class="drawer-name">{{item.name}}</view>
         <view class="drawer-specs">{{item.specs.join(' / ')}}</view>
         <view class="drawer-row">
-          <text class="drawer-price">{{item.price}}币</text>
+          <text class="drawer-price">{{item.blind_free || item.price === 0 ? '免费' : item.price + '币'}}</text>
           <view class="qty-box">
             <view class="qty-btn" data-key="{{item.key}}" catchtap="onDec">-</view>
             <view class="qty-val">{{item.qty}}</view>

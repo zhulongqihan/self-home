@@ -54,7 +54,8 @@ Component({
         product_id: product._id,
         name: product.name,
         image: product.coverUrl || product.coverEmoji || '',
-        price: product.price,
+        price: product.blind_free ? 0 : product.price,
+        blind_free: !!product.blind_free,
         specs,
         qty: this.data.qty
       })

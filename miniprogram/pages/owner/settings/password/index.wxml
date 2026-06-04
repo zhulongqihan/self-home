@@ -1,0 +1,17 @@
+<view class="sub-page">
+  <page-header title="修改暗号" showBack="{{true}}" backUrl="/pages/owner/settings/index" />
+  <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="sub-content">
+      <view class="section">
+        <view class="label">当前暗号</view>
+        <input class="input-line" password value="{{currentPassword}}" bindinput="onInputCurrentPassword" />
+        <view class="label label-gap">新暗号</view>
+        <input class="input-line" password value="{{newPassword}}" bindinput="onInputNewPassword" />
+        <view class="label label-gap">确认新暗号</view>
+        <input class="input-line" password value="{{confirmPassword}}" bindinput="onInputConfirmPassword" />
+        <view class="hint">修改后请用新暗号登录</view>
+      </view>
+      <view class="save-btn" bindtap="onSave">{{saving ? '提交中...' : '更新暗号'}}</view>
+    </view>
+  </scroll-view>
+</view>

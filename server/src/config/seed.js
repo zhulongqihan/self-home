@@ -9,6 +9,7 @@ const Category = require('../models/Category')
 const Product = require('../models/Product')
 const { DEFAULT_TIME_EGGS } = require('../services/timeEgg')
 const { DEFAULT_BADGES } = require('../services/achievement')
+const { DEFAULT_BLIND_BOX } = require('../services/blindBox')
 const { isDummyImage } = require('../utils/productImage')
 const env = require('./index')
 
@@ -96,6 +97,12 @@ async function seedConfig() {
     cfg.badges = DEFAULT_BADGES
     await cfg.save()
     console.log('[Seed] 初始化默认成就徽章')
+  }
+
+  if (!cfg.blind_box || !cfg.blind_box.title) {
+    cfg.blind_box = { ...DEFAULT_BLIND_BOX, ...(cfg.blind_box || {}) }
+    await cfg.save()
+    console.log('[Seed] 初始化摇一摇盲盒配置')
   }
 
   console.log('[Seed] Whitelist:',

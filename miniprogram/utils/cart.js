@@ -9,9 +9,10 @@ function saveCart(list) {
   wx.setStorageSync(CART_KEY, Array.isArray(list) ? list : [])
 }
 
-function buildKey(productId, specs) {
+function buildKey(productId, specs, blindFree) {
   const specKey = Array.isArray(specs) ? specs.join('|') : ''
-  return `${productId}::${specKey}`
+  const tag = blindFree ? 'blind' : 'paid'
+  return `${productId}::${tag}::${specKey}`
 }
 
 function normalizeQty(qty) {
@@ -22,7 +23,8 @@ function normalizeQty(qty) {
 
 function addToCart(item) {
   const list = getCart()
-  const key = buildKey(item.product_id, item.specs)
+  const blindFree = !!(item.blind_free || item.price === 0)
+  const key = buildKey(item.product_id, item.specs, blindFree)
   const addQty = normalizeQty(item.qty)
   const idx = list.findIndex(i => i.key === key)
   if (idx >= 0) {
@@ -33,7 +35,8 @@ function addToCart(item) {
       product_id: item.product_id,
       name: item.name,
       image: item.image || '',
-      price: item.price,
+      price: blindFree ? 0 : item.price,
+      blind_free: blindFree,
       specs: Array.isArray(item.specs) ? item.specs : [],
       note: item.note || '',
       qty: addQty
@@ -64,4 +67,4 @@ function getCartStats() {
   return { items, count, totalPrice }
 }
 
-module.exports = { CART_KEY, getCart, saveCart, addToCart, updateQty, clearCart, getCartStats }
+module.exports = { CART_KEY, getCart, saveCart, addToCart, updateQty, clearCart, getCartStats, buildKey }

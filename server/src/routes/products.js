@@ -5,6 +5,7 @@ const Category = require('../models/Category')
 const { requireAuth, requireRole } = require('../middlewares/auth')
 const { enrichProducts, resolveProductDisplay, PLACEHOLDER_STYLES } = require('../utils/productImage')
 const { enrichListWithStats, attachStats, getProductStatsMap } = require('../services/productStats')
+const { getHiddenProductIds } = require('../services/blindBox')
 
 const router = express.Router()
 
@@ -72,6 +73,11 @@ router.get('/', requireAuth, async (req, res, next) => {
         return res.status(400).json({ status: 'error', code: 'INVALID_CATEGORY_ID', message: '分类参数无效' })
       }
       query.category_id = category_id
+    }
+
+    const hiddenIds = await getHiddenProductIds()
+    if (hiddenIds.length) {
+      query._id = { $nin: hiddenIds }
     }
 
     const list = await Product.find(query)

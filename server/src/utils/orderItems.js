@@ -1,4 +1,4 @@
-/** 合并下单行：相同 product_id + specs 合并数量 */
+/** 合并下单行：相同 product_id + specs + 是否盲盒免费 合并数量 */
 function mergeRawOrderItems(items) {
   const map = new Map()
   for (const raw of items) {
@@ -6,7 +6,8 @@ function mergeRawOrderItems(items) {
     const productId = String(raw.product_id || '')
     const specs = Array.isArray(raw.specs) ? raw.specs.map(s => String(s)) : []
     const specKey = specs.join('|')
-    const key = `${productId}::${specKey}`
+    const blindFree = !!raw.blind_free
+    const key = `${productId}::${blindFree ? 'blind' : 'paid'}::${specKey}`
     const qty = Number(raw.qty)
     const addQty = Number.isInteger(qty) && qty >= 1 ? qty : NaN
     if (!productId || Number.isNaN(addQty)) {
@@ -19,7 +20,8 @@ function mergeRawOrderItems(items) {
         product_id: productId,
         qty: addQty,
         specs,
-        note: raw.note ? String(raw.note) : ''
+        note: raw.note ? String(raw.note) : '',
+        blind_free: blindFree
       })
     }
   }

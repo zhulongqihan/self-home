@@ -23,6 +23,7 @@ const festivalsRouter = require('./routes/festivals')
 const weatherRouter = require('./routes/weather')
 const timeEggsRouter = require('./routes/timeEggs')
 const achievementsRouter = require('./routes/achievements')
+const blindBoxRouter = require('./routes/blindBox')
 
 const { notFound, errorHandler } = require('./middlewares/errorHandler')
 
@@ -61,12 +62,13 @@ app.use('/api/festivals', festivalsRouter)
 app.use('/api/weather', weatherRouter)
 app.use('/api/time-eggs', timeEggsRouter)
 app.use('/api/achievements', achievementsRouter)
+app.use('/api/blind-box', blindBoxRouter)
 
 // 根路径
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.3.9',
+    version: '0.3.10',
     endpoints: [
       'GET /api/health',
       'POST /api/auth/login',
@@ -89,6 +91,8 @@ app.get('/', (req, res) => {
       'GET /api/weather/kitchen',
       'GET /api/time-eggs/kitchen',
       'GET /api/achievements/wall',
+      'GET /api/blind-box/kitchen',
+      'POST /api/blind-box/shake',
       'GET /api/products',
       'GET /api/products/owner/all',
       'POST /api/products',

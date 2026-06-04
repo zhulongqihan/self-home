@@ -1,0 +1,19 @@
+<view class="sub-page">
+  <page-header title="欢迎页" showBack="{{true}}" backUrl="/pages/owner/settings/index" />
+  <scroll-view class="sub-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="sub-content">
+      <view wx:if="{{loading}}" class="state-text">加载中...</view>
+      <block wx:else>
+        <view class="section">
+          <view class="label">一句话</view>
+          <textarea class="input" value="{{welcomeText}}" maxlength="120" placeholder="今天也要好好吃饭哦～" bindinput="onInputText" />
+        </view>
+        <view class="section">
+          <view class="label">图片 URL</view>
+          <input class="input-line" value="{{welcomeImageUrl}}" placeholder="https://... 或留空用默认" bindinput="onInputImage" />
+        </view>
+        <view class="save-btn" bindtap="onSave">{{saving ? '保存中...' : '保存'}}</view>
+      </block>
+    </view>
+  </scroll-view>
+</view>
