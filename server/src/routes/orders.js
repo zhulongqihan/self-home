@@ -9,6 +9,7 @@ const User = require('../models/User')
 const { notifyOwnerNewOrder, notifyCustomerOrderStatus } = require('../services/orderNotify')
 const { mergeRawOrderItems } = require('../utils/orderItems')
 const { adjustCoins } = require('../services/coinsService')
+const { checkAndUnlock } = require('../services/achievement')
 
 const router = express.Router()
 
@@ -91,7 +92,8 @@ router.post('/', requireAuth, async (req, res, next) => {
         order_id: order._id,
         total_price: order.total_price,
         status: order.status,
-        coins_left: deducted.coins
+        coins_left: deducted.coins,
+        new_badges: await checkAndUnlock(req.user.sub)
       }
     })
     notifyOwnerNewOrder(order.toObject()).catch(err => {

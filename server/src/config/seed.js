@@ -8,6 +8,7 @@ const User = require('../models/User')
 const Category = require('../models/Category')
 const Product = require('../models/Product')
 const { DEFAULT_TIME_EGGS } = require('../services/timeEgg')
+const { DEFAULT_BADGES } = require('../services/achievement')
 const { isDummyImage } = require('../utils/productImage')
 const env = require('./index')
 
@@ -89,6 +90,12 @@ async function seedConfig() {
     cfg.time_easter_eggs = DEFAULT_TIME_EGGS
     await cfg.save()
     console.log('[Seed] 初始化默认时段彩蛋')
+  }
+
+  if (!cfg.badges || cfg.badges.length === 0) {
+    cfg.badges = DEFAULT_BADGES
+    await cfg.save()
+    console.log('[Seed] 初始化默认成就徽章')
   }
 
   console.log('[Seed] Whitelist:',

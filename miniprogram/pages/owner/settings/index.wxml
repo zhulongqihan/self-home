@@ -142,6 +142,63 @@
       </view>
       <view class="save-btn save-btn-secondary" bindtap="onSaveTimeEggs">{{savingTimeEggs ? '保存中...' : '保存时段彩蛋'}}</view>
 
+      <view class="section-head">成就徽章</view>
+      <view class="section">
+        <view class="hint-box">
+          <view class="hint-text">顾客「我的」页展示徽章墙。可配置触发条件；隐藏徽章解锁前显示 ???。</view>
+        </view>
+        <view class="row">
+          <view class="row-label">徽章 ID</view>
+          <input class="input-line" value="{{badgeId}}" placeholder="如 first_order" bindinput="onInputBadgeId" />
+        </view>
+        <view class="row">
+          <view class="row-label">名称</view>
+          <input class="input-line" value="{{badgeName}}" placeholder="初来乍到" bindinput="onInputBadgeName" />
+        </view>
+        <view class="row">
+          <view class="row-label">图标</view>
+          <input class="input-line short" value="{{badgeEmoji}}" placeholder="🏅" bindinput="onInputBadgeEmoji" />
+        </view>
+        <view class="label label-gap">描述</view>
+        <input class="input-line" value="{{badgeDesc}}" placeholder="提交第一笔订单" bindinput="onInputBadgeDesc" />
+        <view class="row">
+          <view class="row-label">触发条件</view>
+          <picker mode="selector" range="{{badgeTriggerLabels}}" value="{{badgeTriggerIndex}}" bindchange="onPickBadgeTrigger">
+            <view class="picker-val">{{badgeTriggerLabels[badgeTriggerIndex]}}</view>
+          </picker>
+        </view>
+        <view class="row">
+          <view class="row-label">阈值</view>
+          <input class="input-line short" type="number" value="{{badgeThreshold}}" bindinput="onInputBadgeThreshold" />
+        </view>
+        <view class="row switch-row">
+          <view class="row-label">隐藏徽章</view>
+          <switch checked="{{badgeHidden}}" color="#E8B86D" bindchange="onToggleBadgeHidden" />
+        </view>
+        <view class="row switch-row">
+          <view class="row-label">启用</view>
+          <switch checked="{{badgeEnabled}}" color="#E8B86D" bindchange="onToggleBadgeEnabled" />
+        </view>
+        <view class="btn-add-slot" bindtap="onAddBadge">+ 添加徽章</view>
+        <view wx:if="{{badgeList.length}}" class="slot-list">
+          <view class="slot-card" wx:for="{{badgeList}}" wx:key="id">
+            <view class="slot-head">
+              <text class="slot-range">{{item.emoji}} {{item.name}}</text>
+              <switch checked="{{item.enabled}}" color="#E8B86D" data-index="{{index}}" bindchange="onToggleBadgeItem" />
+            </view>
+            <view class="slot-text">{{item.description}}</view>
+            <view class="slot-text">ID: {{item.id}} · 阈值 {{item.threshold}}</view>
+            <view class="slot-del" data-index="{{index}}" bindtap="onDeleteBadge">删除</view>
+          </view>
+        </view>
+        <view class="row switch-row">
+          <view class="row-label">预览全部解锁</view>
+          <switch checked="{{badgePreviewAll}}" color="#E8B86D" bindchange="onToggleBadgePreviewAll" />
+        </view>
+        <view class="hint">验收时可开「预览全部解锁」查看徽章墙效果，验收完请关闭</view>
+      </view>
+      <view class="save-btn save-btn-secondary" bindtap="onSaveBadges">{{savingBadges ? '保存中...' : '保存成就徽章'}}</view>
+
       <view class="section-head">彩蛋开关</view>
       <view class="section">
         <view class="egg-row" wx:for="{{eggList}}" wx:key="key">

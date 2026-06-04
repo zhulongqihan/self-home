@@ -6,6 +6,7 @@ const { requireAuth, requireRole } = require('../middlewares/auth')
 const { buildCountdownItems } = require('../services/countdown')
 const { EGG_SWITCH_META, normalizeEggsForOwner } = require('../constants/eggSwitches')
 const { pickTimeEggForOwner, validateTimeEggSlots } = require('../services/timeEgg')
+const { pickBadgesForOwner, validateBadges } = require('../services/achievement')
 
 const router = express.Router()
 
@@ -59,7 +60,8 @@ function pickOwnerConfig(cfg) {
       banner_text: (cfg.weather && cfg.weather.banner_text) || '下雨天，来杯热饮暖暖手～',
       simulate_rainy: !!(cfg.weather && cfg.weather.simulate_rainy)
     },
-    time_egg: pickTimeEggForOwner(cfg)
+    time_egg: pickTimeEggForOwner(cfg),
+    achievement: pickBadgesForOwner(cfg)
   }
 }
 
@@ -295,6 +297,15 @@ function applyOwnerConfigPatch(cfg, body) {
     if (b.time_egg.preview_index !== undefined) {
       const idx = parseInt(b.time_egg.preview_index, 10)
       cfg.time_egg.preview_index = Number.isNaN(idx) ? -1 : Math.max(-1, Math.min(idx, 11))
+    }
+  }
+  if (b.badges !== undefined) {
+    cfg.badges = validateBadges(b.badges)
+  }
+  if (b.achievement && typeof b.achievement === 'object') {
+    if (!cfg.achievement) cfg.achievement = {}
+    if (b.achievement.preview_all !== undefined) {
+      cfg.achievement.preview_all = !!b.achievement.preview_all
     }
   }
 }

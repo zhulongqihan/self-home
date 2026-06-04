@@ -90,6 +90,27 @@ const ConfigSchema = new Schema({
   // 时段彩蛋预览（-1=按当前时间，0+=强制展示某条）
   time_egg: {
     preview_index: { type: Number, default: -1 }
+  },
+
+  // 成就徽章
+  badges: {
+    type: [{
+      _id: false,
+      id: String,
+      name: String,
+      emoji: String,
+      description: String,
+      trigger: String,
+      threshold: Number,
+      hidden: Boolean,
+      enabled: Boolean,
+      sort_order: Number
+    }],
+    default: []
+  },
+
+  achievement: {
+    preview_all: { type: Boolean, default: false }
   }
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

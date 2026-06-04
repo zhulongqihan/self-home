@@ -28,6 +28,8 @@ const THEME_LABELS = ['暖阳大地', '云朵白']
 const THEME_VALUES = ['default', 'cloud']
 const STATUS_LABELS = ['营业中', '休息中']
 const STATUS_VALUES = ['open', 'closed']
+const BADGE_TRIGGER_LABELS = ['连续签到天数', '累计亲亲次数', '累计下单次数']
+const BADGE_TRIGGER_VALUES = ['sign_in_days', 'kiss_total', 'order_count']
 
 function normalizeHHmm(str) {
   const m = String(str || '').trim().match(/^(\d{1,2}):(\d{2})$/)
@@ -83,7 +85,19 @@ Page({
     timeEggEnabled: true,
     timePreviewPicker: 0,
     timePreviewLabels: ['自动（当前时间）'],
-    savingTimeEggs: false
+    savingTimeEggs: false,
+    badgeList: [],
+    badgeId: '',
+    badgeName: '',
+    badgeEmoji: '🏅',
+    badgeDesc: '',
+    badgeTriggerIndex: 0,
+    badgeTriggerLabels: BADGE_TRIGGER_LABELS,
+    badgeThreshold: 1,
+    badgeHidden: false,
+    badgeEnabled: true,
+    badgePreviewAll: false,
+    savingBadges: false
   },
 
   async onLoad() {
@@ -125,6 +139,17 @@ Page({
         ...timeEggSlots.map(s => `${s.start} - ${s.end}`)
       ]
       const timePreviewPicker = previewIndex < 0 ? 0 : previewIndex + 1
+      const achievement = d.achievement || {}
+      const badgeList = (achievement.badges || []).map(b => ({
+        id: b.id || '',
+        name: b.name || '',
+        emoji: b.emoji || '🏅',
+        description: b.description || '',
+        trigger: b.trigger || 'sign_in_days',
+        threshold: b.threshold || 1,
+        hidden: !!b.hidden,
+        enabled: b.enabled !== false
+      }))
       this.setData({
         loading: false,
         storeName: d.store_name || '',
@@ -157,7 +182,9 @@ Page({
         weatherSimulateRainy: !!weather.simulate_rainy,
         timeEggSlots,
         timePreviewPicker,
-        timePreviewLabels
+        timePreviewLabels,
+        badgeList,
+        badgePreviewAll: !!achievement.preview_all
       })
     } catch (err) {
       this.setData({ loading: false })
@@ -283,6 +310,101 @@ Page({
       wx.showToast({ title: err.message || '保存失败', icon: 'none' })
     } finally {
       this.setData({ savingTimeEggs: false })
+    }
+  },
+
+  onInputBadgeId(e) { this.setData({ badgeId: e.detail.value }) },
+  onInputBadgeName(e) { this.setData({ badgeName: e.detail.value }) },
+  onInputBadgeEmoji(e) { this.setData({ badgeEmoji: e.detail.value }) },
+  onInputBadgeDesc(e) { this.setData({ badgeDesc: e.detail.value }) },
+  onInputBadgeThreshold(e) { this.setData({ badgeThreshold: e.detail.value }) },
+  onPickBadgeTrigger(e) { this.setData({ badgeTriggerIndex: parseInt(e.detail.value, 10) || 0 }) },
+  onToggleBadgeHidden(e) { this.setData({ badgeHidden: e.detail.value }) },
+  onToggleBadgeEnabled(e) { this.setData({ badgeEnabled: e.detail.value }) },
+  onToggleBadgePreviewAll(e) { this.setData({ badgePreviewAll: e.detail.value }) },
+
+  triggerLabel(trigger) {
+    const idx = BADGE_TRIGGER_VALUES.indexOf(trigger)
+    return idx >= 0 ? BADGE_TRIGGER_LABELS[idx] : trigger
+  },
+
+  onAddBadge() {
+    const id = (this.data.badgeId || '').trim().toLowerCase()
+    const name = (this.data.badgeName || '').trim()
+    const description = (this.data.badgeDesc || '').trim()
+    const threshold = parseInt(this.data.badgeThreshold, 10) || 1
+    if (!id || !/^[a-z][a-z0-9_]{0,31}$/.test(id)) {
+      wx.showToast({ title: 'ID 须小写字母开头', icon: 'none' })
+      return
+    }
+    if (!name || !description) {
+      wx.showToast({ title: '请填写名称与描述', icon: 'none' })
+      return
+    }
+    if (this.data.badgeList.some(b => b.id === id)) {
+      wx.showToast({ title: 'ID 已存在', icon: 'none' })
+      return
+    }
+    const badge = {
+      id,
+      name,
+      emoji: (this.data.badgeEmoji || '🏅').trim() || '🏅',
+      description,
+      trigger: BADGE_TRIGGER_VALUES[this.data.badgeTriggerIndex] || 'sign_in_days',
+      threshold: Math.max(1, threshold),
+      hidden: this.data.badgeHidden,
+      enabled: this.data.badgeEnabled
+    }
+    this.setData({
+      badgeList: [...this.data.badgeList, badge],
+      badgeId: '',
+      badgeName: '',
+      badgeEmoji: '🏅',
+      badgeDesc: '',
+      badgeThreshold: 1,
+      badgeHidden: false,
+      badgeEnabled: true
+    })
+  },
+
+  onToggleBadgeItem(e) {
+    const index = e.currentTarget.dataset.index
+    const enabled = e.detail.value
+    const badgeList = this.data.badgeList.map((b, i) => (
+      i === index ? { ...b, enabled } : b
+    ))
+    this.setData({ badgeList })
+  },
+
+  onDeleteBadge(e) {
+    const index = e.currentTarget.dataset.index
+    wx.showModal({
+      title: '删除徽章',
+      content: '确定删除该成就徽章？',
+      success: (res) => {
+        if (!res.confirm) return
+        this.setData({ badgeList: this.data.badgeList.filter((_, i) => i !== index) })
+      }
+    })
+  },
+
+  async onSaveBadges() {
+    if (this.data.savingBadges) return
+    if (!this.data.badgeList.length) {
+      wx.showToast({ title: '请至少保留一个徽章', icon: 'none' })
+      return
+    }
+    this.setData({ savingBadges: true })
+    try {
+      await put('/api/config/owner', {
+        badges: this.data.badgeList,
+        achievement: { preview_all: this.data.badgePreviewAll }
+      })
+      wx.showToast({ title: '成就徽章已保存', icon: 'success' })
+    } catch (err) {
+      wx.showToast({ title: err.message || '保存失败', icon: 'none' })
+    } finally {
+      this.setData({ savingBadges: false })
     }
   },
 

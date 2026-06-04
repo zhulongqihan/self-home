@@ -5,6 +5,7 @@ const Config = require('../models/Config')
 const { requireAuth, requireRole } = require('../middlewares/auth')
 const { adjustCoins } = require('../services/coinsService')
 const { notifyOwnerKiss } = require('../services/orderNotify')
+const { checkAndUnlock } = require('../services/achievement')
 
 const router = express.Router()
 
@@ -90,13 +91,15 @@ router.post('/kiss', requireAuth, requireRole('customer'), async (req, res, next
     const coins = await adjustCoins(uid, 1)
     await User.findByIdAndUpdate(uid, { $inc: { kiss_count_total: 1 } })
 
+    const newBadges = await checkAndUnlock(uid)
+
     notifyOwnerKiss().catch(err => {
       console.warn('[coins] notifyOwnerKiss:', err.message)
     })
 
     res.json({
       status: 'ok',
-      data: { coins, kiss_today: kissToday + 1 }
+      data: { coins, kiss_today: kissToday + 1, new_badges: newBadges }
     })
   } catch (err) {
     next(err)

@@ -1,6 +1,7 @@
 const express = require('express')
 const User = require('../models/User')
 const { requireAuth, requireRole } = require('../middlewares/auth')
+const { checkAndUnlock } = require('../services/achievement')
 
 const router = express.Router()
 
@@ -42,14 +43,19 @@ router.post('/', requireAuth, requireRole('customer'), async (req, res, next) =>
     let reward = 2
     let bonus = 0
     if (continuous > 0 && continuous % 7 === 0) {
-      bonus = 10
-      reward += bonus
+      bonus += 10
     }
+    if (continuous > 0 && continuous % 30 === 0) {
+      bonus += 50
+    }
+    reward += bonus
 
     user.coins = (user.coins || 0) + reward
     user.continuous_sign_days = continuous
     user.last_sign_date = today
     await user.save()
+
+    const newBadges = await checkAndUnlock(user._id)
 
     res.json({
       status: 'ok',
@@ -57,7 +63,8 @@ router.post('/', requireAuth, requireRole('customer'), async (req, res, next) =>
         coins: user.coins,
         reward,
         bonus,
-        continuous_sign_days: continuous
+        continuous_sign_days: continuous,
+        new_badges: newBadges
       }
     })
   } catch (err) {

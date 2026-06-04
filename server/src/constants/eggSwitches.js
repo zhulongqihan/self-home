@@ -4,6 +4,7 @@ const EGG_SWITCH_META = [
   { key: 'birthday_egg', label: '生日彩蛋', default: true },
   { key: 'weather_link', label: '天气联动', default: true },
   { key: 'time_easter_egg', label: '时段彩蛋', default: true },
+  { key: 'achievement_badges', label: '成就徽章', default: true },
   { key: 'owner_daily_message', label: '店长每日留言', default: true },
   { key: 'share_square', label: '晒单广场', default: true },
   { key: 'daily_sign_in', label: '每日签到', default: true },

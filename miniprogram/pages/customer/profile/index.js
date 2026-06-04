@@ -18,7 +18,12 @@ Page({
     signing: false,
     loading: true,
     countdownItems: [],
-    countdownLoading: true
+    countdownLoading: true,
+    badgeEnabled: false,
+    badgeLoading: true,
+    badges: [],
+    badgeUnlocked: 0,
+    badgeTotal: 0
   },
 
   onShow() {
@@ -28,6 +33,30 @@ Page({
     this.setData({ user: getUser(), store: getStore() })
     this.fetchCoins()
     this.fetchCountdowns()
+    this.fetchBadges()
+  },
+
+  showNewBadgesToast(list) {
+    if (!Array.isArray(list) || !list.length) return
+    const names = list.map(b => `${b.emoji || ''}${b.name || ''}`).join('、')
+    wx.showToast({ title: `解锁成就 ${names}`, icon: 'none', duration: 2500 })
+  },
+
+  async fetchBadges() {
+    this.setData({ badgeLoading: true })
+    try {
+      const resp = await get('/api/achievements/wall')
+      const d = resp.data || {}
+      this.setData({
+        badgeLoading: false,
+        badgeEnabled: !!d.enabled,
+        badges: d.badges || [],
+        badgeUnlocked: d.unlocked_count || 0,
+        badgeTotal: d.total || 0
+      })
+    } catch (err) {
+      this.setData({ badgeLoading: false, badgeEnabled: false })
+    }
   },
 
   async fetchCountdowns() {
@@ -86,6 +115,8 @@ Page({
         kissToday: (resp.data && resp.data.kiss_today) || this.data.kissToday + 1,
         user
       })
+      this.showNewBadgesToast(resp.data && resp.data.new_badges)
+      this.fetchBadges()
     } catch (err) {
       this.setData({ kissing: false })
       wx.showToast({ title: err.message || '亲亲失败', icon: 'none' })
@@ -114,6 +145,8 @@ Page({
         continuousSignDays: d.continuous_sign_days || 0,
         user
       })
+      this.showNewBadgesToast(d.new_badges)
+      this.fetchBadges()
     } catch (err) {
       this.setData({ signing: false })
       wx.showToast({ title: err.message || '签到失败', icon: 'none' })
