@@ -1,5 +1,6 @@
-const { post } = require('../../../utils/request')
+const { get, post } = require('../../../utils/request')
 const { getCart, updateQty, clearCart } = require('../../../utils/cart')
+const { insufficientCoinsMessage } = require('../../../utils/orderCoins.js')
 const { requestSubscribeByRole } = require('../../../utils/subscribe.js')
 
 Page({
@@ -57,9 +58,31 @@ Page({
     }
 
     this._submitting = true
-    wx.showLoading({ title: '提交中', mask: true })
     try {
       await requestSubscribeByRole()
+      const { totalPrice } = this.data
+      if (totalPrice > 0) {
+        let coins = null
+        const user = wx.getStorageSync('auth_user')
+        if (user && user.coins != null) coins = Number(user.coins)
+        try {
+          const me = await get('/api/coins/me')
+          if (me.data && me.data.coins != null) {
+            coins = Number(me.data.coins)
+            if (user) {
+              user.coins = coins
+              wx.setStorageSync('auth_user', user)
+            }
+          }
+        } catch (_) {}
+        const blockMsg = insufficientCoinsMessage(totalPrice, coins)
+        if (blockMsg) {
+          wx.showModal({ title: '余额不足', content: blockMsg, showCancel: false })
+          return
+        }
+      }
+
+      wx.showLoading({ title: '提交中', mask: true })
       const payload = {
         items: items.map(i => ({
           product_id: i.product_id,
@@ -87,7 +110,11 @@ Page({
         success: () => wx.switchTab({ url: '/pages/customer/orders/index' })
       })
     } catch (err) {
-      wx.showToast({ title: err.message || '下单失败', icon: 'none' })
+      wx.showModal({
+        title: '下单失败',
+        content: err.message || '请稍后重试',
+        showCancel: false
+      })
     } finally {
       wx.hideLoading()
       this._submitting = false

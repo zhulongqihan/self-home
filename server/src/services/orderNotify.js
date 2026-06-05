@@ -1,6 +1,7 @@
 const User = require('../models/User')
 const env = require('../config')
 const { sendSubscribeMessage } = require('./wxSubscribe')
+const { resolveOwnerOpenid } = require('./ownerNotify')
 const { STATUS_TEXT } = require('./orderStatus')
 
 function fmtTime(d = new Date()) {
@@ -45,12 +46,15 @@ async function getUserOpenid(userId) {
 /** 新订单 → 通知店长 */
 async function notifyOwnerNewOrder(order) {
   const tmpl = env.wx.templates.ownerNewOrder
-  if (!tmpl) return false
-  const owner = await User.findOne({ role: 'owner', openid: { $exists: true, $ne: '' } })
-    .select('openid')
-    .lean()
-  if (!owner || !owner.openid) return false
-  // 模板「订单受理通知」：订单号/金额/内容/时间/备注
+  if (!tmpl) {
+    console.warn('[orderNotify] notifyOwnerNewOrder: 未配置 WX_TEMPLATE_OWNER_NEW_ORDER')
+    return false
+  }
+  const openid = await resolveOwnerOpenid()
+  if (!openid) {
+    console.warn('[orderNotify] notifyOwnerNewOrder: 无店长 openid，请微信登录或绑定')
+    return false
+  }
   const data = {
     character_string1: { value: orderNo(order) },
     amount2: { value: fmtAmount(order.total_price) },
@@ -58,12 +62,14 @@ async function notifyOwnerNewOrder(order) {
     time4: { value: fmtTime(order.created_at || new Date()) },
     thing5: { value: '请及时确认订单' }
   }
-  return sendSubscribeMessage({
-    openid: owner.openid,
+  const ok = await sendSubscribeMessage({
+    openid,
     templateId: tmpl,
     page: 'pages/owner/orders/index',
     data
   })
+  if (!ok) console.warn('[orderNotify] notifyOwnerNewOrder: 发送失败（需店长在小程序点「允许」订阅）')
+  return ok
 }
 
 /** 状态变更 → 通知顾客 */
@@ -91,10 +97,8 @@ async function notifyCustomerOrderStatus(order, status) {
 async function notifyOwnerKiss() {
   const tmpl = env.wx.templates.ownerNewOrder
   if (!tmpl) return false
-  const owner = await User.findOne({ role: 'owner', openid: { $exists: true, $ne: '' } })
-    .select('openid')
-    .lean()
-  if (!owner || !owner.openid) return false
+  const openid = await resolveOwnerOpenid()
+  if (!openid) return false
   const data = {
     character_string1: { value: '亲亲' },
     amount2: { value: '1币' },
@@ -103,7 +107,7 @@ async function notifyOwnerKiss() {
     thing5: { value: '快去看看她吧' }
   }
   return sendSubscribeMessage({
-    openid: owner.openid,
+    openid,
     templateId: tmpl,
     page: 'pages/owner/index/index',
     data
@@ -114,10 +118,8 @@ async function notifyOwnerKiss() {
 async function notifyOwnerEmotionOrder(order, emotionLines, customerNickname) {
   const tmpl = env.wx.templates.ownerNewOrder
   if (!tmpl) return false
-  const owner = await User.findOne({ role: 'owner', openid: { $exists: true, $ne: '' } })
-    .select('openid')
-    .lean()
-  if (!owner || !owner.openid) return false
+  const openid = await resolveOwnerOpenid()
+  if (!openid) return false
 
   const names = (emotionLines || [])
     .map(l => `${l.product_name || '商品'}×${l.qty || 1}`)
@@ -132,7 +134,7 @@ async function notifyOwnerEmotionOrder(order, emotionLines, customerNickname) {
     thing5: { value: `情绪预警·${(customerNickname || '她').slice(0, 6)}需要关心` }
   }
   return sendSubscribeMessage({
-    openid: owner.openid,
+    openid,
     templateId: tmpl,
     page: 'pages/owner/orders/index',
     data

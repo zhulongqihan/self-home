@@ -1,7 +1,7 @@
 // 店长端工作台
 const { getUser, getStore, getToken, logout } = require('../../../utils/auth.js')
 const { get, post } = require('../../../utils/request.js')
-const { requestSubscribeByRole } = require('../../../utils/subscribe.js')
+const { ensureOwnerOrderNotifyReady } = require('../../../utils/ownerSubscribe.js')
 
 Page({
   data: {
@@ -23,7 +23,7 @@ Page({
     })
     this.fetchKissStats()
     this.fetchEmotionAlert()
-    requestSubscribeByRole()
+    ensureOwnerOrderNotifyReady()
   },
 
   async fetchKissStats() {

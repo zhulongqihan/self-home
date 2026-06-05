@@ -17,7 +17,9 @@ const config = {
     templates: {
       ownerNewOrder: process.env.WX_TEMPLATE_OWNER_NEW_ORDER || '',
       customerOrderStatus: process.env.WX_TEMPLATE_CUSTOMER_ORDER_STATUS || ''
-    }
+    },
+    /** 体验版用 trial；正式版用 formal */
+    miniprogramState: process.env.WX_MINIPROGRAM_STATE || 'trial'
   },
 
   jwt: {

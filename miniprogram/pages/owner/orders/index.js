@@ -1,6 +1,6 @@
 const { get, patch } = require('../../../utils/request')
 const { formatOrder, getNextStatuses, ACTION_TEXT } = require('../../../utils/orderStatus')
-const { requestSubscribeByRole } = require('../../../utils/subscribe')
+const { ensureOwnerOrderNotifyReady } = require('../../../utils/ownerSubscribe')
 
 Page({
   data: {
@@ -12,7 +12,7 @@ Page({
 
   onShow() {
     this.fetchOrders()
-    requestSubscribeByRole()
+    ensureOwnerOrderNotifyReady()
   },
 
   async fetchOrders() {

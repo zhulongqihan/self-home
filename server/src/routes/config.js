@@ -4,6 +4,22 @@ const env = require('../config')
 const { requireAuth, requireRole } = require('../middlewares/auth')
 
 const { buildCountdownItems } = require('../services/countdown')
+const { applyFixedDates, getFixedDatesPayload } = require('../constants/fixedDates')
+const { resolveOwnerOpenid } = require('../services/ownerNotify')
+
+const FIXED_DATE_KEYS = ['relationship_start', 'anniversary_date', 'customer_birthday', 'owner_birthday']
+
+function rejectFixedDatePatch(body) {
+  const b = body || {}
+  for (const key of FIXED_DATE_KEYS) {
+    if (b[key] !== undefined) {
+      const err = new Error('重要日期已在系统中固定，无法在后台修改')
+      err.status = 400
+      err.code = 'FIXED_DATES'
+      throw err
+    }
+  }
+}
 const { EGG_SWITCH_META, normalizeEggsForOwner } = require('../constants/eggSwitches')
 const { pickTimeEggForOwner, validateTimeEggSlots } = require('../services/timeEgg')
 const { pickBadgesForOwner, validateBadges } = require('../services/achievement')
@@ -51,9 +67,7 @@ function pickOwnerConfig(cfg) {
       title: discover.title || '',
       desc: discover.desc || ''
     },
-    relationship_start: cfg.relationship_start || '',
-    anniversary_date: cfg.anniversary_date || '',
-    customer_birthday: cfg.customer_birthday || '',
+    ...getFixedDatesPayload(),
     eggs_switch: normalizeEggsForOwner(cfg.eggs_switch),
     egg_meta: EGG_SWITCH_META,
     weather: {
@@ -71,13 +85,32 @@ function pickOwnerConfig(cfg) {
 
 function pickCountdownConfig(cfg) {
   if (!cfg) return null
+  const merged = applyFixedDates(cfg)
   return {
-    relationship_start: cfg.relationship_start || '',
-    anniversary_date: cfg.anniversary_date || '',
-    customer_birthday: cfg.customer_birthday || '',
-    items: buildCountdownItems(cfg)
+    ...getFixedDatesPayload(),
+    items: buildCountdownItems(merged)
   }
 }
+
+/** GET /api/config/notify-status - 店长：订阅推送是否配置完整 */
+router.get('/notify-status', requireAuth, requireRole('owner'), async (req, res, next) => {
+  try {
+    const openid = await resolveOwnerOpenid()
+    res.json({
+      status: 'ok',
+      data: {
+        template_configured: !!env.wx.templates.ownerNewOrder,
+        owner_openid_ready: !!openid,
+        miniprogram_state: env.wx.miniprogramState || 'trial',
+        hint: openid
+          ? '请在店长工作台点「去开启」并允许订阅；她下单后即可收微信通知'
+          : '请用店长微信打开小程序并完成绑定'
+      }
+    })
+  } catch (err) {
+    next(err)
+  }
+})
 
 /** GET /api/config/subscribe - 当前角色可用的订阅消息模板 ID（供前端 requestSubscribeMessage） */
 router.get('/subscribe', requireAuth, async (req, res) => {
@@ -124,9 +157,9 @@ router.get('/countdowns/owner', requireAuth, requireRole('owner'), async (req, r
     res.json({
       status: 'ok',
       data: {
-        relationship_start: cfg.relationship_start || '',
-        anniversary_date: cfg.anniversary_date || '',
-        customer_birthday: cfg.customer_birthday || ''
+        ...getFixedDatesPayload(),
+        owner_nickname: cfg.owner_nickname || '店长',
+        customer_nickname: cfg.customer_nickname || '宝宝'
       }
     })
   } catch (err) {
@@ -134,40 +167,13 @@ router.get('/countdowns/owner', requireAuth, requireRole('owner'), async (req, r
   }
 })
 
-/** PUT /api/config/countdowns - 店长修改倒计时日期 */
-router.put('/countdowns', requireAuth, requireRole('owner'), async (req, res, next) => {
-  try {
-    const { relationship_start, anniversary_date, customer_birthday } = req.body || {}
-    const cfg = await Config.findById('global')
-    if (!cfg) {
-      return res.status(500).json({ status: 'error', code: 'CONFIG_MISSING', message: '服务端未初始化' })
-    }
-    if (relationship_start !== undefined) {
-      const v = String(relationship_start).trim()
-      if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-        return res.status(400).json({ status: 'error', code: 'INVALID_DATE', message: '在一起日期请用 YYYY-MM-DD' })
-      }
-      cfg.relationship_start = v
-    }
-    if (anniversary_date !== undefined) {
-      const v = String(anniversary_date).trim()
-      if (v && !/^\d{2}-\d{2}$/.test(v)) {
-        return res.status(400).json({ status: 'error', code: 'INVALID_DATE', message: '纪念日请用 MM-DD' })
-      }
-      cfg.anniversary_date = v
-    }
-    if (customer_birthday !== undefined) {
-      const v = String(customer_birthday).trim()
-      if (v && !/^\d{2}-\d{2}$/.test(v)) {
-        return res.status(400).json({ status: 'error', code: 'INVALID_DATE', message: '生日请用 MM-DD' })
-      }
-      cfg.customer_birthday = v
-    }
-    await cfg.save()
-    res.json({ status: 'ok', data: pickCountdownConfig(cfg) })
-  } catch (err) {
-    next(err)
-  }
+/** PUT /api/config/countdowns - 已固定，禁止修改 */
+router.put('/countdowns', requireAuth, requireRole('owner'), async (req, res) => {
+  res.status(400).json({
+    status: 'error',
+    code: 'FIXED_DATES',
+    message: '重要日期已在系统中固定，无法在后台修改'
+  })
 })
 
 /** GET /api/config/welcome - 店长读取欢迎页配置 */
@@ -215,6 +221,7 @@ router.get('/owner', requireAuth, requireRole('owner'), async (req, res, next) =
 
 function applyOwnerConfigPatch(cfg, body) {
   const b = body || {}
+  rejectFixedDatePatch(b)
   if (b.store_name !== undefined) cfg.store_name = String(b.store_name).trim().slice(0, 40)
   if (b.owner_nickname !== undefined) cfg.owner_nickname = String(b.owner_nickname).trim().slice(0, 20)
   if (b.customer_nickname !== undefined) cfg.customer_nickname = String(b.customer_nickname).trim().slice(0, 20)
@@ -239,36 +246,6 @@ function applyOwnerConfigPatch(cfg, body) {
     if (b.discover_placeholder.desc !== undefined) {
       cfg.discover_placeholder.desc = String(b.discover_placeholder.desc).trim().slice(0, 80)
     }
-  }
-  if (b.relationship_start !== undefined) {
-    const v = String(b.relationship_start).trim()
-    if (v && !/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-      const err = new Error('在一起日期请用 YYYY-MM-DD')
-      err.status = 400
-      err.code = 'INVALID_DATE'
-      throw err
-    }
-    cfg.relationship_start = v
-  }
-  if (b.anniversary_date !== undefined) {
-    const v = String(b.anniversary_date).trim()
-    if (v && !/^\d{2}-\d{2}$/.test(v)) {
-      const err = new Error('纪念日请用 MM-DD')
-      err.status = 400
-      err.code = 'INVALID_DATE'
-      throw err
-    }
-    cfg.anniversary_date = v
-  }
-  if (b.customer_birthday !== undefined) {
-    const v = String(b.customer_birthday).trim()
-    if (v && !/^\d{2}-\d{2}$/.test(v)) {
-      const err = new Error('生日请用 MM-DD')
-      err.status = 400
-      err.code = 'INVALID_DATE'
-      throw err
-    }
-    cfg.customer_birthday = v
   }
   if (b.eggs_switch && typeof b.eggs_switch === 'object') {
     if (!cfg.eggs_switch) cfg.eggs_switch = new Map()

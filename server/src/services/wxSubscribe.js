@@ -42,7 +42,7 @@ async function sendSubscribeMessage({ openid, templateId, page, data }) {
         touser: openid,
         template_id: templateId,
         page: page || '',
-        miniprogram_state: 'formal',
+        miniprogram_state: env.wx.miniprogramState || 'trial',
         lang: 'zh_CN',
         data: data || {}
       },

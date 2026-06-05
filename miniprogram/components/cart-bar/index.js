@@ -1,6 +1,15 @@
 const { getCartStats, updateQty, clearCart } = require('../../utils/cart.js')
-const { post } = require('../../utils/request.js')
+const { get, post } = require('../../utils/request.js')
+const { insufficientCoinsMessage } = require('../../utils/orderCoins.js')
 const { requestSubscribeByRole } = require('../../utils/subscribe.js')
+
+function showOrderError(message) {
+  wx.showModal({
+    title: '下单失败',
+    content: message || '请稍后重试',
+    showCancel: false
+  })
+}
 
 Component({
   properties: {
@@ -83,9 +92,32 @@ Component({
       }
 
       this.setData({ submitting: true })
-      wx.showLoading({ title: '提交中', mask: true })
       try {
+        // 订阅弹窗不能与 showLoading 遮罩同时存在，否则真机会一直「提交中」
         await requestSubscribeByRole()
+        const { totalPrice } = getCartStats()
+        if (totalPrice > 0) {
+          let coins = null
+          const user = wx.getStorageSync('auth_user')
+          if (user && user.coins != null) coins = Number(user.coins)
+          try {
+            const me = await get('/api/coins/me')
+            if (me.data && me.data.coins != null) {
+              coins = Number(me.data.coins)
+              if (user) {
+                user.coins = coins
+                wx.setStorageSync('auth_user', user)
+              }
+            }
+          } catch (_) {}
+          const blockMsg = insufficientCoinsMessage(totalPrice, coins)
+          if (blockMsg) {
+            showOrderError(blockMsg)
+            return
+          }
+        }
+
+        wx.showLoading({ title: '提交中', mask: true })
         const resp = await post('/api/orders', {
           items: items.map(i => ({
             product_id: i.product_id,
@@ -125,7 +157,7 @@ Component({
           success: () => this.triggerEvent('ordersuccess', { total_price: total })
         })
       } catch (err) {
-        wx.showToast({ title: err.message || '下单失败', icon: 'none' })
+        showOrderError(err.message || '下单失败')
       } finally {
         wx.hideLoading()
         this.setData({ submitting: false })

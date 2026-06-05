@@ -4,6 +4,9 @@
   "description": "情侣专属点单小程序 - 后端服务",
   "main": "src/app.js",
   "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:unit": "node --test tests/orderItems.test.js tests/orderCoins.test.js tests/subscribeCore.test.js",
+    "test:integration": "node --test tests/orderApi.integration.test.js",
     "start": "node src/app.js",
     "dev": "node --watch src/app.js",
     "pm2:start": "pm2 start ecosystem.config.js",

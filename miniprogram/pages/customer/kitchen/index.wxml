@@ -25,7 +25,7 @@
     <view class="blind-hint-text">
       <text class="blind-hint-title">🎲 {{blindBox.title}}</text>
       <text class="blind-hint-sub">{{blindBox.hint}}</text>
-      <text class="blind-hint-meta">今日剩余 {{blindBox.shakesLeft}} 次 · 从全店在售商品随机</text>
+      <text class="blind-hint-meta">今日剩余 {{blindBox.shakesLeft}} 次 · 点左下角 🎲 开盒（需手动点，不会自动摇）</text>
     </view>
   </view>
   <view class="search-row">
@@ -174,9 +174,9 @@
   </view>
 
   <view
-    wx:if="{{blindBox && blindBox.shakesLeft > 0 && blindBox.poolCount > 0}}"
+    wx:if="{{blindBox && blindBox.shakesLeft > 0 && blindBox.poolCount > 0 && !drawerOpen}}"
     class="blind-float {{blindShaking ? 'shaking' : ''}}"
-    bindtap="onTapBlindShake"
+    catchtap="onTapBlindShake"
   >
     <text class="blind-float-emoji">🎲</text>
     <text class="blind-float-text">{{blindBox.buttonText}}</text>

@@ -36,6 +36,7 @@ Page({
   onShow() {
     if (this._showBusy) return
     this._showBusy = true
+    this._blindInteractAt = Date.now() + 2000
     try {
       this.refreshCartBar()
       if (typeof this.getTabBar === 'function') {
@@ -58,13 +59,8 @@ Page({
 
   onHide() {
     this.setData({ specVisible: false, specProduct: null, drawerOpen: false, blindRevealVisible: false })
-    this.stopBlindBoxListener()
     this.dismissBulletMessage()
     wx.hideLoading()
-  },
-
-  onUnload() {
-    this.stopBlindBoxListener()
   },
 
   scheduleKitchenLoad() {
@@ -206,60 +202,24 @@ Page({
 
   applyBlindBox(blindData) {
     if (!blindData || !blindData.enabled) {
-      this.stopBlindBoxListener()
       return { blindBox: null }
     }
     const blindBox = {
       title: blindData.title || '摇一摇开盲盒',
-      hint: blindData.hint || '',
-      buttonText: blindData.button_text || '点我摇一下',
+      hint: blindData.hint || '点左下角骰子开盲盒（不会自动摇）',
+      buttonText: blindData.button_text || '开盲盒',
       shakesLeft: blindData.shakes_left || 0,
-      poolCount: blindData.pool_count || 0,
-      simulateShake: !!blindData.simulate_shake
+      poolCount: blindData.pool_count || 0
     }
-    this.startBlindBoxListener(blindBox)
     return { blindBox }
   },
 
-  startBlindBoxListener(blindBox) {
-    if (!blindBox || blindBox.shakesLeft <= 0 || blindBox.poolCount <= 0) {
-      this.stopBlindBoxListener()
-      return
-    }
-    if (this.data.drawerOpen || this.data.specVisible || this.data.blindRevealVisible) {
-      this.stopBlindBoxListener()
-      return
-    }
-    if (this._accelStarted) return
-    this._accelStarted = true
-    this._lastAccel = { x: 0, y: 0, z: 0 }
-    this._lastShakeAt = 0
-    wx.startAccelerometer({ interval: 'game' })
-    wx.onAccelerometerChange(this._onAccelerometerChange = (res) => {
-      const { x, y, z } = res
-      const delta = Math.abs(x + y + z - this._lastAccel.x - this._lastAccel.y - this._lastAccel.z)
-      this._lastAccel = { x, y, z }
-      if (delta > 1.15 && Date.now() - this._lastShakeAt > 2200) {
-        if (this.data.drawerOpen || this.data.specVisible || this.data.blindRevealVisible || this.data.blindShaking) {
-          return
-        }
-        this._lastShakeAt = Date.now()
-        this.doBlindShake()
-      }
-    })
-  },
-
-  stopBlindBoxListener() {
-    if (!this._accelStarted) return
-    this._accelStarted = false
-    if (this._onAccelerometerChange) {
-      wx.offAccelerometerChange(this._onAccelerometerChange)
-      this._onAccelerometerChange = null
-    }
-    wx.stopAccelerometer()
-  },
-
   onTapBlindShake() {
+    if (this._blindInteractAt && Date.now() < this._blindInteractAt) return
+    if (this.data.drawerOpen) {
+      wx.showToast({ title: '请先收起购物车', icon: 'none' })
+      return
+    }
     this.doBlindShake()
   },
 
@@ -292,7 +252,6 @@ Page({
         blindRevealProduct: product,
         blindRevealVisible: true
       })
-      if (blindBox.shakesLeft <= 0) this.stopBlindBoxListener()
       wx.showToast({ title: '恭喜开盒！', icon: 'success' })
     } catch (err) {
       wx.showToast({ title: err.message || '摇一摇失败', icon: 'none' })
@@ -303,7 +262,6 @@ Page({
 
   onCloseBlindReveal() {
     this.setData({ blindRevealVisible: false, blindRevealProduct: null })
-    if (this.data.blindBox) this.startBlindBoxListener(this.data.blindBox)
   },
 
   onBlindAddToCart() {
@@ -463,7 +421,6 @@ Page({
 
   onSpecClose() {
     this.setData({ specVisible: false, specProduct: null })
-    if (this.data.blindBox) this.startBlindBoxListener(this.data.blindBox)
   },
 
   onSpecAdded() {
@@ -472,15 +429,11 @@ Page({
   },
 
   onToggleDrawer() {
-    const open = !this.data.drawerOpen
-    this.setData({ drawerOpen: open })
-    if (open) this.stopBlindBoxListener()
-    else if (this.data.blindBox) this.startBlindBoxListener(this.data.blindBox)
+    this.setData({ drawerOpen: !this.data.drawerOpen })
   },
 
   onDrawerClose() {
     this.setData({ drawerOpen: false })
-    if (this.data.blindBox) this.startBlindBoxListener(this.data.blindBox)
   },
 
   onCartUpdated() {

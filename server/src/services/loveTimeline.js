@@ -2,6 +2,7 @@ const Config = require('../models/Config')
 const Order = require('../models/Order')
 const Achievement = require('../models/Achievement')
 const { resolveEggSwitch } = require('../constants/eggSwitches')
+const { applyFixedDates } = require('../constants/fixedDates')
 const { daysTogether } = require('./countdown')
 const { getEmotionProductIdSet } = require('./emotionAlert')
 
@@ -114,7 +115,8 @@ function buildBadgeEvents(unlocks, badgeMap) {
 }
 
 async function getCustomerLoveTimeline(userId) {
-  const cfg = await Config.findById('global').lean()
+  const rawCfg = await Config.findById('global').lean()
+  const cfg = applyFixedDates(rawCfg)
   const enabled = resolveEggSwitch(cfg && cfg.eggs_switch, 'love_timeline')
   const placeholder = (cfg && cfg.discover_placeholder) || {}
 

@@ -147,6 +147,67 @@ router.post('/login-password', async (req, res, next) => {
 })
 
 /**
+ * POST /api/auth/bind-wx
+ * 暗号登录后绑定当前微信 openid（用于订阅消息推送）
+ * body: { code } — wx.login 的 code
+ */
+router.post('/bind-wx', requireAuth, async (req, res, next) => {
+  try {
+    const { code } = req.body || {}
+    if (!code) {
+      return res.status(400).json({ status: 'error', code: 'MISSING_CODE', message: '缺少 code' })
+    }
+
+    const { openid } = await code2session(code)
+    const user = await User.findById(req.user.sub)
+    if (!user) {
+      return res.status(404).json({ status: 'error', code: 'USER_NOT_FOUND', message: '用户不存在' })
+    }
+
+    const cfg = await Config.findById('global')
+    if (!cfg) {
+      return res.status(500).json({ status: 'error', code: 'CONFIG_MISSING', message: '服务端未初始化' })
+    }
+
+    if (user.role === 'owner') {
+      const allowed = cfg.whitelist.owner_openid
+      if (allowed && openid !== allowed) {
+        return res.status(403).json({
+          status: 'error',
+          code: 'OPENID_MISMATCH',
+          message: '请用店长微信打开小程序后再绑定'
+        })
+      }
+      if (!allowed) cfg.whitelist.owner_openid = openid
+      user.openid = openid
+      await cfg.save()
+      await user.save()
+      return res.json({ status: 'ok', data: { bound: true, role: 'owner' } })
+    }
+
+    if (user.role === 'customer') {
+      const allowed = cfg.whitelist.customer_openid
+      if (allowed && openid !== allowed) {
+        return res.status(403).json({
+          status: 'error',
+          code: 'OPENID_MISMATCH',
+          message: '请用顾客微信打开小程序后再绑定'
+        })
+      }
+      if (!allowed) cfg.whitelist.customer_openid = openid
+      user.openid = openid
+      await cfg.save()
+      await user.save()
+      return res.json({ status: 'ok', data: { bound: true, role: 'customer' } })
+    }
+
+    return res.status(403).json({ status: 'error', code: 'FORBIDDEN', message: '无法绑定' })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/auth/me - 校验 token，返回当前用户
  */
 router.get('/me', requireAuth, async (req, res, next) => {

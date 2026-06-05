@@ -29,7 +29,8 @@ function daysUntilNextMMDD(mmdd) {
 
 function buildCountdownItems(cfg) {
   if (!cfg) return []
-  const nickname = cfg.customer_nickname || '宝宝'
+  const customerNickname = cfg.customer_nickname || '宝宝'
+  const ownerNickname = cfg.owner_nickname || '店长'
   const items = []
 
   const together = daysTogether(cfg.relationship_start)
@@ -42,9 +43,14 @@ function buildCountdownItems(cfg) {
     items.push({ key: 'anniversary', label: '距纪念日', value: anni, unit: '天' })
   }
 
-  const bday = daysUntilNextMMDD(cfg.customer_birthday)
-  if (bday != null) {
-    items.push({ key: 'birthday', label: `距${nickname}生日`, value: bday, unit: '天' })
+  const customerBday = daysUntilNextMMDD(cfg.customer_birthday)
+  if (customerBday != null) {
+    items.push({ key: 'birthday', label: `距${customerNickname}生日`, value: customerBday, unit: '天' })
+  }
+
+  const ownerBday = daysUntilNextMMDD(cfg.owner_birthday)
+  if (ownerBday != null) {
+    items.push({ key: 'owner_birthday', label: `距${ownerNickname}生日`, value: ownerBday, unit: '天' })
   }
 
   return items

@@ -371,17 +371,19 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* 放左侧并抬高，避免与右侧「下单」误触 */
 .blind-float {
   position: fixed;
-  right: 24rpx;
-  bottom: calc(var(--tab-bar-total-h) + var(--cart-bar-h) + 24rpx);
-  z-index: 120;
+  left: 24rpx;
+  right: auto;
+  bottom: calc(var(--tab-bar-total-h) + var(--cart-bar-h) + 180rpx);
+  z-index: 110;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 120rpx;
-  height: 120rpx;
+  width: 104rpx;
+  height: 104rpx;
   border-radius: 50%;
   background: linear-gradient(145deg, #b894f0, #7b5fbf);
   box-shadow: 0 8rpx 24rpx rgba(123, 95, 191, 0.45);

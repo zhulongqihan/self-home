@@ -74,7 +74,7 @@ app.use('/api/love-timeline', loveTimelineRouter)
 app.get('/', (req, res) => {
   res.json({
     name: 'couple-app-server',
-    version: '0.3.13',
+    version: '0.3.14',
     endpoints: [
       'GET /api/health',
       'POST /api/auth/login',
@@ -82,6 +82,7 @@ app.get('/', (req, res) => {
       'GET /api/config/owner',
       'PUT /api/config/owner',
       'POST /api/auth/change-password',
+      'POST /api/auth/bind-wx',
       'GET /api/auth/me',
       'GET /api/categories/owner/all',
       'POST /api/categories',
@@ -117,6 +118,7 @@ app.get('/', (req, res) => {
       'PATCH /api/orders/:id/status',
       'POST /api/orders/:id/review',
       'PATCH /api/orders/:id/reply',
+      'GET /api/config/notify-status',
       'GET /api/config/subscribe',
       'GET /api/config/customer',
       'GET /api/config/countdowns',

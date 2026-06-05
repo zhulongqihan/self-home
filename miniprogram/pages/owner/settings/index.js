@@ -18,8 +18,8 @@ Page({
       {
         key: 'countdowns',
         icon: '📅',
-        title: '三大倒计时',
-        desc: '在一起、纪念日、生日',
+        title: '我们的小日子',
+        desc: '固定日期（只读）',
         url: '/pages/owner/settings/countdowns/index'
       },
       {
